@@ -1,0 +1,4 @@
+replicate==0.22.0
+python-dotenv==1.0.0 
+markdown==3.5.1
+pdfkit==1.0.0
