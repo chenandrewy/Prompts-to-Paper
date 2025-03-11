@@ -1,0 +1,11 @@
+Write an introduction that summarizes the results three analyses of investing with AI displacement risk. Include citations from the GPT deep research references.
+
+Start with a motivation. Describe how AI progress is happening quickly, and investors may be concerned about their wages being displaced. Cite the Kurzweil's singularity book as adding uncertainty.
+
+Then describe what the paper does. 
+
+Then describe the main recommendation and intuition.
+
+Then cite the two most related papers.
+
+Then cite papers more generally.

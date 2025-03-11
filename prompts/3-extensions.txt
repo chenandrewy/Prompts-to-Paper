@@ -1,0 +1,3 @@
+Add an extension of the efficient markets analysis that discusses (1) keeping up with the joneses and (2) life cycle considerations. Keeping up with the joneses refers to Campbell Cochrane 1999 habit formation, and the idea that utility comes from consumption relative to others. Life cycle considerations involve young having more future wage income as part of their generalized portfolio. Cite Chris Carol's JEP review paper. 
+
+Title the section "Extensions" and start with "Economic theory provides many refinements to this analysis. Here we consider..." Do not add a new matrix. This is more of a discussion than analysis.

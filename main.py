@@ -23,12 +23,12 @@ def read_prompt_file(filename):
         print(f"Error reading file: {e}")
         sys.exit(1)
 
-def query_llm(prompt_name, context_name="none", prompts_folder="./prompts", input_extension=".txt", model_name="claude-3.7-sonnet"):
+def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", model_name="claude-3.7-sonnet"):
     """Query the Claude model via Replicate API.
     
     Args:
         prompt_name: Name of the prompt file (without extension)
-        context_name: Name of the context file (without extension), or "none" for no context
+        context_names: List of context file names (without extension), or None for no context
         prompts_folder: Directory containing prompt files
         input_extension: File extension for prompt and context files
         model_name: Claude model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
@@ -45,13 +45,21 @@ def query_llm(prompt_name, context_name="none", prompts_folder="./prompts", inpu
         prompt = read_prompt_file(input_path)
         print(f"Reading prompt from {input_path}...")
         
-        # Read the context if specified
-        context = None
-        if context_name != "none":
-            context_path = os.path.join(prompts_folder, context_name + input_extension)
-            if os.path.exists(context_path):
-                print(f"Reading context from {context_path}...")
-                context = read_prompt_file(context_path)
+        # Read the contexts if specified
+        combined_context = ""
+        if context_names:
+            # Handle both string and list inputs for backward compatibility
+            if isinstance(context_names, str) and context_names != "none":
+                context_names = [context_names]
+            elif isinstance(context_names, str) and context_names == "none":
+                context_names = []
+                
+            for context_name in context_names:
+                context_path = os.path.join(prompts_folder, context_name + input_extension)
+                if os.path.exists(context_path):
+                    print(f"Reading context from {context_path}...")
+                    context_content = read_prompt_file(context_path)
+                    combined_context += f"--- BEGIN CONTEXT: {context_name} ---\n{context_content}\n--- END CONTEXT: {context_name} ---\n\n"
 
         # Read the system prompt if it exists
         system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
@@ -66,14 +74,14 @@ def query_llm(prompt_name, context_name="none", prompts_folder="./prompts", inpu
         
         # Prepare the full prompt with context if provided
         full_prompt = prompt
-        if context:
-            full_prompt = f"Here is some context:\n\n{context}\n\n{prompt}"
+        if combined_context:
+            full_prompt = f"Here is some context:\n\n{combined_context}\n\n{prompt}"
         
         # Prepare input parameters
         input_params = {
             "prompt": full_prompt,
-            "max_tokens": 4000,  # Adjust as needed
-            "temperature": 0.5   # Lower for more deterministic output
+            "max_tokens": max_tokens,
+            "temperature": temperature
         }
         
         # Add system prompt if provided
@@ -245,17 +253,19 @@ model_name = "claude-3.7-sonnet" # for actual
 # model_name = "claude-3.5-haiku" # for testing
 prompts_folder = "./prompts"
 input_extension = ".txt"
+max_tokens = 4000  # Adjust as needed
+temperature = 0.5  # Lower for more deterministic output
         
 #%%
 # run main
 
 prompt_name = "1-main-analysis"
-context_name = "none" # use "none" for no context
+context_names = None # use None for no context
 
 print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
 
 # Query the model
-response, used_prompt_name = query_llm(prompt_name, context_name, prompts_folder, input_extension, model_name)
+response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
 
 # Save
 save_response(response, used_prompt_name, use_timestamp)
@@ -265,13 +275,45 @@ save_response(response, used_prompt_name, use_timestamp)
 # run efficient markets considerations
 
 prompt_name = "2-efficient-markets"
-context_name = "1-main-analysis" # use "none" for no context
+context_names = ["1-main-analysis"] # List of context files
 
 print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
 
 # Query the model
-response, used_prompt_name = query_llm(prompt_name, context_name, prompts_folder, input_extension, model_name)
+response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
 
 # Save
 save_response(response, used_prompt_name, use_timestamp)
+
+#%%
+# run 3-extensions
+
+prompt_name = "3-extensions"
+context_names = ["1-main-analysis", "2-efficient-markets"] # List of context files
+
+print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
+
+# Query the model
+response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
+
+# Save
+save_response(response, used_prompt_name, use_timestamp)
+
+#%%
+
+# write the introduction
+
+prompt_name = "4-introduction"
+context_names = ["1-main-analysis", "2-efficient-markets", "3-extensions","references-gpt-dr"] # List of context files
+
+print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
+
+# Query the model
+response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
+
+# Save
+save_response(response, used_prompt_name, use_timestamp)
+
+
+
 
