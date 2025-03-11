@@ -4,10 +4,9 @@ import sys
 import replicate
 from dotenv import load_dotenv
 import time
-from markdown import markdown
+import markdown2
 import pdfkit
 from datetime import datetime
-
 
 # Load environment variables from .env file (if it exists)
 load_dotenv()
@@ -24,7 +23,7 @@ def read_prompt_file(filename):
         print(f"Error reading file: {e}")
         sys.exit(1)
 
-def query_claude(prompt, system_prompt=None):
+def query_claude(prompt, prompts_folder="./prompts", context_name="none", input_extension=".txt"):
     """Query the Claude 3.7 Sonnet model via Replicate API."""
     # Check if API token is available
     if "REPLICATE_API_TOKEN" not in os.environ:
@@ -33,12 +32,32 @@ def query_claude(prompt, system_prompt=None):
         sys.exit(1)
     
     try:
+        # Read the context if specified
+        context = None
+        if context_name != "none":
+            context_path = os.path.join(prompts_folder, context_name + input_extension)
+            if os.path.exists(context_path):
+                print(f"Reading context from {context_path}...")
+                context = read_prompt_file(context_path)
+
+        # Read the system prompt if it exists
+        system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
+        system_prompt = None
+        if os.path.exists(system_prompt_path):
+            print(f"Reading system prompt from {system_prompt_path}...")
+            system_prompt = read_prompt_file(system_prompt_path)
+        
         # The model identifier for Claude 3.7 Sonnet on Replicate
         model = "anthropic/claude-3.7-sonnet"
         
+        # Prepare the full prompt with context if provided
+        full_prompt = prompt
+        if context:
+            full_prompt = f"Here is some context:\n\n{context}\n\n{prompt}"
+        
         # Prepare input parameters
         input_params = {
-            "prompt": prompt,
+            "prompt": full_prompt,
             "max_tokens": 4000,  # Adjust as needed
             "temperature": 0.5   # Lower for more deterministic output
         }
@@ -84,13 +103,14 @@ def save_response(response, output_file="claude_response.txt"):
             pdf_base = os.path.splitext(output_file)[0]
             pdf_file = f"{pdf_base}.pdf"
             
-            # Convert markdown to HTML
+            # Convert markdown to HTML using markdown2 with table support
             with open(output_file, 'r', encoding='utf-8') as md_file:
                 md_content = md_file.read()
             
-            html_content = markdown(md_content)
+            # Use markdown2 with extras for table support
+            html_content = markdown2.markdown(md_content, extras=["tables", "fenced-code-blocks"])
             
-            # Add basic styling
+            # Add basic styling with improved table styling
             styled_html = f"""
             <!DOCTYPE html>
             <html>
@@ -105,6 +125,10 @@ def save_response(response, output_file="claude_response.txt"):
                     th {{ background-color: #f2f2f2; }}
                     code {{ background-color: #f5f5f5; padding: 2px 4px; border-radius: 4px; }}
                     pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }}
+                    
+                    /* Additional table styling for better rendering */
+                    table {{ table-layout: fixed; }}
+                    td, th {{ word-wrap: break-word; }}
                 </style>
             </head>
             <body>
@@ -138,10 +162,27 @@ def save_response(response, output_file="claude_response.txt"):
                 
                 if wkhtmltopdf_path:
                     config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
-                    pdfkit.from_file(temp_html, pdf_file, configuration=config)
+                    # Add options for better table rendering
+                    options = {
+                        'encoding': 'UTF-8',
+                        'enable-local-file-access': None,
+                        'margin-top': '20mm',
+                        'margin-right': '20mm',
+                        'margin-bottom': '20mm',
+                        'margin-left': '20mm',
+                    }
+                    pdfkit.from_file(temp_html, pdf_file, configuration=config, options=options)
                 else:
-                    # Try with default configuration
-                    pdfkit.from_file(temp_html, pdf_file)
+                    # Try with default configuration and options
+                    options = {
+                        'encoding': 'UTF-8',
+                        'enable-local-file-access': None,
+                        'margin-top': '20mm',
+                        'margin-right': '20mm',
+                        'margin-bottom': '20mm',
+                        'margin-left': '20mm',
+                    }
+                    pdfkit.from_file(temp_html, pdf_file, options=options)
             except Exception as pdf_error:
                 print(f"PDF conversion error: {pdf_error}")
                 print("\nTo fix this issue:")
@@ -159,7 +200,7 @@ def save_response(response, output_file="claude_response.txt"):
             
         except ImportError:
             print("PDF conversion requires additional packages. Install with:")
-            print("pip install markdown pdfkit")
+            print("pip install markdown2 pdfkit")
             print("You also need wkhtmltopdf installed: https://wkhtmltopdf.org/downloads.html")
         except Exception as e:
             print(f"Error converting to PDF: {e}")
@@ -167,37 +208,37 @@ def save_response(response, output_file="claude_response.txt"):
     except Exception as e:
         print(f"Error saving response: {e}")
 
-def main():
-    # Read the prompt from prompts directory
-    input_folder = "./prompts"
-    input_name = "main-analysis"
-    input_extension = ".txt"
-    input_path = os.path.join(input_folder, input_name + input_extension)
-    prompt = read_prompt_file(input_path)
-    
-    # Read the system prompt if it exists
-    system_prompt_path = os.path.join(input_folder, "claude-system-2025-02.txt")
-    system_prompt = None
-    if os.path.exists(system_prompt_path):
-        print(f"Reading system prompt from {system_prompt_path}...")
-        system_prompt = read_prompt_file(system_prompt_path)
-    
-    print(f"Querying Claude 3.7 Sonnet with content from {input_path}...\n")
-    
-    # Query the model with the system prompt
-    response = query_claude(prompt, system_prompt)
-    
-    # Generate timestamp for the filename
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
-    output_file = f"./responses/{input_name}_{timestamp}.md"
-    
-    # Save the response as markdown
-    save_response(response, output_file)
+#%%
+#  User
 
-    
+prompts_folder = "./prompts"
+prompt_name = "main-analysis"
+input_extension = ".txt"
+
+context_name = "none" # use "none" for no context
+
+use_timestamp = False # if True, output has timestamp
+        
 
 #%%
-# main
-if __name__ == "__main__":
-    main() 
-# %%
+# run
+
+# Read the prompt from prompts directory
+input_path = os.path.join(prompts_folder, prompt_name + input_extension)
+prompt = read_prompt_file(input_path)
+
+print(f"Querying Claude 3.7 Sonnet with content from {input_path}...\n")
+
+# Query the model with all configuration handled inside the function
+response = query_claude(prompt, prompts_folder, context_name, input_extension)
+
+# Generate timestamp for the filename
+if use_timestamp:
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    output_file = f"./responses/{prompt_name}_{timestamp}.md"
+else:
+    output_file = f"./responses/{prompt_name}.md"
+
+# Save the response as markdown
+save_response(response, output_file)
+
