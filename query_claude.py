@@ -23,8 +23,16 @@ def read_prompt_file(filename):
         print(f"Error reading file: {e}")
         sys.exit(1)
 
-def query_claude(prompt, prompts_folder="./prompts", context_name="none", input_extension=".txt"):
-    """Query the Claude 3.7 Sonnet model via Replicate API."""
+def query_llm(prompt_name, context_name="none", prompts_folder="./prompts", input_extension=".txt", model_name="claude-3.7-sonnet"):
+    """Query the Claude model via Replicate API.
+    
+    Args:
+        prompt_name: Name of the prompt file (without extension)
+        context_name: Name of the context file (without extension), or "none" for no context
+        prompts_folder: Directory containing prompt files
+        input_extension: File extension for prompt and context files
+        model_name: Claude model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
+    """
     # Check if API token is available
     if "REPLICATE_API_TOKEN" not in os.environ:
         print("Error: REPLICATE_API_TOKEN environment variable not set.")
@@ -32,6 +40,11 @@ def query_claude(prompt, prompts_folder="./prompts", context_name="none", input_
         sys.exit(1)
     
     try:
+        # Read the prompt file
+        input_path = os.path.join(prompts_folder, prompt_name + input_extension)
+        prompt = read_prompt_file(input_path)
+        print(f"Reading prompt from {input_path}...")
+        
         # Read the context if specified
         context = None
         if context_name != "none":
@@ -47,8 +60,9 @@ def query_claude(prompt, prompts_folder="./prompts", context_name="none", input_
             print(f"Reading system prompt from {system_prompt_path}...")
             system_prompt = read_prompt_file(system_prompt_path)
         
-        # The model identifier for Claude 3.7 Sonnet on Replicate
-        model = "anthropic/claude-3.7-sonnet"
+        # The model identifier for Claude on Replicate
+        model = f"anthropic/{model_name}"
+        print(f"Using model: {model}")
         
         # Prepare the full prompt with context if provided
         full_prompt = prompt
@@ -65,7 +79,6 @@ def query_claude(prompt, prompts_folder="./prompts", context_name="none", input_
         # Add system prompt if provided
         if system_prompt:
             input_params["system"] = system_prompt
-            print("Using system prompt...")
         
         # Run the model
         output = replicate.run(
@@ -79,22 +92,38 @@ def query_claude(prompt, prompts_folder="./prompts", context_name="none", input_
             result += item
             print(item, end="", flush=True)  # Stream the output
         
-        return result
+        return result, prompt_name
     
     except Exception as e:
         print(f"Error querying the model: {e}")
         sys.exit(1)
 
-def save_response(response, output_file="claude_response.txt"):
-    """Save the model's response to a file."""
+def save_response(response, prompt_name, use_timestamp=False, output_dir="./responses", file_ext=".md"):
+    """Save the model's response to a file.
+    
+    Args:
+        response: The text response from Claude
+        prompt_name: Name of the prompt used (for filename)
+        use_timestamp: Whether to add a timestamp to the filename
+        output_dir: Directory to save the response
+        file_ext: File extension for the output file
+    """
     try:
+        # Create the base output file path
+        output_file = f"{output_dir}/{prompt_name}{file_ext}"
+        
+        # Apply timestamp to filename if requested
+        if use_timestamp:
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            file_base, file_ext = os.path.splitext(output_file)
+            output_file = f"{file_base}_{timestamp}{file_ext}"
+            
         # Create the directory if it doesn't exist
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         
         with open(output_file, 'w', encoding='utf-8') as file:
             file.write(response)
         print(f"\n\nResponse saved to {output_file}")
-
 
         # also output a pdf
         # Convert markdown to PDF
@@ -209,36 +238,40 @@ def save_response(response, output_file="claude_response.txt"):
         print(f"Error saving response: {e}")
 
 #%%
-#  User
-
-prompts_folder = "./prompts"
-prompt_name = "main-analysis"
-input_extension = ".txt"
-
-context_name = "none" # use "none" for no context
+#  Globals
 
 use_timestamp = False # if True, output has timestamp
+model_name = "claude-3.7-sonnet" # for actual
+# model_name = "claude-3.5-haiku" # for testing
+prompts_folder = "./prompts"
+input_extension = ".txt"
         
-
 #%%
-# run
+# run main
 
-# Read the prompt from prompts directory
-input_path = os.path.join(prompts_folder, prompt_name + input_extension)
-prompt = read_prompt_file(input_path)
+prompt_name = "1-main-analysis"
+context_name = "none" # use "none" for no context
 
-print(f"Querying Claude 3.7 Sonnet with content from {input_path}...\n")
+print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
 
-# Query the model with all configuration handled inside the function
-response = query_claude(prompt, prompts_folder, context_name, input_extension)
+# Query the model
+response, used_prompt_name = query_llm(prompt_name, context_name, prompts_folder, input_extension, model_name)
 
-# Generate timestamp for the filename
-if use_timestamp:
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
-    output_file = f"./responses/{prompt_name}_{timestamp}.md"
-else:
-    output_file = f"./responses/{prompt_name}.md"
+# Save
+save_response(response, used_prompt_name, use_timestamp)
 
-# Save the response as markdown
-save_response(response, output_file)
+
+#%% 
+# run efficient markets considerations
+
+prompt_name = "2-efficient-markets"
+context_name = "1-main-analysis" # use "none" for no context
+
+print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
+
+# Query the model
+response, used_prompt_name = query_llm(prompt_name, context_name, prompts_folder, input_extension, model_name)
+
+# Save
+save_response(response, used_prompt_name, use_timestamp)
 
