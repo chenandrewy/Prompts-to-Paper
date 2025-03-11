@@ -1,4 +1,6 @@
 #%%
+# Setup
+
 import os
 import sys
 import replicate
@@ -23,7 +25,7 @@ def read_prompt_file(filename):
         print(f"Error reading file: {e}")
         sys.exit(1)
 
-def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", model_name="claude-3.7-sonnet"):
+def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", model_name="anthropic/claude-3.7-sonnet"):
     """Query the Claude model via Replicate API.
     
     Args:
@@ -69,7 +71,7 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
             system_prompt = read_prompt_file(system_prompt_path)
         
         # The model identifier for Claude on Replicate
-        model = f"anthropic/{model_name}"
+        model = model_name
         print(f"Using model: {model}")
         
         # Prepare the full prompt with context if provided
@@ -104,7 +106,11 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
     
     except Exception as e:
         print(f"Error querying the model: {e}")
-        sys.exit(1)
+        # Instead of sys.exit(1), return empty values or re-raise the exception
+        # Option 1: Return empty values
+        return "", prompt_name
+        # Option 2: Re-raise the exception (uncomment this and comment the line above)
+        # raise
 
 def save_response(response, prompt_name, use_timestamp=False, output_dir="./responses", file_ext=".md"):
     """Save the model's response to a file.
@@ -248,9 +254,12 @@ def save_response(response, prompt_name, use_timestamp=False, output_dir="./resp
 #%%
 #  Globals
 
+# for model list see https://replicate.com/explore
+
 use_timestamp = False # if True, output has timestamp
-model_name = "claude-3.7-sonnet" # for actual
-# model_name = "claude-3.5-haiku" # for testing
+model_name = "anthropic/claude-3.7-sonnet" # for actual
+# model_name = "anthropic/claude-3.5-haiku" # for testing
+# model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
 prompts_folder = "./prompts"
 input_extension = ".txt"
 max_tokens = 4000  # Adjust as needed
@@ -300,11 +309,14 @@ response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folde
 save_response(response, used_prompt_name, use_timestamp)
 
 #%%
+# look for related lit
 
-# write the introduction
+bib_files = [f for f in os.listdir("./prompts") if f.startswith("bib-") and f.endswith(".txt")]
+bib_files = [f.replace('.txt', '') for f in bib_files] # Remove .txt 
 
-prompt_name = "4-introduction"
-context_names = ["1-main-analysis", "2-efficient-markets", "3-extensions","references-gpt-dr"] # List of context files
+
+prompt_name = "4-related-lit"
+context_names = ["1-main-analysis"] + bib_files # List of context files
 
 print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
 
@@ -314,6 +326,45 @@ response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folde
 # Save
 save_response(response, used_prompt_name, use_timestamp)
 
+#%%
+# write introduction
 
+prompt_name = "5-introduction"
+context_names = ["1-main-analysis", "2-efficient-markets", "3-extensions", "4-related-lit"] # List of context files
 
+print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
+
+# Query the model
+response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
+
+# Save
+save_response(response, used_prompt_name, use_timestamp)
+
+#%%
+# write abstract
+
+prompt_name = "6-abstract"
+context_names = ["5-introduction"]
+
+print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
+
+# Query the model
+response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
+
+# Save
+save_response(response, used_prompt_name, use_timestamp)
+
+#%%
+# write conclusion
+
+prompt_name = "7-conclusion"
+context_names = ["1-main-analysis", "2-efficient-markets", "3-extensions", "4-related-lit", "5-introduction", "6-abstract"]
+
+print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
+
+# Query the model
+response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
+
+# Save
+save_response(response, used_prompt_name, use_timestamp)
 
