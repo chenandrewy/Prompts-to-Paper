@@ -1,7 +1,7 @@
-Write an extension to the main analysis called "Efficient Markets Considerations." Under efficient markets, displacement risk should already be priced in. however, even under efficient markets, it could be that the displacement risk is not properly priced from the worker's perspective. this adds two columns to the decision matrix, for a total of four columns.
+Write an extension to the main analysis called "Efficient Markets Considerations." Under efficient markets, AI displacement risk should already be priced in. 
 
-Stick to efficient markets as closely as possible, keeping in mind mistakes are possible in efficient markets, and that aversion to bad states of the world is central to efficient markets. Efficient markets only rules out systematic mistakes. It does not rule out heterogeneous preferences or beliefs. Do not speculate about estimation problems. Estimation problems are nested in efficient markets. Do not talk about inefficiencies.
+Even under efficient markets, heterogeneous preferences and heterogeneous beliefs may still lead to market portfolio deviations. Discuss.
 
-Do not use EMH abbreviation. Everyone knows efficient markets. It'll make you look kinda out of touch.
+Then discuss whether Pascal would bet on efficient markets holding. Add columns to the matrix.
 
 Respond with only new content. Do not repeat anything in the main analysis. 
