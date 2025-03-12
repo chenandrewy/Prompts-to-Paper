@@ -1,7 +1,0 @@
-Write an extension to the main analysis called "Efficient Markets Considerations." Under efficient markets, AI displacement risk should already be priced in. 
-
-Even under efficient markets, heterogeneous preferences and heterogeneous beliefs may still lead to market portfolio deviations. Discuss.
-
-Then discuss whether Pascal would bet on efficient markets holding. Add additional scenarios to the matrix, for up to four scenarios. keep the same decisions as in the main analysis.
-
-Respond with only new content. Do not repeat anything in the main analysis. 

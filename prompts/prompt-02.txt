@@ -1,0 +1,1 @@
+Characterize how the price of capital changes with p. Try to formalize in a proposition. Use simplifying assumptions if helpful. 

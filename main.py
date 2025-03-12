@@ -268,7 +268,7 @@ temperature = 0.5  # Lower for more deterministic output
 #%%
 # run main
 
-prompt_name = "1-main-analysis"
+prompt_name = "prompt-01"
 context_names = None # use None for no context
 
 print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
@@ -283,82 +283,8 @@ save_response(response, used_prompt_name, use_timestamp)
 #%% 
 # run efficient markets considerations
 
-prompt_name = "2-efficient-markets"
-context_names = ["1-main-analysis"] # List of context files
-
-print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
-
-# Query the model
-response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
-
-# Save
-save_response(response, used_prompt_name, use_timestamp)
-
-#%%
-# run 3-extensions
-
-prompt_name = "3-extensions"
-context_names = ["1-main-analysis", "2-efficient-markets"] # List of context files
-
-print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
-
-# Query the model
-response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
-
-# Save
-save_response(response, used_prompt_name, use_timestamp)
-
-#%%
-# look for related lit
-
-bib_files = [f for f in os.listdir("./prompts") if f.startswith("bib-") and f.endswith(".txt")]
-bib_files = [f.replace('.txt', '') for f in bib_files] # Remove .txt 
-
-
-prompt_name = "4-related-lit"
-context_names = ["1-main-analysis"] + bib_files # List of context files
-
-print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
-
-# Query the model
-response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
-
-# Save
-save_response(response, used_prompt_name, use_timestamp)
-
-#%%
-# write introduction
-
-prompt_name = "5-introduction"
-context_names = ["1-main-analysis", "2-efficient-markets", "3-extensions", "4-related-lit"] # List of context files
-
-print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
-
-# Query the model
-response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
-
-# Save
-save_response(response, used_prompt_name, use_timestamp)
-
-#%%
-# write abstract
-
-prompt_name = "6-abstract"
-context_names = ["5-introduction"]
-
-print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
-
-# Query the model
-response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
-
-# Save
-save_response(response, used_prompt_name, use_timestamp)
-
-#%%
-# write conclusion
-
-prompt_name = "7-conclusion"
-context_names = ["1-main-analysis", "2-efficient-markets", "3-extensions", "4-related-lit", "5-introduction", "6-abstract"]
+prompt_name = "prompt-02"
+context_names = ["prompt-01"]
 
 print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
 
