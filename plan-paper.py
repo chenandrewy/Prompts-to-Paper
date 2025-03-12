@@ -185,8 +185,22 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     with open(f"./latex/{prompt_name}.tex", "w") as file:
         file.write(latex_template)
     
-    # compile latex with non-interactive mode and halt on errors
-    os.system(f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex")
+    # Compile with bibliography support
+    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex"
+    print(f"Running first LaTeX pass: {compile_command}")
+    os.system(compile_command)
+    
+    # Run BibTeX
+    bibtex_command = f"bibtex ./latex/{prompt_name}"
+    print(f"Running BibTeX: {bibtex_command}")
+    os.system(bibtex_command)
+    
+    # Run LaTeX again (twice) to resolve references
+    print("Running second LaTeX pass...")
+    os.system(compile_command)
+    
+    print("Running final LaTeX pass...")
+    result = os.system(compile_command)
     
     # Check if PDF was created before trying to copy it
     pdf_path = f"./latex/{prompt_name}.pdf"
@@ -222,7 +236,7 @@ for filename in plan_df["filename"]:
 
 
 #%%
-# Main
+# Model Planning
 
 #  Globals
 # for model list see https://replicate.com/explore
@@ -241,6 +255,8 @@ use_system_prompt = False
 max_tokens = 4000  # Adjust as needed
 temperature = 0.5  # Lower for more deterministic output
 
+#%%
+# Model Planning
 
 # User selection of plan prompt range
 plan_start = "04"
@@ -283,3 +299,25 @@ for index in range(index_start, index_end+1):
 
 
 # %%
+# Introduction initial sketch
+
+# context_names = ['bib-hedging-ai','planning-01','planning-02','planning-03']
+context_names = ['planning-01','planning-02','planning-03']
+prompt = 'intro-01'
+
+response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking)
+
+save_response(response, used_prompt_name)
+
+#%%
+# Generate lit review
+
+context_names = ['planning-01','planning-02','planning-03'] + \
+    ['bib-hedging-ai', 'bib-investing-ai', 'bib-hedging-labor', 'bib-disaster-risk'] + \
+    ['all-bib']
+prompt = 'intro-02'
+
+response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking)
+
+save_response(response, used_prompt_name)
+

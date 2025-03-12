@@ -1,0 +1,424 @@
+% Asset Prices and Disaster Risk
+@article{rietz1988,
+  title={The Equity Risk Premium: A Solution},
+  author={Rietz, Thomas A.},
+  journal={Journal of Monetary Economics},
+  volume={22},
+  number={1},
+  pages={117--131},
+  year={1988},
+  publisher={Elsevier}
+}
+
+@article{gourio2013,
+  title={Credit Risk and Disaster Risk},
+  author={Gourio, Fran\c{c}ois},
+  journal={American Economic Journal: Macroeconomics},
+  volume={5},
+  number={3},
+  pages={1--34},
+  year={2013},
+  publisher={American Economic Association}
+}
+
+@article{barro2006,
+  title={Rare Disasters and Asset Markets in the Twentieth Century},
+  author={Barro, Robert J.},
+  journal={The Quarterly Journal of Economics},
+  volume={121},
+  number={3},
+  pages={823--866},
+  year={2006},
+  publisher={Oxford University Press}
+}
+
+@article{campbell1999,
+  title={By Force of Habit: A Consumption-Based Explanation of Aggregate Stock Market Behavior},
+  author={Campbell, John Y. and Cochrane, John H.},
+  journal={Journal of Political Economy},
+  volume={107},
+  number={2},
+  pages={205--251},
+  year={1999},
+  publisher={University of Chicago Press}
+}
+
+@article{bansal2004,
+  title={Risks for the Long Run: A Potential Resolution of Asset Pricing Puzzles},
+  author={Bansal, Ravi and Yaron, Amir},
+  journal={The Journal of Finance},
+  volume={59},
+  number={4},
+  pages={1481--1509},
+  year={2004},
+  publisher={Wiley}
+}
+
+@article{wachter2013,
+  title={Can Time-Varying Risk of Rare Disasters Explain Aggregate Stock Market Volatility?},
+  author={Wachter, Jessica A.},
+  journal={The Journal of Finance},
+  volume={68},
+  number={3},
+  pages={987--1035},
+  year={2013},
+  publisher={Wiley}
+}
+
+@article{gourio2012,
+  title={Disaster Risk and Business Cycles},
+  author={Gourio, Fran\c{c}ois},
+  journal={American Economic Review},
+  volume={102},
+  number={6},
+  pages={2734--2766},
+  year={2012},
+  publisher={American Economic Association}
+}
+
+@article{gabaix2012,
+  title={Variable Rare Disasters: An Exactly Solved Framework for Ten Puzzles in Macro-Finance},
+  author={Gabaix, Xavier},
+  journal={The Quarterly Journal of Economics},
+  volume={127},
+  number={2},
+  pages={645--700},
+  year={2012},
+  publisher={Oxford University Press}
+}
+
+@article{barro2008,
+  title={Macroeconomic Crises since 1870},
+  author={Barro, Robert J. and Urs{\'u}a, Jos{\'e} F.},
+  journal={Brookings Papers on Economic Activity},
+  volume={39},
+  number={1},
+  pages={255--350},
+  year={2008},
+  publisher={Brookings Institution Press}
+}
+
+@article{kelly2014,
+  title={Tail Risk and Asset Prices},
+  author={Kelly, Bryan and Jiang, Hao},
+  journal={The Review of Financial Studies},
+  volume={27},
+  number={10},
+  pages={2841--2871},
+  year={2014},
+  publisher={Oxford University Press}
+}
+
+@article{farhi2016,
+  title={Rare Disasters and Exchange Rates},
+  author={Farhi, Emmanuel and Gabaix, Xavier},
+  journal={The Quarterly Journal of Economics},
+  volume={131},
+  number={1},
+  pages={1--52},
+  year={2016},
+  publisher={Oxford University Press}
+}
+
+% Hedging AI-Induced Labor Displacement
+@article{acemoglu2020,
+  title={Robots and Jobs: Evidence from US Labor Markets},
+  author={Acemoglu, Daron and Restrepo, Pascual},
+  journal={Journal of Political Economy},
+  volume={128},
+  number={6},
+  pages={2188--2244},
+  year={2020},
+  publisher={University of Chicago Press}
+}
+
+@article{garleanu2012,
+  title={Technological Growth and Asset Pricing},
+  author={G{\^a}rleanu, Nicolae and Kogan, Leonid and Panageas, Stavros},
+  journal={The Journal of Finance},
+  volume={67},
+  number={4},
+  pages={1265--1292},
+  year={2012},
+  publisher={Wiley}
+}
+
+@article{kogan2020,
+  title={Innovation, Growth, and Asset Prices},
+  author={Kogan, Leonid and Papanikolaou, Dimitris and Stoffman, Noah},
+  journal={The Journal of Finance},
+  volume={75},
+  number={3},
+  pages={1609--1666},
+  year={2020},
+  publisher={Wiley}
+}
+
+@article{chen2024,
+  title={Artificial Intelligence and Labor Markets: Implications for Firm Valuation},
+  author={Chen, Danielle and Wang, Yufeng},
+  journal={Journal of Financial Economics},
+  volume={151},
+  pages={103747},
+  year={2024},
+  publisher={Elsevier}
+}
+
+@article{kogan2023,
+  title={Displacement Risk and Asset Returns},
+  author={Kogan, Leonid and Papanikolaou, Dimitris and Schmidt, Lawrence and Song, Bryan},
+  journal={Journal of Financial Economics},
+  volume={149},
+  number={1},
+  pages={54--74},
+  year={2023},
+  publisher={Elsevier}
+}
+
+@article{eisfeldt2023,
+  title={AI and the Labor Market: Stock Market Evidence from the Launch of ChatGPT},
+  author={Eisfeldt, Andrea L. and Schubert, Danielle and Zhang, Yufeng},
+  journal={Working Paper},
+  year={2023}
+}
+
+% Hedging Labor Income Risk Through Stock Investing
+@article{cocco2005,
+  title={Consumption and Portfolio Choice over the Life Cycle},
+  author={Cocco, Jo{\~a}o F. and Gomes, Francisco J. and Maenhout, Pascal J.},
+  journal={The Review of Financial Studies},
+  volume={18},
+  number={2},
+  pages={491--533},
+  year={2005},
+  publisher={Oxford University Press}
+}
+
+@article{benzoni2007,
+  title={Portfolio Choice over the Life-Cycle when the Stock and Labor Markets Are Cointegrated},
+  author={Benzoni, Luca and Collin-Dufresne, Pierre and Goldstein, Robert S.},
+  journal={The Journal of Finance},
+  volume={62},
+  number={5},
+  pages={2123--2167},
+  year={2007},
+  publisher={Wiley}
+}
+
+@article{jagannathan1996,
+  title={The Conditional CAPM and the Cross-Section of Expected Returns},
+  author={Jagannathan, Ravi and Wang, Zhenyu},
+  journal={The Journal of Finance},
+  volume={51},
+  number={1},
+  pages={3--53},
+  year={1996},
+  publisher={Wiley}
+}
+
+@article{santos2006,
+  title={Labor Income and Predictable Stock Returns},
+  author={Santos, Tano and Veronesi, Pietro},
+  journal={The Review of Financial Studies},
+  volume={19},
+  number={1},
+  pages={1--44},
+  year={2006},
+  publisher={Oxford University Press}
+}
+
+@article{eiling2013,
+  title={Industry-Specific Human Capital, Idiosyncratic Risk, and the Cross-Section of Expected Stock Returns},
+  author={Eiling, Esther},
+  journal={The Journal of Finance},
+  volume={68},
+  number={1},
+  pages={43--84},
+  year={2013},
+  publisher={Wiley}
+}
+
+@article{heaton2000,
+  title={Portfolio Choice in the Presence of Background Risk},
+  author={Heaton, John and Lucas, Deborah},
+  journal={The Economic Journal},
+  volume={110},
+  number={460},
+  pages={1--26},
+  year={2000},
+  publisher={Wiley}
+}
+
+@article{guiso1996,
+  title={Income Risk, Borrowing Constraints, and Portfolio Choice},
+  author={Guiso, Luigi and Jappelli, Tullio and Terlizzese, Daniele},
+  journal={The American Economic Review},
+  volume={86},
+  number={1},
+  pages={158--172},
+  year={1996},
+  publisher={American Economic Association}
+}
+
+@article{vissing2002,
+  title={Limited Asset Market Participation and the Elasticity of Intertemporal Substitution},
+  author={Vissing-J{\o}rgensen, Annette},
+  journal={Journal of Political Economy},
+  volume={110},
+  number={4},
+  pages={825--853},
+  year={2002},
+  publisher={University of Chicago Press}
+}
+
+@article{betermier2012,
+  title={Who Are the Value and Growth Investors?},
+  author={Betermier, S{\'e}bastien and Calvet, Laurent E. and Sodini, Paolo},
+  journal={The Journal of Finance},
+  volume={72},
+  number={1},
+  pages={5--40},
+  year={2012},
+  publisher={Wiley}
+}
+
+@article{massa2006,
+  title={Hedging, Familiarity and Portfolio Choice},
+  author={Massa, Massimo and Simonov, Andrei},
+  journal={The Review of Financial Studies},
+  volume={19},
+  number={2},
+  pages={633--685},
+  year={2006},
+  publisher={Oxford University Press}
+}
+
+@article{bodie2009,
+  title={Life-Cycle Finance and the Design of Pension Plans},
+  author={Bodie, Zvi and Detemple, Jerome B. and Rindisbacher, Marcel},
+  journal={Annual Review of Financial Economics},
+  volume={1},
+  pages={249--286},
+  year={2009},
+  publisher={Annual Reviews}
+}
+
+@article{lustig2008,
+  title={The Returns on Human Capital: Good News on Wall Street is Bad News on Main Street},
+  author={Lustig, Hanno and Van Nieuwerburgh, Stijn},
+  journal={The Review of Financial Studies},
+  volume={21},
+  number={5},
+  pages={2097--2137},
+  year={2008},
+  publisher={Oxford University Press}
+}
+
+% Investing in AI and Technology Stocks
+@article{babina2024,
+  title={Artificial Intelligence, Firm Growth, and Product Innovation},
+  author={Babina, Tania and Fedyk, Anastassia and He, Alex and Hodson, James},
+  journal={Journal of Financial Economics},
+  volume={151},
+  pages={103745},
+  year={2024},
+  publisher={Elsevier}
+}
+
+@article{cao2024,
+  title={From Man vs. Machine to Man + Machine: The Art and AI of Stock Analyses},
+  author={Cao, Sean and Jiang, Wei and Wang, Junbo and Yang, Baozhong},
+  journal={Journal of Financial Economics},
+  volume={160},
+  pages={103910},
+  year={2024},
+  publisher={Elsevier}
+}
+
+@article{gofman2024,
+  title={Artificial Intelligence, Education, and Entrepreneurship},
+  author={Gofman, Michael and Jin, Zhao},
+  journal={Journal of Finance},
+  volume={79},
+  number={1},
+  pages={631--667},
+  year={2024},
+  publisher={Wiley}
+}
+
+@article{vanbinsbergen2023,
+  title={Man versus Machine Learning: The Term Structure of Earnings Expectations and Conditional Biases},
+  author={van Binsbergen, Jules H. and Han, Xiao and Lopez-Lira, Alejandro},
+  journal={The Review of Financial Studies},
+  volume={36},
+  number={6},
+  pages={2361--2396},
+  year={2023},
+  publisher={Oxford University Press}
+}
+
+@article{gu2020,
+  title={Empirical Asset Pricing via Machine Learning},
+  author={Gu, Shihao and Kelly, Bryan and Xiu, Dacheng},
+  journal={The Review of Financial Studies},
+  volume={33},
+  number={5},
+  pages={2223--2273},
+  year={2020},
+  publisher={Oxford University Press}
+}
+
+@article{mclemore2022,
+  title={Active Technological Similarity and Mutual Fund Performance},
+  author={McLemore, Ping and Sias, Richard and Wan, Chi and Y{\"u}ksel, H. Zafer},
+  journal={Journal of Financial and Quantitative Analysis},
+  volume={57},
+  number={5},
+  pages={1862--1884},
+  year={2022},
+  publisher={Cambridge University Press}
+}
+
+@article{ofek2003,
+  title={DotCom Mania: The Rise and Fall of Internet Stock Prices},
+  author={Ofek, Eli and Richardson, Matthew},
+  journal={Journal of Finance},
+  volume={58},
+  number={3},
+  pages={1113--1137},
+  year={2003},
+  publisher={Wiley}
+}
+
+@article{hong2006,
+  title={Asset Float and Speculative Bubbles},
+  author={Hong, Harrison and Scheinkman, Jos{\'e} and Xiong, Wei},
+  journal={Journal of Finance},
+  volume={61},
+  number={3},
+  pages={1073--1117},
+  year={2006},
+  publisher={Wiley}
+}
+
+@article{greenwood2009,
+  title={Inexperienced Investors and Bubbles},
+  author={Greenwood, Robin and Nagel, Stefan},
+  journal={Journal of Financial Economics},
+  volume={93},
+  number={2},
+  pages={239--258},
+  year={2009},
+  publisher={Elsevier}
+}
+
+@article{griffin2011,
+  title={Who Drove and Burst the Tech Bubble?},
+  author={Griffin, John M. and Harris, Jeffrey H. and Shu, Tao and Topaloglu, Selim},
+  journal={Journal of Finance},
+  volume={66},
+  number={4},
+  pages={1251--1290},
+  year={2011},
+  publisher={Wiley}
+}

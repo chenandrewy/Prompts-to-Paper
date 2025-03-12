@@ -26,9 +26,14 @@
 \newtheorem{example}[theorem]{Example}
 \newtheorem{remark}[theorem]{Remark}
 
+% Bibliography settings
+\usepackage[backend=biber,natbib=true,style=authoryear,uniquename=false, maxbibnames=99, maxcitenames=3, uniquelist=false]{biblatex}
+\addbibresource{../input-other/all-bib.bib}
 
 \begin{document}
 
 % [input-goes-here]
+
+\printbibliography
 
 \end{document}

@@ -1,0 +1,134 @@
+Here is a structured outline of the literature review on **Asset Prices and Disaster Risk**, focusing on research following **Rietz (1988) and Gourio (2013):**  
+
+---
+
+# **Outline: Asset Prices and Disaster Risk**  
+
+## **1. Introduction**  
+   - Overview of the role of **disaster risk** in asset pricing  
+   - The **Equity Premium Puzzle** and Rietz’s (1988) rare disaster hypothesis  
+   - Initial skepticism and the revival of disaster-based asset pricing models  
+   - Gourio’s (2013) contribution: linking rare disasters to **credit risk and macroeconomic activity**  
+
+---
+
+## **2. Theoretical Foundations of Disaster Risk in Asset Pricing**  
+
+### **2.1 Rietz (1988) and the Rare Disaster Hypothesis**  
+   - Introducing a small probability of a **large economic collapse**  
+   - Resolving the **Equity Premium Puzzle**  
+   - Challenges: Lack of U.S. disaster evidence and the **Peso Problem**  
+
+### **2.2 Barro (2006): Empirical Evidence from Historical Disasters**  
+   - Using global data to **validate rare disaster probabilities**  
+   - Estimating the **size and frequency** of consumption disasters  
+   - Linking macro disasters to **equity premiums and low risk-free rates**  
+
+### **2.3 Comparing Disaster Risk with Other Asset Pricing Models**  
+   - **Habit Formation Models** (Campbell & Cochrane 1999)  
+   - **Long-Run Risk Models** (Bansal & Yaron 2004)  
+   - Disaster risk as an alternative or complementary explanation  
+
+---
+
+## **3. Extensions: Time-Varying and Endogenous Disaster Risk**  
+
+### **3.1 Time-Varying Disaster Probability**  
+   - **Wachter (2013):** Stochastic disaster probability model  
+   - **Gourio (2012):** Disaster probability linked to the business cycle  
+   - Explaining **countercyclical risk premia** and market volatility  
+
+### **3.2 Time-Varying Disaster Severity**  
+   - **Gabaix (2012):** Allowing **disaster magnitude** to fluctuate  
+   - Explaining **return predictability** and volatility clustering  
+
+### **3.3 Endogenous Disaster Risk and Macroeconomic Feedback**  
+   - Gourio (2013): Linking **corporate default risk to disaster risk**  
+   - Firms adjust investment and leverage based on **disaster expectations**  
+   - Interaction between financial crises and disaster pricing  
+
+---
+
+## **4. Empirical Developments and Testing Disaster Risk Models**  
+
+### **4.1 Historical Validation and Calibration**  
+   - Barro & Ursúa (2008): **Global disaster frequency estimation**  
+   - Empirical support for **time-varying risk perception**  
+
+### **4.2 Market-Implied Evidence of Disaster Risk**  
+   - **Option Prices & Volatility Smiles:** High put option premiums indicate rare disaster concerns  
+   - **Credit Spreads:** Corporate bond yields embed a **disaster risk premium**  
+   - **Stock Valuations & Dividend Yields:** High valuations signal **low perceived disaster risk**  
+
+### **4.3 Cross-Sectional Asset Pricing Tests**  
+   - Stocks with high **tail risk exposure** earn higher expected returns  
+   - **Kelly & Jiang (2014):** Empirical evidence of **disaster risk factors**  
+
+### **4.4 Bond Yields and the Term Structure**  
+   - Rare disaster models explain:  
+     - **Low real risk-free rates**  
+     - **Upward-sloping yield curves**  
+     - **Time-varying bond risk premia**  
+
+### **4.5 Survey & Sentiment Data as Disaster Risk Proxies**  
+   - Measuring investor expectations during crises (e.g., **2008, COVID-19**)  
+   - Estimating **subjective disaster probabilities** from surveys  
+
+---
+
+## **5. Disaster Risk in Different Asset Classes**  
+
+### **5.1 Equities**  
+   - Disaster risk explains the **equity premium and stock return volatility**  
+   - Valuation fluctuations based on changing **disaster perceptions**  
+
+### **5.2 Government and Corporate Bonds**  
+   - **Gourio (2013):** Disaster risk embedded in **corporate credit spreads**  
+   - Flight to safety: **Low Treasury yields in high-risk periods**  
+
+### **5.3 Options and Tail Hedging Strategies**  
+   - High implied volatility and put option prices reflect disaster risk  
+   - **Selling disaster insurance** (writing puts) earns **high risk-adjusted returns**  
+
+### **5.4 Foreign Exchange Markets**  
+   - **Farhi & Gabaix (2016):** Disaster risk and the **forward premium puzzle**  
+   - Safe-haven currencies and their **risk-neutral crash probabilities**  
+
+### **5.5 Commodities and Real Assets**  
+   - Rare disasters impact **commodity demand and futures pricing**  
+   - Potential applications to **real estate crashes and insurance markets**  
+
+---
+
+## **6. Open Questions and Future Research Directions**  
+
+### **6.1 Estimating Time-Varying Disaster Risk**  
+   - Can we reliably infer disaster probabilities from **market data?**  
+   - Separating **true risk changes from sentiment-driven fluctuations**  
+
+### **6.2 Disasters vs. Other Asset Pricing Mechanisms**  
+   - Interaction with **long-run risks and habit models**  
+   - Behavioral finance explanations: **Do investors overreact to tail events?**  
+
+### **6.3 Policy Responses and the Role of Governments**  
+   - How central banks and governments mitigate **disaster risk**  
+   - Implications of **monetary policy, fiscal bailouts, and financial regulation**  
+
+### **6.4 The Evolution of Disaster Frequency and Impact**  
+   - Are global disasters becoming **more or less frequent?**  
+   - Potential new sources of disaster risk:  
+     - **Climate change and extreme weather**  
+     - **Cybersecurity crises and technological collapses**  
+     - **Geopolitical risks and pandemics**  
+
+---
+
+## **7. Conclusion**  
+   - Disaster risk is a **key driver** of asset prices across markets  
+   - Theoretical and empirical research largely supports the rare disaster framework  
+   - Ongoing challenges in **measurement, calibration, and policy implications**  
+   - Future research directions: refining **disaster probability estimation**, integrating **macro-policy reactions**, and expanding to **new risk sources**  
+
+---
+
+This outline provides a structured approach to reviewing the literature on **asset prices and disaster risk**, emphasizing how the field has evolved post-Rietz (1988) and Gourio (2013). Would you like any refinements or expansions in specific areas?
