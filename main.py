@@ -11,11 +11,14 @@ import pdfkit
 from datetime import datetime
 import shutil  
 import pandas as pd
+import anthropic  # Add anthropic import
 
 # Load environment variables from .env file (if it exists)
 load_dotenv()
 
-def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True):
+def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", 
+              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", 
+              use_system_prompt=True, use_thinking=False):
     """Query an llm
     
     Args:
@@ -23,8 +26,10 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
         context_names: List of context file names (without extension), or None for no context
         prompts_folder: Directory containing prompt files
         input_extension: File extension for prompt and context files
-        model_name: Claude model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
+        api_provider: API provider to use ('replicate' or 'anthropic')
+        model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
         use_system_prompt: Whether to use the system prompt (default: True)
+        use_thinking: Whether to use thinking mode (Anthropic only)
     """
     
     # Read the prompt file
@@ -58,37 +63,93 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
         with open(system_prompt_path, 'r', encoding='utf-8') as file:
             system_prompt = file.read()
     
-    # Select model
-    model = model_name
-    print(f"Using model: {model}")
-    
     # Prepare the full prompt with context if provided
     full_prompt = prompt
     if combined_context:
         full_prompt = f"Here is some context:\n\n{combined_context}\n\n{prompt}"
     
-    # Prepare input parameters
-    input_params = {
-        "prompt": full_prompt,
-        "max_tokens": max_tokens,
-        "temperature": temperature
-    }
-    
-    # Add system prompt if provided
-    if system_prompt:
-        input_params["system"] = system_prompt
-    
-    # Run the model
-    output = replicate.run(
-        model,
-        input=input_params
-    )
-    
-    # Collect the output
-    result = ""
-    for item in output:
-        result += item
-        print(item, end="", flush=True)  # Stream the output
+    # Process based on API provider
+    if api_provider.lower() == 'replicate':
+        # Replicate API
+        print(f"Using Replicate model: {model_name}")
+        
+        # Prepare input parameters
+        input_params = {
+            "prompt": full_prompt,
+            "max_tokens": max_tokens,
+            "temperature": temperature
+        }
+        
+        # Add system prompt if provided
+        if system_prompt:
+            input_params["system"] = system_prompt
+        
+        # Run the model
+        output = replicate.run(
+            model_name,
+            input=input_params
+        )
+        
+        # Collect the output
+        result = ""
+        for item in output:
+            result += item
+            print(item, end="", flush=True)  # Stream the output
+            
+    elif api_provider.lower() == 'anthropic':
+        # Anthropic API
+        # Create Anthropic client
+        client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+        
+        # Extract the model name from the full model string if needed
+        anthropic_model = model_name
+        if "/" in anthropic_model:
+            anthropic_model = anthropic_model.split("/")[-1]
+        
+        print(f"Using Anthropic model: {anthropic_model}")
+        print(f"Thinking mode: {'enabled' if use_thinking else 'disabled'}")
+        
+        # Prepare common parameters
+        params = {
+            "model": anthropic_model,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": full_prompt
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        # Add system prompt if provided
+        if system_prompt:
+            params["system"] = system_prompt
+        
+        # Add thinking parameters if enabled
+        if use_thinking:
+            params["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": 1600
+            }
+        
+        # Call the API
+        response = client.messages.create(**params)
+        
+        # Extract the response text based on whether thinking mode is enabled
+        if use_thinking:
+            # For thinking mode, the response is in content[1]
+            result = response.content[1].text
+        else:
+            # For standard mode, the response is in content[0]
+            result = response.content[0].text
+    else:
+        raise ValueError(f"Unsupported API provider: {api_provider}")
     
     return result, prompt_name
 
@@ -144,6 +205,11 @@ def save_response(response, prompt_name, use_timestamp=False, output_dir="./resp
     else:
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
+def read_prompt_file(file_path):
+    """Read a prompt file and return its contents."""
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return file.read()
+
 #%%
 # Set up plan_df: a dataframe of the planning prompts
 
@@ -170,10 +236,12 @@ for filename in plan_df["filename"]:
 # for model list see https://replicate.com/explore
 
 use_timestamp = False # if True, output has timestamp
-# model_name = "anthropic/claude-3.7-sonnet" # for actual
-model_name = "anthropic/claude-3.5-haiku" # for testing
+api_provider = "replicate"  # Options: "replicate" or "anthropic"
+# model_name = "anthropic/claude-3.5-haiku" # for testing
+model_name = "anthropic/claude-3.7-sonnet" # for actual
 # model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
-use_system_prompt = True
+use_system_prompt = False
+use_thinking = False  # Whether to use thinking mode (Anthropic only)
 prompts_folder = "./prompts"
 input_extension = ".txt"
 max_tokens = 4000  # Adjust as needed
@@ -182,13 +250,14 @@ temperature = 0.5  # Lower for more deterministic output
 
 # User selection of plan prompt range
 plan_start = "01"
-plan_end = "02"
+plan_end = "01"
 
 # loop over plan prompts
 index_start = plan_df[plan_df["number"] == plan_start].index[0]
 index_end = plan_df[plan_df["number"] == plan_end].index[0]
-
+print(f"Looping over prompts {plan_start} to {plan_end}")
 for index in range(index_start, index_end+1):    
+    ")
 
     # Set context
     if index == plan_df.index[0]:
@@ -208,7 +277,8 @@ for index in range(index_start, index_end+1):
     print(f"Context: {context_names}")
 
     # Query the model
-    response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, model_name, use_system_prompt)
+    response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, 
+                                          api_provider, model_name, use_system_prompt, use_thinking)
 
     # Save
     save_response(response, used_prompt_name, use_timestamp)
