@@ -16,9 +16,7 @@ import anthropic  # Add anthropic import
 # Load environment variables from .env file (if it exists)
 load_dotenv()
 
-def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", 
-              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", 
-              use_system_prompt=True, use_thinking=False):
+def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False):
     """Query an llm
     
     Args:
@@ -153,13 +151,12 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
     
     return result, prompt_name
 
-def save_response(response, prompt_name, use_timestamp=False, output_dir="./responses", file_ext=".md"):
+def save_response(response, prompt_name, output_dir="./responses", file_ext=".tex"):
     """Save the model's response to a file.
     
     Args:
         response: The text response from Claude
         prompt_name: Name of the prompt used (for filename)
-        use_timestamp: Whether to add a timestamp to the filename
         output_dir: Directory to save the response
         file_ext: File extension for the output file
     """
@@ -167,12 +164,6 @@ def save_response(response, prompt_name, use_timestamp=False, output_dir="./resp
     # Create the base output file path
     output_file = f"{output_dir}/{prompt_name}{file_ext}"
     
-    # Apply timestamp to filename if requested
-    if use_timestamp:
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        file_base, file_ext = os.path.splitext(output_file)
-        output_file = f"{file_base}_{timestamp}{file_ext}"
-        
     # Create the directory if it doesn't exist
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     
@@ -188,7 +179,7 @@ def save_response(response, prompt_name, use_timestamp=False, output_dir="./resp
         latex_template = file.read()
 
     # replace [prompt-name] with prompt_name
-    latex_template = latex_template.replace("[prompt-name]", prompt_name)
+    latex_template = latex_template.replace("% [input-goes-here]", f"\\input{{./responses/{prompt_name}.tex}}")
 
     # save latex template
     with open(f"./latex/{prompt_name}.tex", "w") as file:
@@ -205,13 +196,12 @@ def save_response(response, prompt_name, use_timestamp=False, output_dir="./resp
     else:
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
-def read_prompt_file(file_path):
-    """Read a prompt file and return its contents."""
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
 
 #%%
 # Set up plan_df: a dataframe of the planning prompts
+
+prompts_folder = "./prompts"
+input_extension = ".txt"
 
 # Get list of plan prompts
 plan_prompts = [f for f in os.listdir(prompts_folder) if f.startswith("plan") and f.endswith(input_extension)]
@@ -225,7 +215,9 @@ plan_df["number"] = plan_df["name"].str.extract(r"(\d+)")
 
 # read in prompts
 for filename in plan_df["filename"]:
-    prompt = read_prompt_file(os.path.join(prompts_folder, filename))
+
+    with open(os.path.join(prompts_folder, filename), 'r', encoding='utf-8') as file:
+        prompt = file.read()
     plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
 
 
@@ -235,36 +227,39 @@ for filename in plan_df["filename"]:
 #  Globals
 # for model list see https://replicate.com/explore
 
-use_timestamp = False # if True, output has timestamp
-api_provider = "replicate"  # Options: "replicate" or "anthropic"
-# model_name = "anthropic/claude-3.5-haiku" # for testing
-model_name = "anthropic/claude-3.7-sonnet" # for actual
-# model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
-use_system_prompt = False
+# api_provider = "replicate"  # Options: "replicate" or "anthropic"
+# # model_name = "anthropic/claude-3.5-haiku" # for testing
+# model_name = "anthropic/claude-3.7-sonnet" # for actual
+# # model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
+# use_thinking = False  # Whether to use thinking mode (Anthropic only)
+
+api_provider = "anthropic"
+model_name = "claude-3-7-sonnet-20250219"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
-prompts_folder = "./prompts"
-input_extension = ".txt"
+
+use_system_prompt = False
 max_tokens = 4000  # Adjust as needed
 temperature = 0.5  # Lower for more deterministic output
 
 
 # User selection of plan prompt range
 plan_start = "01"
-plan_end = "01"
+plan_end = "03"
 
 # loop over plan prompts
 index_start = plan_df[plan_df["number"] == plan_start].index[0]
 index_end = plan_df[plan_df["number"] == plan_end].index[0]
 print(f"Looping over prompts {plan_start} to {plan_end}")
 for index in range(index_start, index_end+1):    
-    ")
-
     # Set context
     if index == plan_df.index[0]:
         context_names = "none"
     else:
-        # Strip extension from previous prompt for context
-        context_names = plan_df["name"][index-1]
+        # Use all previous prompt outputs as context
+        context_names = plan_df["name"].iloc[:index].tolist()
+        # just the previous prompt
+        # context_names = plan_df["name"][index-1] 
+
 
     print("================================================")
     print(f"Processing prompt number {plan_df['number'][index]}...")
@@ -281,8 +276,10 @@ for index in range(index_start, index_end+1):
                                           api_provider, model_name, use_system_prompt, use_thinking)
 
     # Save
-    save_response(response, used_prompt_name, use_timestamp)
+    save_response(response, used_prompt_name)
 
     print("================================================")
 
 
+
+# %%

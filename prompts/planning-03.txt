@@ -1,4 +1,4 @@
-Characterize the hedging value in terms of future wages. 
+Consider the extreme case that $\alpha^\prime \approx 1.0$.
 
 Respond with only new content. Do not repeat anything in the context. 
 
