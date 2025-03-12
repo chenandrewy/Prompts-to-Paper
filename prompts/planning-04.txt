@@ -1,0 +1,5 @@
+Write an introduction for an academic finance paper titled "Hedging the AI Singularity"
+
+Respond with only new content. Do not repeat anything in the context. 
+
+Output as a latex input (no document environment).

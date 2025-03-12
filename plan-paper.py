@@ -243,8 +243,8 @@ temperature = 0.5  # Lower for more deterministic output
 
 
 # User selection of plan prompt range
-plan_start = "01"
-plan_end = "03"
+plan_start = "04"
+plan_end = "04"
 
 # loop over plan prompts
 index_start = plan_df[plan_df["number"] == plan_start].index[0]
