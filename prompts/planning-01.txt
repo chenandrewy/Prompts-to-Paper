@@ -1,0 +1,3 @@
+Write down a neoclassical growth model where the capital share may suddenly jump with a fixed probability p. 
+
+Output as a latex input (no document environment).

@@ -1,0 +1,5 @@
+Characterize how the price of capital changes with p. Try to formalize in a proposition. Use simplifying assumptions if helpful. 
+
+Respond with only new content. Do not repeat anything in the context. 
+
+Output as a latex input (no document environment).
