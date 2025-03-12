@@ -27,8 +27,8 @@ def read_prompt_file(filename):
         print(f"Error reading file: {e}")
         sys.exit(1)
 
-def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", model_name="anthropic/claude-3.7-sonnet"):
-    """Query the Claude model via Replicate API.
+def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True):
+    """Query an llm
     
     Args:
         prompt_name: Name of the prompt file (without extension)
@@ -36,12 +36,8 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
         prompts_folder: Directory containing prompt files
         input_extension: File extension for prompt and context files
         model_name: Claude model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
+        use_system_prompt: Whether to use the system prompt (default: True)
     """
-    # Check if API token is available
-    if "REPLICATE_API_TOKEN" not in os.environ:
-        print("Error: REPLICATE_API_TOKEN environment variable not set.")
-        print("Please set your Replicate API token in the .env file or environment variables.")
-        sys.exit(1)
     
     # Read the prompt file
     input_path = os.path.join(prompts_folder, prompt_name + input_extension)
@@ -64,10 +60,10 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
                 context_content = read_prompt_file(context_path)
                 combined_context += f"--- BEGIN CONTEXT: {context_name} ---\n{context_content}\n--- END CONTEXT: {context_name} ---\n\n"
 
-    # Read the system prompt if it exists
+    # Read the system prompt if it exists and is requested
     system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
     system_prompt = None
-    if os.path.exists(system_prompt_path):
+    if use_system_prompt and os.path.exists(system_prompt_path):
         print(f"Reading system prompt from {system_prompt_path}...")
         system_prompt = read_prompt_file(system_prompt_path)
     
@@ -166,9 +162,9 @@ plan_prompts = [f for f in os.listdir(prompts_folder) if f.startswith("plan") an
 # create a dataframe of the planning prompts
 plan_df = pd.DataFrame(plan_prompts, columns=["filename"])
 
-# extract name and index
+# extract name and prompt number
 plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
-plan_df["index"] = plan_df["name"].str.extract(r"(\d+)")
+plan_df["number"] = plan_df["name"].str.extract(r"(\d+)")
 
 # read in prompts
 for filename in plan_df["filename"]:
@@ -183,9 +179,10 @@ for filename in plan_df["filename"]:
 # for model list see https://replicate.com/explore
 
 use_timestamp = False # if True, output has timestamp
-model_name = "anthropic/claude-3.7-sonnet" # for actual
-# model_name = "anthropic/claude-3.5-haiku" # for testing
+# model_name = "anthropic/claude-3.7-sonnet" # for actual
+model_name = "anthropic/claude-3.5-haiku" # for testing
 # model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
+use_system_prompt = True
 prompts_folder = "./prompts"
 input_extension = ".txt"
 max_tokens = 4000  # Adjust as needed
@@ -197,13 +194,10 @@ plan_start = "01"
 plan_end = "02"
 
 # loop over plan prompts
-index_start = plan_df[plan_df["index"] == plan_start].index[0]
-index_end = plan_df[plan_df["index"] == plan_end].index[0]
+index_start = plan_df[plan_df["number"] == plan_start].index[0]
+index_end = plan_df[plan_df["number"] == plan_end].index[0]
 
-for index in range(index_start, index_end+1):
-    
-
-    print(f"Processing prompt index {index}...")
+for index in range(index_start, index_end+1):    
 
     # Set context
     if index == plan_df.index[0]:
@@ -211,6 +205,9 @@ for index in range(index_start, index_end+1):
     else:
         # Strip extension from previous prompt for context
         context_names = plan_df["name"][index-1]
+
+    print("================================================")
+    print(f"Processing prompt number {plan_df['number'][index]}...")
 
     # set prompt
     prompt = plan_df["name"][index]
@@ -220,9 +217,11 @@ for index in range(index_start, index_end+1):
     print(f"Context: {context_names}")
 
     # Query the model
-    response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, model_name)
+    response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, model_name, use_system_prompt)
 
     # Save
     save_response(response, used_prompt_name, use_timestamp)
+
+    print("================================================")
 
 
