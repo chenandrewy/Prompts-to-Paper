@@ -1,0 +1,34 @@
+\documentclass{article}
+
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{textgreek}
+
+
+% theorem environments
+\usepackage{amsthm}  % Provides theorem environments
+\usepackage{amsmath} % Enhanced math formatting
+\usepackage{amssymb} % Additional mathematical symbols
+\usepackage{thmtools} % Enhanced theorem formatting
+
+% Basic theorem-like environments
+\theoremstyle{plain}    % Used for theorems, propositions, lemmas (italicized text)
+\newtheorem{theorem}{Theorem}[section]  % Numbered by section
+\newtheorem{proposition}[theorem]{Proposition}  % Shares numbering with theorems
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+% Definition-like environments
+\theoremstyle{definition}  % Normal text (not italicized)
+\newtheorem{definition}[theorem]{Definition}  % Shares numbering with theorems
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+
+\begin{document}
+
+% [input-goes-here]
+
+\end{document}

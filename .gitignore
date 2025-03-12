@@ -1,0 +1,9 @@
+# pass
+.env
+
+# archive
+0-archive/*
+
+# outputs
+latex/*
+responses/*

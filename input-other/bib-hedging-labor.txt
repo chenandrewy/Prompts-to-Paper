@@ -1,0 +1,86 @@
+Here’s an outline version of the literature review, with each bullet representing a key paper and sub-bullets summarizing its contributions.  
+
+---
+
+## **Literature Review Outline: Hedging Labor Income Risk Through Stock Investing**  
+
+### **1. Theoretical Frameworks: Labor Income Risk in Portfolio Choice**  
+- **Cocco, Gomes, and Maenhout (2005) – *Journal of Finance***  
+  - Develops a life-cycle portfolio choice model incorporating uninsurable labor income risk.  
+  - Finds that if labor income is bond-like (low correlation with stocks), younger investors should hold more equities.  
+  - Suggests that labor income risk has significant implications for retirement planning.  
+
+- **Benzoni, Collin-Dufresne, and Goldstein (2007) – *Journal of Finance***  
+  - Models labor income and stock dividends as **cointegrated** (sharing a long-run trend).  
+  - Predicts that young investors with stock-like labor income might optimally avoid or even short stocks.  
+  - Provides a rationale for observed hump-shaped stock allocations over the life cycle.  
+
+- **Jagannathan and Wang (1996) – *Journal of Finance***  
+  - Extends the CAPM to include human capital as part of the market portfolio.  
+  - Shows that incorporating labor income risk improves the model’s explanatory power for asset returns.  
+
+- **Santos and Veronesi (2006) – *Review of Financial Studies***  
+  - Proposes that fluctuations in labor income relative to consumption help predict equity risk premia.  
+  - Highlights the macroeconomic link between labor market conditions and stock returns.  
+
+- **Eiling (2013) – *Journal of Finance***  
+  - Develops an **industry-specific** human capital model.  
+  - Finds that labor income risk varies across industries and influences expected stock returns.  
+  - Stocks in industries with high labor income volatility earn a return premium due to investor hedging demands.  
+
+---
+
+### **2. Empirical Evidence: Household Portfolio Choices and Earnings Risk**  
+- **Heaton and Lucas (2000) – *Journal of Finance***  
+  - Examines U.S. household portfolio data.  
+  - Finds **little evidence** that wage income volatility affects stock allocation.  
+  - Suggests that entrepreneurial risk (owning a private business) is a much stronger determinant of stock investment.  
+
+- **Guiso, Jappelli, and Terlizzese (1996) – *American Economic Review***  
+  - Uses Italian survey data to show that workers with higher expected wage volatility hold fewer stocks.  
+  - Provides early empirical support for the idea that labor risk crowds out financial risk-taking.  
+
+- **Vissing-Jørgensen (2002) – *International Economic Review***  
+  - Finds that higher income volatility reduces stock market participation rates.  
+  - Suggests that labor income risk interacts with fixed costs of investing in stocks, creating a **barrier to entry**.  
+
+- **Betermier et al. (2012) – *Journal of Financial Economics***  
+  - Uses Swedish panel data to track **how investors adjust their portfolios when they change jobs or industries**.  
+  - Shows that moving from a stable to a risky industry leads to a significant reduction in stock allocation.  
+  - Confirms the **hedging motive** by controlling for individual fixed effects.  
+
+---
+
+### **3. Industry- and Occupation-Specific Risk Hedging**  
+- **Massa and Simonov (2006) – *Review of Financial Studies***  
+  - Finds that many investors overweight their own industry’s stocks, contradicting hedging theory.  
+  - Suggests this behavior is driven by **familiarity bias** rather than rational hedging.  
+  - Notes that financially sophisticated investors are less likely to make this mistake.  
+
+- **Bodie, Detemple, and Rindisbacher (2009) – *Journal of Finance***  
+  - Examines how business cycle sensitivity affects stock investment decisions.  
+  - Shows that workers in **cyclical industries** hold fewer equities, particularly in cyclical sectors.  
+  - Supports the idea that workers hedge by avoiding stocks correlated with their labor income.  
+
+- **Lustig and Van Nieuwerburgh (2008) – *Review of Financial Studies***  
+  - Shows that **human capital returns are negatively correlated with stock returns** at an aggregate level.  
+  - Suggests that “good news on Wall Street” is often “bad news on Main Street.”  
+  - Provides an asset pricing perspective on why labor income risk influences stock market equilibrium.  
+
+---
+
+### **4. Conclusion and Implications**  
+- **Key takeaway:** Labor income risk is a major determinant of optimal stock investment, influencing both individual portfolio decisions and asset pricing.  
+- **Practical implications:**  
+  - Individuals should **adjust stock exposure based on the riskiness of their job**.  
+  - Those with stable jobs (e.g., government workers) can afford higher equity exposure.  
+  - Workers in **highly cyclical** industries should hold a more conservative, diversified portfolio.  
+  - Holding **own-industry or employer stock** is risky and often contradicts optimal hedging principles.  
+- **Broader impact:**  
+  - Labor income risk affects **stock market participation rates**, contributing to wealth inequality.  
+  - Target-date funds and standard life-cycle models may not be **personalized enough** to account for industry-specific labor risks.  
+  - Future research could explore **behavioral frictions** that prevent optimal hedging.  
+
+---
+
+This outline provides a structured overview of the key papers and their contributions, making it easier to digest the literature review. Let me know if you'd like any refinements!

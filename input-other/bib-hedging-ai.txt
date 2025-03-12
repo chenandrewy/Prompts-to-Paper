@@ -1,0 +1,23 @@
+### **Literature Review Outline: Hedging AI-Induced Labor Displacement through Stock Investing**  
+
+#### **1. Introduction**  
+- **Acemoglu & Restrepo (2020)** – Empirical evidence that automation reduces employment and wages, demonstrating the risk of labor displacement.  
+
+#### **2. Theoretical Perspectives on AI, Labor Displacement, and Asset Prices**  
+- **Gârleanu, Kogan, & Panageas (2012)** – Theoretical model showing how technological progress creates displacement risk, which affects asset pricing by making stocks of innovative firms serve as hedges.  
+- **Kogan, Papanikolaou, & Stoffman (2020)** – General equilibrium model linking creative destruction to value–growth return spreads, showing that firms exposed to displacement risk require higher returns.  
+- **Chen & Wang (2024)** – Task-based AI framework distinguishing labor-augmenting vs. labor-replacing innovations and their distinct effects on firm valuation.  
+
+#### **3. Empirical Evidence on AI, Labor Displacement, and Stock Returns**  
+- **Acemoglu & Restrepo (2020)** – Empirical evidence that industrial robots reduce labor demand, showing economic risks from automation.  
+- **Kogan, Papanikolaou, et al. (2023–2025)** – Measures firm-level displacement risk from competitors’ AI-driven innovations and finds that higher displacement risk predicts higher stock returns.  
+- **Eisfeldt, Schubert, & Zhang (2023)** – Event study on ChatGPT’s release; finds that stocks of AI-exposed firms significantly outperformed human-labor-reliant firms, supporting AI’s role in stock returns.  
+- **Chen & Wang (2024)** – Uses AI-related patents to measure the stock market’s response to different types of AI innovation, confirming that both augmenting and displacing AI raise firm value.  
+
+#### **4. Implications for Investors**  
+- **Gârleanu, Kogan, & Panageas (2012)** – Theoretical insight that AI-driven firms act as a hedge but may offer lower long-run risk premia.  
+- **Eisfeldt, Schubert, & Zhang (2023)** – Empirical evidence supporting AI-exposed stock portfolios as a hedge, particularly in response to major AI advances.  
+- **Kogan, Papanikolaou, et al. (2023–2025)** – Shows that displacement risk is priced in stocks, meaning investors can construct portfolios that hedge against labor income losses.  
+- **Chen & Wang (2024)** – Practical insight that AI exposure in stocks should be balanced within a diversified portfolio, as labor-complementing AI may also play a role in stock performance.  
+
+This outline provides a structured approach to the literature review, where each bullet represents a key paper contributing to the discussion on AI, labor displacement, and stock market hedging strategies.

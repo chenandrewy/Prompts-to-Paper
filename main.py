@@ -174,8 +174,8 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     # -- output latex 
     print(f"Outputting latex for {prompt_name}...")
     
-    # read in latex template
-    with open("./latex/template-prompt.tex", "r") as file:
+    # read in latex template from new location
+    with open("./input-other/latex-template.txt", "r") as file:
         latex_template = file.read()
 
     # replace [prompt-name] with prompt_name
