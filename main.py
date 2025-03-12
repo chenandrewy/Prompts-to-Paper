@@ -9,9 +9,22 @@ import time
 import markdown2
 import pdfkit
 from datetime import datetime
+import shutil  
 
 # Load environment variables from .env file (if it exists)
 load_dotenv()
+
+#  Globals
+# for model list see https://replicate.com/explore
+
+use_timestamp = False # if True, output has timestamp
+# model_name = "anthropic/claude-3.7-sonnet" # for actual
+model_name = "anthropic/claude-3.5-haiku" # for testing
+# model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
+prompts_folder = "./prompts"
+input_extension = ".txt"
+max_tokens = 4000  # Adjust as needed
+temperature = 0.5  # Lower for more deterministic output
 
 def read_prompt_file(filename):
     """Read the content from the specified file."""
@@ -70,7 +83,7 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
             print(f"Reading system prompt from {system_prompt_path}...")
             system_prompt = read_prompt_file(system_prompt_path)
         
-        # The model identifier for Claude on Replicate
+        # Select model
         model = model_name
         print(f"Using model: {model}")
         
@@ -122,149 +135,44 @@ def save_response(response, prompt_name, use_timestamp=False, output_dir="./resp
         output_dir: Directory to save the response
         file_ext: File extension for the output file
     """
-    try:
-        # Create the base output file path
-        output_file = f"{output_dir}/{prompt_name}{file_ext}"
+
+    # Create the base output file path
+    output_file = f"{output_dir}/{prompt_name}{file_ext}"
+    
+    # Apply timestamp to filename if requested
+    if use_timestamp:
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        file_base, file_ext = os.path.splitext(output_file)
+        output_file = f"{file_base}_{timestamp}{file_ext}"
         
-        # Apply timestamp to filename if requested
-        if use_timestamp:
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            file_base, file_ext = os.path.splitext(output_file)
-            output_file = f"{file_base}_{timestamp}{file_ext}"
-            
-        # Create the directory if it doesn't exist
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        
-        with open(output_file, 'w', encoding='utf-8') as file:
-            file.write(response)
-        print(f"\n\nResponse saved to {output_file}")
+    # Create the directory if it doesn't exist
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    
+    with open(output_file, 'w', encoding='utf-8') as file:
+        file.write(response)
+    print(f"\n\nResponse saved to {output_file}")      
 
-        # also output a pdf
-        # Convert markdown to PDF
-        try:            
-            # Get the base name of the output file without extension
-            pdf_base = os.path.splitext(output_file)[0]
-            pdf_file = f"{pdf_base}.pdf"
-            
-            # Convert markdown to HTML using markdown2 with table support
-            with open(output_file, 'r', encoding='utf-8') as md_file:
-                md_content = md_file.read()
-            
-            # Use markdown2 with extras for table support
-            html_content = markdown2.markdown(md_content, extras=["tables", "fenced-code-blocks"])
-            
-            # Add basic styling with improved table styling
-            styled_html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Claude Response</title>
-                <style>
-                    body {{ font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }}
-                    h1, h2, h3 {{ color: #333; }}
-                    table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
-                    th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-                    th {{ background-color: #f2f2f2; }}
-                    code {{ background-color: #f5f5f5; padding: 2px 4px; border-radius: 4px; }}
-                    pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }}
-                    
-                    /* Additional table styling for better rendering */
-                    table {{ table-layout: fixed; }}
-                    td, th {{ word-wrap: break-word; }}
-                </style>
-            </head>
-            <body>
-                {html_content}
-                <div style="margin-top: 30px; font-size: 0.8em; color: #666;">
-                    Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-                </div>
-            </body>
-            </html>
-            """
-            
-            # Create a temporary HTML file
-            temp_html = f"{pdf_base}_temp.html"
-            with open(temp_html, 'w', encoding='utf-8') as html_file:
-                html_file.write(styled_html)
-            
-            # Check if wkhtmltopdf is installed and configure pdfkit
-            try:
-                # Try to find wkhtmltopdf in common installation locations
-                wkhtmltopdf_path = None
-                possible_paths = [
-                    r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe',
-                    r'C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe',
-                    # Add more potential paths if needed
-                ]
-                
-                for path in possible_paths:
-                    if os.path.exists(path):
-                        wkhtmltopdf_path = path
-                        break
-                
-                if wkhtmltopdf_path:
-                    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
-                    # Add options for better table rendering
-                    options = {
-                        'encoding': 'UTF-8',
-                        'enable-local-file-access': None,
-                        'margin-top': '20mm',
-                        'margin-right': '20mm',
-                        'margin-bottom': '20mm',
-                        'margin-left': '20mm',
-                    }
-                    pdfkit.from_file(temp_html, pdf_file, configuration=config, options=options)
-                else:
-                    # Try with default configuration and options
-                    options = {
-                        'encoding': 'UTF-8',
-                        'enable-local-file-access': None,
-                        'margin-top': '20mm',
-                        'margin-right': '20mm',
-                        'margin-bottom': '20mm',
-                        'margin-left': '20mm',
-                    }
-                    pdfkit.from_file(temp_html, pdf_file, options=options)
-            except Exception as pdf_error:
-                print(f"PDF conversion error: {pdf_error}")
-                print("\nTo fix this issue:")
-                print("1. Install wkhtmltopdf from https://wkhtmltopdf.org/downloads.html")
-                print("2. Make sure wkhtmltopdf is added to your PATH")
-                print("   or specify its location in the script")
-                print("\nSkipping PDF generation. Markdown file was saved successfully.")
-            
-            # Remove temporary HTML file if it exists
-            if os.path.exists(temp_html):
-                os.remove(temp_html)
-            
-            if os.path.exists(pdf_file):
-                print(f"PDF version saved to {pdf_file}")
-            
-        except ImportError:
-            print("PDF conversion requires additional packages. Install with:")
-            print("pip install markdown2 pdfkit")
-            print("You also need wkhtmltopdf installed: https://wkhtmltopdf.org/downloads.html")
-        except Exception as e:
-            print(f"Error converting to PDF: {e}")
+    # -- output latex 
+    
+    # read in latex template
+    with open("./latex/template-prompt.tex", "r") as file:
+        latex_template = file.read()
 
-    except Exception as e:
-        print(f"Error saving response: {e}")
+    # replace [prompt-name] with prompt_name
+    print(f"Replacing [prompt-name] with {prompt_name} in latex template...")
+    latex_template = latex_template.replace("[prompt-name]", prompt_name)
 
-#%%
-#  Globals
+    # save latex template
+    with open(f"./latex/{prompt_name}.tex", "w") as file:
+        file.write(latex_template)
+    
+    # compile latex
+    os.system(f"pdflatex -output-directory=./latex ./latex/{prompt_name}.tex")
 
-# for model list see https://replicate.com/explore
+    # copy pdf to output directory
+    shutil.copy(f"./latex/{prompt_name}.pdf", f"{output_dir}/{prompt_name}.pdf")
 
-use_timestamp = False # if True, output has timestamp
-model_name = "anthropic/claude-3.7-sonnet" # for actual
-# model_name = "anthropic/claude-3.5-haiku" # for testing
-# model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
-prompts_folder = "./prompts"
-input_extension = ".txt"
-max_tokens = 4000  # Adjust as needed
-temperature = 0.5  # Lower for more deterministic output
-        
+
 #%%
 # run main
 
@@ -278,19 +186,4 @@ response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folde
 
 # Save
 save_response(response, used_prompt_name, use_timestamp)
-
-
-#%% 
-# run efficient markets considerations
-
-prompt_name = "prompt-02"
-context_names = ["prompt-01"]
-
-print(f"Querying {model_name} with prompt '{prompt_name}'...\n")
-
-# Query the model
-response, used_prompt_name = query_llm(prompt_name, context_names, prompts_folder, input_extension, model_name)
-
-# Save
-save_response(response, used_prompt_name, use_timestamp)
-
+# %%
