@@ -15,18 +15,6 @@ import pandas as pd
 # Load environment variables from .env file (if it exists)
 load_dotenv()
 
-def read_prompt_file(filename):
-    """Read the content from the specified file."""
-    try:
-        with open(filename, 'r', encoding='utf-8') as file:
-            return file.read()
-    except FileNotFoundError:
-        print(f"Error: The file '{filename}' was not found.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error reading file: {e}")
-        sys.exit(1)
-
 def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True):
     """Query an llm
     
@@ -41,7 +29,8 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
     
     # Read the prompt file
     input_path = os.path.join(prompts_folder, prompt_name + input_extension)
-    prompt = read_prompt_file(input_path)
+    with open(input_path, 'r', encoding='utf-8') as file:
+        prompt = file.read()
     print(f"Reading prompt from {input_path}...")
     
     # Read the contexts if specified
@@ -57,7 +46,8 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
             context_path = os.path.join(prompts_folder, context_name + input_extension)
             if os.path.exists(context_path):
                 print(f"Reading context from {context_path}...")
-                context_content = read_prompt_file(context_path)
+                with open(context_path, 'r', encoding='utf-8') as file:
+                    context_content = file.read()
                 combined_context += f"--- BEGIN CONTEXT: {context_name} ---\n{context_content}\n--- END CONTEXT: {context_name} ---\n\n"
 
     # Read the system prompt if it exists and is requested
@@ -65,7 +55,8 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
     system_prompt = None
     if use_system_prompt and os.path.exists(system_prompt_path):
         print(f"Reading system prompt from {system_prompt_path}...")
-        system_prompt = read_prompt_file(system_prompt_path)
+        with open(system_prompt_path, 'r', encoding='utf-8') as file:
+            system_prompt = file.read()
     
     # Select model
     model = model_name
