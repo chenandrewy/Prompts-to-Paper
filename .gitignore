@@ -11,3 +11,6 @@ responses/*
 # temp stuff
 zzz-*.py
 temp/*
+
+# python cache
+__pycache__/*

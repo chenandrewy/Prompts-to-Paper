@@ -2,33 +2,21 @@
 
 import anthropic
 import textwrap
+from utils import print_wrapped  # Import utility function
+from dotenv import load_dotenv
+import os
 
-def print_wrapped(text, width=70):
-    """
-    Prints the input text with word wrapping while preserving paragraph breaks.
-    
-    Args:
-        text (str): The input text to print.
-        width (int, optional): Maximum width for each line. Defaults to 70.
-    """
-    # Create a TextWrapper instance with the desired width
-    wrapper = textwrap.TextWrapper(width=width)
-    
-    # Split the text into paragraphs using double newlines
-    paragraphs = text.split("\n\n")
-    
-    # Wrap and print each paragraph separately
-    for para in paragraphs:
-        print(wrapper.fill(para))
-        # Print a blank line to preserve paragraph separation
-        print()
+# Load environment variables (API key)
+load_dotenv()
+
+# Initialize Anthropic client
+client = anthropic.Anthropic()
 
 #%%
 
 prompt = """
 Consider a neoclassical model with two households who differ in their time preference. Prove that the more patient household own all capital in the steady state.
 """
-
 
 #%%
 # standard mode

@@ -14,47 +14,10 @@ import shutil
 import pandas as pd
 import anthropic  # Add anthropic import
 import textwrap
+from utils import clean_latex_aux_files, print_wrapped  # Import utility functions
 
 # Load environment variables from .env file (if it exists)
 load_dotenv()
-
-def clean_latex_aux_files(prompt_name):
-    """Clean up auxiliary files created by LaTeX."""
-    aux_files = [
-        f"{prompt_name}.aux",
-        f"{prompt_name}.bbl",
-        f"{prompt_name}.blg",
-        f"{prompt_name}.out"
-    ]
-
-    for file in aux_files:
-        if os.path.exists(file):
-            os.remove(file)
-
-def print_wrapped(text, width=70):
-    """
-    Prints the input text with word wrapping while preserving paragraph breaks.
-    
-    Args:
-        text (str): The input text to print.
-        width (int, optional): Maximum width for each line. Defaults to 70.
-    """
-    # Create a TextWrapper instance with the desired width
-    wrapper = textwrap.TextWrapper(width=width)
-    
-    # Split the text into paragraphs using double newlines
-    paragraphs = text.split("\n\n")
-    
-    # Wrap and print each paragraph separately
-    for para in paragraphs:
-        try:
-            print(wrapper.fill(para))
-        except UnicodeEncodeError:
-            # Handle Unicode encoding errors by replacing problematic characters
-            print(wrapper.fill(para.encode('ascii', 'replace').decode('ascii')))
-        # Print a blank line to preserve paragraph separation
-        print()
-
 
 def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
     """Query an llm
@@ -376,8 +339,8 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-model_name = "claude-3-7-sonnet-20250219"
-# model_name = "claude-3-5-haiku-20241022"
+# model_name = "claude-3-7-sonnet-20250219"
+model_name = "claude-3-5-haiku-20241022"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
@@ -388,8 +351,8 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_range = "01-01"  # Can be "XX-YY" format or "full"
-bib_range = "01-99"  # Include bibliography for prompts XX-YY
+plan_range = "full"  # Can be "XX-YY" format or "full"
+bib_range = "05-99"  # Include bibliography for prompts XX-YY
 
 # Call the planning loop with the plan range and bib range
 planning_loop(plan_range, bib_range, prompts_folder, input_extension, 

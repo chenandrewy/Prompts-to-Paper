@@ -10,6 +10,7 @@ import textwrap
 import time
 import re
 import shutil
+from utils import clean_latex_aux_files, print_wrapped  # Import utility functions
 
 # Load environment variables (API key)
 load_dotenv()
