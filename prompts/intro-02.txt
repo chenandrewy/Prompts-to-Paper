@@ -1,7 +1,0 @@
-Create a bibliography list.
-
-First find the two most closely related papers. Then find 5-10 other related papers.
-
-Use only papers in the latex bib file.
-
-Output as a latex input (no document environment).
