@@ -27,8 +27,8 @@
 \newtheorem{remark}[theorem]{Remark}
 
 % Bibliography settings
-\usepackage[backend=bibtex,style=authoryear,uniquename=false, maxbibnames=99, maxcitenames=3, uniquelist=false, natbib=true]{biblatex}
-\addbibresource{./input-other/all-bib.bib}
+\usepackage[backend=biber,style=authoryear,uniquename=false, maxbibnames=99, maxcitenames=3, uniquelist=false, natbib=true]{biblatex}
+\addbibresource{../input-other/all-bib.bib}
 
 \begin{document}
 

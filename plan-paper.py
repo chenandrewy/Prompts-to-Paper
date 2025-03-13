@@ -18,6 +18,19 @@ import textwrap
 # Load environment variables from .env file (if it exists)
 load_dotenv()
 
+def clean_latex_aux_files(prompt_name):
+    """Clean up auxiliary files created by LaTeX."""
+    aux_files = [
+        f"{prompt_name}.aux",
+        f"{prompt_name}.bbl",
+        f"{prompt_name}.blg",
+        f"{prompt_name}.out"
+    ]
+
+    for file in aux_files:
+        if os.path.exists(file):
+            os.remove(file)
+
 def print_wrapped(text, width=70):
     """
     Prints the input text with word wrapping while preserving paragraph breaks.
@@ -202,11 +215,33 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
         latex_template = file.read()
 
     # replace [prompt-name] with prompt_name
-    latex_template = latex_template.replace("% [input-goes-here]", f"\\input{{./responses/{prompt_name}.tex}}")
+    latex_template = latex_template.replace("% [input-goes-here]", f"\\input{{../responses/{prompt_name}.tex}}")
 
     # save latex template
     with open(f"./latex/{prompt_name}.tex", "w") as file:
         file.write(latex_template)
+
+
+# # Compile with bibliography support
+# compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex"
+# print(f"Running first LaTeX pass: {compile_command}")
+# os.system(compile_command)
+
+# #%%
+
+# # Run Biber without changing directory
+# biber_command = f"biber ./latex/{prompt_name}"
+# print(f"Running Biber: {biber_command}")
+# os.system(biber_command)
+
+# #%%
+
+# # Run LaTeX again (twice) to resolve references
+# print("Running second LaTeX pass...")
+# os.system(compile_command)
+
+    # clean aux files
+    clean_latex_aux_files(prompt_name)
     
     # Compile with bibliography support
     compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex"
