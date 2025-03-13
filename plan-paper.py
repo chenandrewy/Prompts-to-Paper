@@ -278,7 +278,7 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     else:
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
-def planning_loop(plan_range, prompts_folder="./prompts", input_extension=".txt", 
+def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", input_extension=".txt", 
                  api_provider="anthropic", model_name="claude-3-7-sonnet-20250219", 
                  use_system_prompt=True, use_thinking=True, max_tokens=4000, temperature=1):
     """
@@ -286,6 +286,7 @@ def planning_loop(plan_range, prompts_folder="./prompts", input_extension=".txt"
     
     Args:
         plan_range: Range of prompts to process (e.g., "01-03" or "full")
+        bib_range: Range of prompts that should include bibliography context (e.g., "04-99")
         prompts_folder: Directory containing prompt files
         input_extension: File extension for prompt files
         api_provider: API provider to use ('replicate' or 'anthropic')
@@ -331,6 +332,12 @@ def planning_loop(plan_range, prompts_folder="./prompts", input_extension=".txt"
         index_end = plan_df[plan_df["number"] == plan_end].index[0]
         print(f"Processing plan prompts from {plan_start} to {plan_end}")
     
+    # Parse the bibliography range
+    bib_parts = bib_range.split("-")
+    bib_start = int(bib_parts[0])
+    bib_end = int(bib_parts[1]) if len(bib_parts) > 1 else bib_start
+    print(f"Using bibliography for prompts {bib_start} through {bib_end}")
+    
     # loop over plan prompts
     for index in range(index_start, index_end+1):    
         # Set context
@@ -350,11 +357,10 @@ def planning_loop(plan_range, prompts_folder="./prompts", input_extension=".txt"
         print(f"Prompt: {prompt}")
         print(f"Context: {context_names}")
 
-        # hacky add bib
-        if int(plan_df["number"][index]) >= 4:
-            add_bib = True
-        else:
-            add_bib = False
+        # Determine if this prompt should include bibliography
+        current_prompt_num = int(plan_df["number"][index])
+        add_bib = bib_start <= current_prompt_num <= bib_end
+        print(f"Including bibliography: {add_bib}")
 
         # Query the model
         response, used_prompt_name = query_llm(prompt, context_names, add_bib, prompts_folder, input_extension, 
@@ -382,11 +388,11 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-# plan_range = "01-01"  # Can be "XX-YY" format or "full"
-plan_range = "full"
+plan_range = "01-01"  # Can be "XX-YY" format or "full"
+bib_range = "01-99"  # Include bibliography for prompts XX-YY
 
-# Call the planning loop with the plan range
-planning_loop(plan_range, prompts_folder, input_extension, 
+# Call the planning loop with the plan range and bib range
+planning_loop(plan_range, bib_range, prompts_folder, input_extension, 
               api_provider, model_name, use_system_prompt, use_thinking,
               max_tokens, temperature)    
 
