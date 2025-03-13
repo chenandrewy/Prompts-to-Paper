@@ -1,3 +1,3 @@
-Write down a neoclassical growth model where the capital share alpha may suddenly jump to alpha^\prime with a fixed probability p. characterize the price of capital, using the Euler equation. Break out the motive for hedging loss of labor income.
+Write down a neoclassical growth model where the capital share alpha may suddenly jump to alpha^\prime with a fixed probability p. characterize the price of capital, using the Euler equation. Break out the motive for hedging loss of labor income. Think step by step and check the math.
 
 Output as a latex input (no document environment).

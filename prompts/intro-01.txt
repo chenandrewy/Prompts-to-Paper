@@ -4,8 +4,8 @@ Start with background. Describe how AI progress is happening quickly, and invest
 
 Then describe how technological change has occured before, but AI is distinct because there is no product or service that AI could not, in principal create. This differs from say, the internet revolution. AI progres may also be incredibly sudden (the AI singularity).
 
-Then describe what the paper does. It models the AI singularity as a sudden shock to the capital share.
+Then describe what the paper does. It models the AI singularity as a sudden shock to the capital share. And studies the asset pricing implications. 
 
-For now, do not cite any literature. We'll add that later.
+Cite papers as appropriate. Ensure citations correspond to items from all-bib.
 
 Output as a latex input (no document environment).

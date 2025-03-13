@@ -1,0 +1,7 @@
+Write a short lit review subsection. 
+
+The first paragraph describes the most closely related paper, and how our paper contributes. Choose a paper on asset pricing.
+
+The second paragraph of the review simply nods to many related papers. Focus on finance papers. Then mentions how our paper is different.
+
+Output as a latex input (no document environment).

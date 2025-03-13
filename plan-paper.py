@@ -47,12 +47,16 @@ def print_wrapped(text, width=70):
     
     # Wrap and print each paragraph separately
     for para in paragraphs:
-        print(wrapper.fill(para))
+        try:
+            print(wrapper.fill(para))
+        except UnicodeEncodeError:
+            # Handle Unicode encoding errors by replacing problematic characters
+            print(wrapper.fill(para.encode('ascii', 'replace').decode('ascii')))
         # Print a blank line to preserve paragraph separation
         print()
 
 
-def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False):
+def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
@@ -88,6 +92,9 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
                 with open(context_path, 'r', encoding='utf-8') as file:
                     context_content = file.read()
                 combined_context += f"--- BEGIN CONTEXT: {context_name} ---\n{context_content}\n--- END CONTEXT: {context_name} ---\n\n"
+            else:
+                # Error out if context file is not found
+                raise FileNotFoundError(f"Context file not found: {context_path}")
 
     # Read the system prompt if it exists and is requested
     system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
@@ -142,6 +149,11 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
         
         print(f"Using Anthropic model: {anthropic_model}")
         print(f"Thinking mode: {'enabled' if use_thinking else 'disabled'}")
+
+        # debugging
+        print('the full prompt is: --------------------------------')
+        print_wrapped(full_prompt)
+        print('end full prompt --------------------------------')
         
         # Prepare common parameters
         params = {
@@ -221,25 +233,6 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     with open(f"./latex/{prompt_name}.tex", "w") as file:
         file.write(latex_template)
 
-
-# # Compile with bibliography support
-# compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex"
-# print(f"Running first LaTeX pass: {compile_command}")
-# os.system(compile_command)
-
-# #%%
-
-# # Run Biber without changing directory
-# biber_command = f"biber ./latex/{prompt_name}"
-# print(f"Running Biber: {biber_command}")
-# os.system(biber_command)
-
-# #%%
-
-# # Run LaTeX again (twice) to resolve references
-# print("Running second LaTeX pass...")
-# os.system(compile_command)
-
     # clean aux files
     clean_latex_aux_files(prompt_name)
     
@@ -268,154 +261,116 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     else:
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
+def planning_loop(plan_start, plan_end, prompts_folder="./prompts", input_extension=".txt", 
+                 api_provider="anthropic", model_name="claude-3-7-sonnet-20250219", 
+                 use_system_prompt=True, use_thinking=True, max_tokens=4000, temperature=1):
+    """
+    Process a sequence of planning prompts with context from previous prompts.
+    
+    Args:
+        plan_start: Starting prompt number (e.g., "01")
+        plan_end: Ending prompt number (e.g., "03")
+        prompts_folder: Directory containing prompt files
+        input_extension: File extension for prompt files
+        api_provider: API provider to use ('replicate' or 'anthropic')
+        model_name: Model version to use
+        use_system_prompt: Whether to use the system prompt
+        use_thinking: Whether to use thinking mode (Anthropic only)
+        max_tokens: Maximum tokens for response
+        temperature: Temperature for response generation
+    """
+    # Get list of plan prompts
+    plan_prompts = [f for f in os.listdir(prompts_folder) if f.startswith("plan") and f.endswith(input_extension)]
+
+    # create a dataframe of the planning prompts
+    plan_df = pd.DataFrame(plan_prompts, columns=["filename"])
+
+    # extract name and prompt number
+    plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
+    plan_df["number"] = plan_df["name"].str.extract(r"(\d+)")
+
+    # read in prompts
+    for filename in plan_df["filename"]:
+        with open(os.path.join(prompts_folder, filename), 'r', encoding='utf-8') as file:
+            prompt = file.read()
+        plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
+
+    # loop over plan prompts
+    index_start = plan_df[plan_df["number"] == plan_start].index[0]
+    index_end = plan_df[plan_df["number"] == plan_end].index[0]
+    print(f"Looping over prompts {plan_start} to {plan_end}")
+    for index in range(index_start, index_end+1):    
+        # Set context
+        if index == plan_df.index[0]:
+            context_names = "none"
+        else:
+            # Use all previous prompt outputs as context
+            context_names = plan_df["name"].iloc[:index].tolist()
+            # just the previous prompt
+            # context_names = plan_df["name"][index-1] 
+
+        print("================================================")
+        print(f"Processing prompt number {plan_df['number'][index]}...")
+
+        # set prompt
+        prompt = plan_df["name"][index]
+
+        # Feedback
+        print(f"Prompt: {prompt}")
+        print(f"Context: {context_names}")
+
+        # Query the model
+        response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, 
+                                              api_provider, model_name, use_system_prompt, use_thinking)
+
+        # Save
+        save_response(response, used_prompt_name)
+
+        print("================================================")
+
 
 #%%
-# Set up plan_df: a dataframe of the planning prompts
+# main
 
-prompts_folder = "./prompts"
-input_extension = ".txt"
+def main():
 
-# Get list of plan prompts
-plan_prompts = [f for f in os.listdir(prompts_folder) if f.startswith("plan") and f.endswith(input_extension)]
+    api_provider = "anthropic"
+    model_name = "claude-3-7-sonnet-20250219"
+    use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
-# create a dataframe of the planning prompts
-plan_df = pd.DataFrame(plan_prompts, columns=["filename"])
+    use_system_prompt = True
+    max_tokens = 4000 # Adjust as needed
+    temperature = 0.5  # Lower for more deterministic output
 
-# extract name and prompt number
-plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
-plan_df["number"] = plan_df["name"].str.extract(r"(\d+)")
+    prompts_folder = "./prompts"
+    input_extension = ".txt"
 
-# read in prompts
-for filename in plan_df["filename"]:
+    # User selection of plan prompt range
+    plan_start = "01"
+    plan_end = "03"
 
-    with open(os.path.join(prompts_folder, filename), 'r', encoding='utf-8') as file:
-        prompt = file.read()
-    plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
+    # Replace the original planning code with a call to the function
+    planning_loop(plan_start, plan_end, prompts_folder, input_extension, 
+                 api_provider, model_name, use_system_prompt, use_thinking,
+                 max_tokens, temperature)
+    
+    # %%
+    # Introduction initial sketch
 
+    context_names = ['planning-01','planning-02','planning-03'] \
+        + ['bib-disaster-risk','bib-hedging-ai','bib-hedging-labor','bib-investing-ai'] \
+        + ['all-bib'] 
 
-#%%
-# Model Planning
+    prompt = 'intro-01'
 
-#  Globals
-# for model list see https://replicate.com/explore
+    response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking)
 
-# api_provider = "replicate"  # Options: "replicate" or "anthropic"
-# # model_name = "anthropic/claude-3.5-haiku" # for testing
-# model_name = "anthropic/claude-3.7-sonnet" # for actual
-# # model_name = "meta/meta-llama-3.1-405b-instruct" # man this is not great
-# use_thinking = False  # Whether to use thinking mode (Anthropic only)
-
-api_provider = "anthropic"
-model_name = "claude-3-7-sonnet-20250219"
-use_thinking = False  # Whether to use thinking mode (Anthropic only)
-
-use_system_prompt = False
-max_tokens = 4000  # Adjust as needed
-temperature = 1  # Lower for more deterministic output
-
-#%%
-# Model Planning
-
-# User selection of plan prompt range
-plan_start = "04"
-plan_end = "04"
-
-# loop over plan prompts
-index_start = plan_df[plan_df["number"] == plan_start].index[0]
-index_end = plan_df[plan_df["number"] == plan_end].index[0]
-print(f"Looping over prompts {plan_start} to {plan_end}")
-for index in range(index_start, index_end+1):    
-    # Set context
-    if index == plan_df.index[0]:
-        context_names = "none"
-    else:
-        # Use all previous prompt outputs as context
-        context_names = plan_df["name"].iloc[:index].tolist()
-        # just the previous prompt
-        # context_names = plan_df["name"][index-1] 
-
-
-    print("================================================")
-    print(f"Processing prompt number {plan_df['number'][index]}...")
-
-    # set prompt
-    prompt = plan_df["name"][index]
-
-    # Feedback
-    print(f"Prompt: {prompt}")
-    print(f"Context: {context_names}")
-
-    # Query the model
-    response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, 
-                                          api_provider, model_name, use_system_prompt, use_thinking)
-
-    # Save
     save_response(response, used_prompt_name)
 
-    print("================================================")
+
+
+if __name__ == "__main__":
+    main()
 
 
 
-# %%
-# Introduction initial sketch
-
-# context_names = ['bib-hedging-ai','planning-01','planning-02','planning-03']
-context_names = ['planning-01','planning-02','planning-03']
-prompt = 'intro-01'
-
-response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking)
-
-save_response(response, used_prompt_name)
-
-
-#%%
-# Generate lit review
-
-#  This makes typos in citations, need to correct in next step
-context_names = ['planning-01','planning-02','planning-03'] + \
-    ['bib-hedging-ai', 'bib-investing-ai', 'bib-hedging-labor', 'bib-disaster-risk'] + \
-    ['all-bib'] + \
-    ['intro-01']
-prompt = 'intro-02'
-
-response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking=True)
-
-#%% 
-# fix cite typos
-
-task = """
-Fix the citations in the following latex code. Make sure the citations match actual entries in the bib file. Respond with only corrected latex code.
-"""
-
-with open("./input-other/all-bib.bib", "r") as file:
-    bib_file = file.read()
-
-prompt = task + "\n\n" + f"Here is the latex code:\n\n{response}" + f"\n\nHere is the bib file:\n\n{bib_file}"
-
-# query anthropic
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-temp = client.messages.create(
-    model="claude-3-7-sonnet-20250219",
-    max_tokens=1000,
-    temperature=1,
-    system="You are a macroeconomic theorist. Respond only with short, concise, and clear statements.",
-    messages=[  
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text", 
-                    "text": prompt
-                }
-            ]
-        }
-    ]
-)
-
-response = temp.content[0].text
-
-print_wrapped(response)
-
-#%%
-
-save_response(response, used_prompt_name)

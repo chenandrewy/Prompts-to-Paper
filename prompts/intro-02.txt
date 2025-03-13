@@ -1,7 +1,7 @@
-Write a short lit review subsection. 
+Create a bibliography list.
 
-The first paragraph describes the most closely related paper, and how our paper contributes.
+First find the two most closely related papers. Then find 5-10 other related papers.
 
-The second paragraph of the review simply nods to many related papers. Then mentions how our paper is different.
+Use only papers in the latex bib file.
 
 Output as a latex input (no document environment).

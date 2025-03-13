@@ -1,4 +1,4 @@
-Characterize the hedging value in terms of future wages. 
+Characterize the hedging value in terms of future wages. Consumption, after all, can be written in terms of wages and other terms in the budget constraint.
 
 Respond with only new content. Do not repeat anything in the context. 
 

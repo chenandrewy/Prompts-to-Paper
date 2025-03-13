@@ -7,3 +7,6 @@
 # outputs
 latex/*
 responses/*
+
+# temp scripts
+zzz-*.py
