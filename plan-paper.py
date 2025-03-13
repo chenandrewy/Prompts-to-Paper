@@ -98,7 +98,7 @@ def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./
 
     # add bib context
     bib_files = ['bib-disaster-risk','bib-hedging-ai','bib-hedging-labor','bib-investing-ai'] \
-        + ['all-bib']
+        + ['bib-bibtex']
     for bib_file in bib_files:
         bib_path = os.path.join(prompts_folder, bib_file + input_extension)
         if os.path.exists(bib_path):
@@ -349,31 +349,27 @@ def planning_loop(plan_start, plan_end, prompts_folder="./prompts", input_extens
 #%%
 # main
 
-def main():
+api_provider = "anthropic"
+model_name = "claude-3-7-sonnet-20250219"
+# model_name = "claude-3-5-haiku-20241022"
+use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
-    api_provider = "anthropic"
-    model_name = "claude-3-7-sonnet-20250219"
-    # model_name = "claude-3-5-haiku-20241022"
-    use_thinking = False  # Whether to use thinking mode (Anthropic only)
+use_system_prompt = False
+max_tokens = 4000 # Adjust as needed
+temperature = 0.5  # Lower for more deterministic output
 
-    use_system_prompt = False
-    max_tokens = 4000 # Adjust as needed
-    temperature = 0.5  # Lower for more deterministic output
+prompts_folder = "./prompts"
+input_extension = ".txt"
 
-    prompts_folder = "./prompts"
-    input_extension = ".txt"
+# User selection of plan prompt range
+plan_start = "01"
+plan_end = "04"
 
-    # User selection of plan prompt range
-    plan_start = "01"
-    plan_end = "04"
+# Replace the original planning code with a call to the function
+planning_loop(plan_start, plan_end, prompts_folder, input_extension, 
+                api_provider, model_name, use_system_prompt, use_thinking,
+                max_tokens, temperature)    
 
-    # Replace the original planning code with a call to the function
-    planning_loop(plan_start, plan_end, prompts_folder, input_extension, 
-                 api_provider, model_name, use_system_prompt, use_thinking,
-                 max_tokens, temperature)    
-
-if __name__ == "__main__":
-    main()
-
+#%%
 
 
