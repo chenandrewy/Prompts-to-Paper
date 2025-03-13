@@ -2,6 +2,7 @@
 # Setup
 
 import os
+import subprocess
 import sys
 import replicate
 from dotenv import load_dotenv
@@ -12,9 +13,31 @@ from datetime import datetime
 import shutil  
 import pandas as pd
 import anthropic  # Add anthropic import
+import textwrap
 
 # Load environment variables from .env file (if it exists)
 load_dotenv()
+
+def print_wrapped(text, width=70):
+    """
+    Prints the input text with word wrapping while preserving paragraph breaks.
+    
+    Args:
+        text (str): The input text to print.
+        width (int, optional): Maximum width for each line. Defaults to 70.
+    """
+    # Create a TextWrapper instance with the desired width
+    wrapper = textwrap.TextWrapper(width=width)
+    
+    # Split the text into paragraphs using double newlines
+    paragraphs = text.split("\n\n")
+    
+    # Wrap and print each paragraph separately
+    for para in paragraphs:
+        print(wrapper.fill(para))
+        # Print a blank line to preserve paragraph separation
+        print()
+
 
 def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False):
     """Query an llm
@@ -190,10 +213,10 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     print(f"Running first LaTeX pass: {compile_command}")
     os.system(compile_command)
     
-    # Run BibTeX
-    bibtex_command = f"bibtex ./latex/{prompt_name}"
-    print(f"Running BibTeX: {bibtex_command}")
-    os.system(bibtex_command)
+    # Run Biber without changing directory
+    biber_command = f"biber ./latex/{prompt_name}"
+    print(f"Running Biber: {biber_command}")
+    os.system(biber_command)
     
     # Run LaTeX again (twice) to resolve references
     print("Running second LaTeX pass...")
@@ -253,7 +276,7 @@ use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
 max_tokens = 4000  # Adjust as needed
-temperature = 0.5  # Lower for more deterministic output
+temperature = 1  # Lower for more deterministic output
 
 #%%
 # Model Planning
@@ -309,15 +332,55 @@ response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, in
 
 save_response(response, used_prompt_name)
 
+
 #%%
 # Generate lit review
 
+#  This makes typos in citations, need to correct in next step
 context_names = ['planning-01','planning-02','planning-03'] + \
     ['bib-hedging-ai', 'bib-investing-ai', 'bib-hedging-labor', 'bib-disaster-risk'] + \
-    ['all-bib']
+    ['all-bib'] + \
+    ['intro-01']
 prompt = 'intro-02'
 
-response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking)
+response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking=True)
+
+#%% 
+# fix cite typos
+
+task = """
+Fix the citations in the following latex code. Make sure the citations match actual entries in the bib file. Respond with only corrected latex code.
+"""
+
+with open("./input-other/all-bib.bib", "r") as file:
+    bib_file = file.read()
+
+prompt = task + "\n\n" + f"Here is the latex code:\n\n{response}" + f"\n\nHere is the bib file:\n\n{bib_file}"
+
+# query anthropic
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+temp = client.messages.create(
+    model="claude-3-7-sonnet-20250219",
+    max_tokens=1000,
+    temperature=1,
+    system="You are a macroeconomic theorist. Respond only with short, concise, and clear statements.",
+    messages=[  
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text", 
+                    "text": prompt
+                }
+            ]
+        }
+    ]
+)
+
+response = temp.content[0].text
+
+print_wrapped(response)
+
+#%%
 
 save_response(response, used_prompt_name)
-

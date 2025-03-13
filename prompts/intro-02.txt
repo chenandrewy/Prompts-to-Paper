@@ -1,3 +1,7 @@
-Write a short lit review section. The first paragraph lists the two closest papers. The second paragraph of the review simply nods to many related papers. Both paragraphs explain how our paper contributes.
+Write a short lit review subsection. 
+
+The first paragraph describes the most closely related paper, and how our paper contributes.
+
+The second paragraph of the review simply nods to many related papers. Then mentions how our paper is different.
 
 Output as a latex input (no document environment).
