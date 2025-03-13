@@ -96,16 +96,22 @@ def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./
                 # Error out if context file is not found
                 raise FileNotFoundError(f"Context file not found: {context_path}")
 
-    # add bib context
-    bib_files = ['bib-disaster-risk','bib-hedging-ai','bib-hedging-labor','bib-investing-ai'] \
-        + ['bib-bibtex']
-    for bib_file in bib_files:
-        bib_path = os.path.join(prompts_folder, bib_file + input_extension)
-        if os.path.exists(bib_path):
+    # add bib context if requested
+    if add_bib:
+        # find all bib files in prompts folder
+        bib_files = [f for f in os.listdir(prompts_folder) if f.startswith("bib-") and f.endswith(input_extension)]
+
+        # if no bib files, error out
+        if not bib_files:
+            raise FileNotFoundError("No bib files found in prompts folder")
+
+        # read in bib files
+        for bib_file in bib_files:
+            bib_path = os.path.join(prompts_folder, bib_file)
             print(f"Reading bib from {bib_path}...")
             with open(bib_path, 'r', encoding='utf-8') as file:
                 bib_content = file.read()
-        combined_context += f"--- BEGIN BIB ---\n{bib_content}\n--- END BIB ---\n\n"
+            combined_context += f"--- BEGIN BIB ---\n{bib_content}\n--- END BIB ---\n\n"
 
     # Read the system prompt if it exists and is requested
     system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
@@ -161,10 +167,10 @@ def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./
         print(f"Using Anthropic model: {anthropic_model}")
         print(f"Thinking mode: {'enabled' if use_thinking else 'disabled'}")
 
-        # debugging
-        print('the full prompt is: --------------------------------')
-        print_wrapped(full_prompt)
-        print('end full prompt --------------------------------')
+        # save full prompt to responses folder
+        temp_prompt_path = os.path.join("./responses", f"{prompt_name}-full-prompt.txt")
+        with open(temp_prompt_path, "w", encoding="utf-8") as file:
+            file.write(full_prompt)
         
         # Prepare common parameters
         params = {
@@ -355,7 +361,7 @@ model_name = "claude-3-7-sonnet-20250219"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
-max_tokens = 4000 # Adjust as needed
+max_tokens = 1000 # approx 350 tokens per page
 temperature = 0.5  # Lower for more deterministic output
 
 prompts_folder = "./prompts"
@@ -363,7 +369,7 @@ input_extension = ".txt"
 
 # User selection of plan prompt range
 plan_start = "01"
-plan_end = "04"
+plan_end = "01"
 
 # Replace the original planning code with a call to the function
 planning_loop(plan_start, plan_end, prompts_folder, input_extension, 
