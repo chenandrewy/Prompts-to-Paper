@@ -290,10 +290,17 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
         plan_start = plan_parts[0]
         plan_end = plan_parts[1] if len(plan_parts) > 1 else plan_start
         
-        # Find indices for the specified range
-        index_start = plan_df[plan_df["number"] == plan_start].index[0]
-        index_end = plan_df[plan_df["number"] == plan_end].index[0]
-        print(f"Processing plan prompts from {plan_start} to {plan_end}")
+        # Find index for start
+        index_start = plan_df[plan_df["number"] == plan_start].index[0] if not plan_df[plan_df["number"] == plan_start].empty else 0
+        
+        # For the end, use either the specified prompt or the last available prompt
+        if plan_df[plan_df["number"] == plan_end].empty:
+            index_end = len(plan_df) - 1
+            print(f"Note: Plan end number {plan_end} not found, running all prompts. Last prompt is {plan_df['number'].iloc[-1]}")
+        else:
+            index_end = plan_df[plan_df["number"] == plan_end].index[0]
+        
+        print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
     
     # Parse the bibliography range
     bib_parts = bib_range.split("-")
@@ -339,20 +346,20 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-# model_name = "claude-3-7-sonnet-20250219"
-model_name = "claude-3-5-haiku-20241022"
+model_name = "claude-3-7-sonnet-20250219"
+# model_name = "claude-3-5-haiku-20241022"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
-max_tokens = 1000 # approx 350 tokens per page
+max_tokens = 2000 # approx 350 tokens per page
 temperature = 0.5  # Lower for more deterministic output
 
 prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_range = "full"  # Can be "XX-YY" format or "full"
-bib_range = "05-99"  # Include bibliography for prompts XX-YY
+plan_range = "01-99"  # Use planning prompts XX-YY
+bib_range = "05-99"  # Include bibliography for planning prompts XX-YY
 
 # Call the planning loop with the plan range and bib range
 planning_loop(plan_range, bib_range, prompts_folder, input_extension, 
