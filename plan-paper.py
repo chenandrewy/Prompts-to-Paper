@@ -278,15 +278,14 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     else:
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
-def planning_loop(plan_start, plan_end, prompts_folder="./prompts", input_extension=".txt", 
+def planning_loop(plan_range, prompts_folder="./prompts", input_extension=".txt", 
                  api_provider="anthropic", model_name="claude-3-7-sonnet-20250219", 
                  use_system_prompt=True, use_thinking=True, max_tokens=4000, temperature=1):
     """
     Process a sequence of planning prompts with context from previous prompts.
     
     Args:
-        plan_start: Starting prompt number (e.g., "01")
-        plan_end: Ending prompt number (e.g., "03")
+        plan_range: Range of prompts to process (e.g., "01-03" or "full")
         prompts_folder: Directory containing prompt files
         input_extension: File extension for prompt files
         api_provider: API provider to use ('replicate' or 'anthropic')
@@ -305,6 +304,9 @@ def planning_loop(plan_start, plan_end, prompts_folder="./prompts", input_extens
     # extract name and prompt number
     plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
     plan_df["number"] = plan_df["name"].str.extract(r"(\d+)")
+    
+    # Sort by number to ensure correct order
+    plan_df = plan_df.sort_values("number").reset_index(drop=True)
 
     # read in prompts
     for filename in plan_df["filename"]:
@@ -312,19 +314,31 @@ def planning_loop(plan_start, plan_end, prompts_folder="./prompts", input_extens
             prompt = file.read()
         plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
 
+    # Parse the plan range
+    if plan_range == "full":
+        # Process all prompts
+        index_start = 0
+        index_end = len(plan_df) - 1
+        print(f"Processing all plan prompts from {plan_df['number'].iloc[0]} to {plan_df['number'].iloc[-1]}")
+    else:
+        # Parse the range format "XX-YY"
+        plan_parts = plan_range.split("-")
+        plan_start = plan_parts[0]
+        plan_end = plan_parts[1] if len(plan_parts) > 1 else plan_start
+        
+        # Find indices for the specified range
+        index_start = plan_df[plan_df["number"] == plan_start].index[0]
+        index_end = plan_df[plan_df["number"] == plan_end].index[0]
+        print(f"Processing plan prompts from {plan_start} to {plan_end}")
+    
     # loop over plan prompts
-    index_start = plan_df[plan_df["number"] == plan_start].index[0]
-    index_end = plan_df[plan_df["number"] == plan_end].index[0]
-    print(f"Looping over prompts {plan_start} to {plan_end}")
     for index in range(index_start, index_end+1):    
         # Set context
-        if index == plan_df.index[0]:
+        if index == 0:
             context_names = "none"
         else:
             # Use all previous prompt outputs as context
             context_names = plan_df["name"].iloc[:index].tolist()
-            # just the previous prompt
-            # context_names = plan_df["name"][index-1] 
 
         print("================================================")
         print(f"Processing prompt number {plan_df['number'][index]}...")
@@ -368,13 +382,13 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_start = "01"
-plan_end = "01"
+# plan_range = "01-01"  # Can be "XX-YY" format or "full"
+plan_range = "full"
 
-# Replace the original planning code with a call to the function
-planning_loop(plan_start, plan_end, prompts_folder, input_extension, 
-                api_provider, model_name, use_system_prompt, use_thinking,
-                max_tokens, temperature)    
+# Call the planning loop with the plan range
+planning_loop(plan_range, prompts_folder, input_extension, 
+              api_provider, model_name, use_system_prompt, use_thinking,
+              max_tokens, temperature)    
 
 #%%
 

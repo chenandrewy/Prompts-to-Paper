@@ -1,11 +1,3 @@
-Write an introduction for an academic finance paper titled 'Hedging the AI Singularity' based on the following planning documents. 
-
-Start with background. Describe how AI progress is happening quickly, and investors may be concerned about their wages being displaced. 
-
-Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principal create. This differs from say, the internet revolution. AI progress may also be incredibly sudden (the AI singularity).
-
-Then describe what the paper does. It models the AI singularity as a sudden shock to the capital share. And studies the asset pricing implications. 
-
-Cite papers as appropriate. Ensure citations correspond to items from all-bib.
+Consider an extension in which there are two types of capital: AI capital and traditional capital. In this extension, the AI capital share jumps sharply, and the shares of traditional capital and labor fall at the same time. 
 
 Output as a latex input (no document environment).
