@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import textwrap
 import time
 import re
+import shutil
 
 # Load environment variables (API key)
 load_dotenv()
@@ -170,7 +171,6 @@ with open("./latex/full_paper_cleaned.tex", "w", encoding="utf-8") as f:
 
 
 #%%
-
 # compile latex
 
 # clean aux files
@@ -193,3 +193,5 @@ os.system(compile_command)
 print("Running final LaTeX pass...")
 result = os.system(compile_command)
 
+# copy pdf to responses folder
+shutil.copy("./latex/full_paper_cleaned.pdf", "./responses/full_paper_cleaned.pdf")
