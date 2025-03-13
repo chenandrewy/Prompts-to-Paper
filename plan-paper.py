@@ -56,7 +56,7 @@ def print_wrapped(text, width=70):
         print()
 
 
-def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
+def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
@@ -95,6 +95,17 @@ def query_llm(prompt_name, context_names=None, prompts_folder="./prompts", input
             else:
                 # Error out if context file is not found
                 raise FileNotFoundError(f"Context file not found: {context_path}")
+
+    # add bib context
+    bib_files = ['bib-disaster-risk','bib-hedging-ai','bib-hedging-labor','bib-investing-ai'] \
+        + ['all-bib']
+    for bib_file in bib_files:
+        bib_path = os.path.join(prompts_folder, bib_file + input_extension)
+        if os.path.exists(bib_path):
+            print(f"Reading bib from {bib_path}...")
+            with open(bib_path, 'r', encoding='utf-8') as file:
+                bib_content = file.read()
+        combined_context += f"--- BEGIN BIB ---\n{bib_content}\n--- END BIB ---\n\n"
 
     # Read the system prompt if it exists and is requested
     system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
@@ -319,8 +330,14 @@ def planning_loop(plan_start, plan_end, prompts_folder="./prompts", input_extens
         print(f"Prompt: {prompt}")
         print(f"Context: {context_names}")
 
+        # hacky add bib
+        if int(plan_df["number"][index]) >= 4:
+            add_bib = True
+        else:
+            add_bib = False
+
         # Query the model
-        response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, 
+        response, used_prompt_name = query_llm(prompt, context_names, add_bib, prompts_folder, input_extension, 
                                               api_provider, model_name, use_system_prompt, use_thinking)
 
         # Save
@@ -336,9 +353,10 @@ def main():
 
     api_provider = "anthropic"
     model_name = "claude-3-7-sonnet-20250219"
+    # model_name = "claude-3-5-haiku-20241022"
     use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
-    use_system_prompt = True
+    use_system_prompt = False
     max_tokens = 4000 # Adjust as needed
     temperature = 0.5  # Lower for more deterministic output
 
@@ -347,27 +365,12 @@ def main():
 
     # User selection of plan prompt range
     plan_start = "01"
-    plan_end = "03"
+    plan_end = "04"
 
     # Replace the original planning code with a call to the function
     planning_loop(plan_start, plan_end, prompts_folder, input_extension, 
                  api_provider, model_name, use_system_prompt, use_thinking,
-                 max_tokens, temperature)
-    
-    # %%
-    # Introduction initial sketch
-
-    context_names = ['planning-01','planning-02','planning-03'] \
-        + ['bib-disaster-risk','bib-hedging-ai','bib-hedging-labor','bib-investing-ai'] \
-        + ['all-bib'] 
-
-    prompt = 'intro-01'
-
-    response, used_prompt_name = query_llm(prompt, context_names, prompts_folder, input_extension, api_provider, model_name, use_system_prompt, use_thinking)
-
-    save_response(response, used_prompt_name)
-
-
+                 max_tokens, temperature)    
 
 if __name__ == "__main__":
     main()
