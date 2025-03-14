@@ -334,13 +334,13 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-# model_name = "claude-3-7-sonnet-20250219"
-model_name = "claude-3-5-haiku-20241022"
+model_name = "claude-3-7-sonnet-20250219"
+# model_name = "claude-3-5-haiku-20241022"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
 max_tokens = 2000 # approx 350 tokens per page
-temperature = 0.5  # Lower for more deterministic output
+temperature = 1.0  # Lower for more deterministic output
 
 prompts_folder = "./prompts"
 input_extension = ".txt"
