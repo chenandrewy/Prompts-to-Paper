@@ -7,7 +7,7 @@ import numpy as np
 import os
 import shutil
 
-num_papers = 2
+num_papers = 3
 
 for paper_i in range(1,num_papers+1):
 
