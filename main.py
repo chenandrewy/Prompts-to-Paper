@@ -60,8 +60,13 @@ for paper_i in range(1,num_papers+1):
     shutil.copytree("./responses", f"./1-many-responses/responses-{paper_i:03}", dirs_exist_ok=True)
 
     # Copy full_paper_cleaned.pdf and full_paper_cleaned.tex to 2-many-papers subfolder
-    shutil.copy("./responses/full_paper_cleaned.pdf", f"./2-many-papers/paper-{paper_i:03}.pdf")
     shutil.copy("./responses/full_paper_cleaned.tex", f"./2-many-papers/paper-{paper_i:03}.tex")
+
+    if os.path.exists("./responses/full_paper_cleaned.pdf"):
+        shutil.copy("./responses/full_paper_cleaned.pdf", f"./2-many-papers/paper-{paper_i:03}.pdf")
+    else:
+        shutil.copy("./responses/full_paper_cleaned.log", f"./2-many-papers/paper-{paper_i:03}.log")
+        print(f"PDF failed, copying log file instead to ./2-many-papers/paper-{paper_i:03}.log")
 
     # Feedback
     end_time = time.time()
