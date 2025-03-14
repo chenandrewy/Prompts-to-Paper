@@ -1,0 +1,51 @@
+Got it! I will compile research papers from top finance (JF, JFE, RFS, JFQA, MS) and economics (QJE, JPE, AER) journals that explicitly discuss AI and its impact on human labor displacement, focusing on hedging through stock investing. The selection will include both theoretical and empirical papers, ensuring that at least 50% are from the last 10-15 years.
+
+I’ll provide an outline with the title, authors, journal, year, and abstract for each paper. I will let you know once I have the results.
+
+# AI-Driven Labor Risk and Stock Market Hedging – Key Research Papers
+
+Below is a collection of relevant papers from top finance and economics journals that discuss the risk of artificial intelligence (AI) or automation replacing human labor, and in many cases explore how this risk can be hedged or reflected in stock market investments. Each entry includes the title, authors, publication venue, year, and the paper’s abstract.
+
+### **Labor-Technology Substitution: Implications for Asset Pricing** (2019, *Journal of Finance*)
+
+**Authors:** Miao Ben Zhang  
+**Journal:** *Journal of Finance*  
+**Year:** 2019  
+**Abstract:** *“This paper studies the asset pricing implications of a firm's opportunities to replace routine‐task labor with automation. I develop a model in which firms optimally undertake such replacement when their productivity is low. Hence, firms with routine‐task labor maintain a replacement option that hedges their value against unfavorable macroeconomic shocks and lowers their expected returns. Using establishment‐level occupational data, I construct a measure of firms' share of routine‐task labor. Compared to their industry peers, firms with a higher share of routine‐task labor (i) invest more in machines and reduce more routine‐task labor during economic downturns, and (ii) have lower expected stock returns.”* ([The Journal of Finance Volume 74: Issue 4 (August 2019)](https://afajof.org/issue/volume-74-issue-4/#:~:text=This%20paper%20studies%20the%20asset,have%20lower%20expected%20stock%C2%A0returns))
+
+### **Automation and the Displacement of Labor by Capital: Asset Pricing Theory and Empirical Evidence** (2023, *Journal of Financial Economics*)
+
+**Author:** Jiří Knesl  
+**Journal:** *Journal of Financial Economics*  
+**Year:** 2023  
+**Abstract:** *“I examine the asset pricing implications of technological innovations that allow capital to displace labor: automation. I develop a theory in which firms with displaceable labor are negatively exposed to such technology shocks. In the model, firms optimally adopt technology to gain competitive advantage but in equilibrium competition erodes profits and decreases firm value. Empirically, I find that firms with high share of displaceable labor have negative exposure to technology shocks. A long-short portfolio sorted on this variable mimics macroeconomic measures of technology shocks. Negatively exposed firms earn a 4% annual return premium consistent with displacement risk from technological progress.”* ([Automation and the displacement of labor by capital: Asset pricing theory and empirical evidence](https://ideas.repec.org/a/eee/jfinec/v147y2023i2p271-296.html#:~:text=I%20examine%20the%20asset%20pricing,with%20displacement%20risk%20from%20technological))
+
+### **Do Robots Increase Wealth Dispersion?** (2024, *Review of Financial Studies*)
+
+**Authors:** Francisco Gomes, Thomas Jansson, Yigitcan Karabulut  
+**Journal:** *The Review of Financial Studies*  
+**Year:** 2024  
+**Abstract:** *“We document significant negative effects of exposure to increased automation at work on household wealth accumulation. Beyond the income and saving channels, we uncover a novel mechanism contributing to the negative wealth effects of automation that arises through the endogenous optimal portfolio decisions of households. We show that households rebalance their financial wealth away from the stock market in response to increased human capital risk induced by pervasive automation, thereby attaining lower wealth levels and relative positions in the wealth distribution. Our evidence suggests that the portfolio channel amplifies the inequality-enhancing effects of increased automation.”* ([Research | Yigitcan Karabulut](https://www.ykarabulut.com/research#:~:text=Abstract,enhancing%20effects%20of%20increased%20automation))
+
+### **Workplace Automation and Corporate Liquidity Policy** (2025, *Management Science*)
+
+**Authors:** Thomas W. Bates, Fangfang Du, Jessie Jiaxu Wang  
+**Journal:** *Management Science*  
+**Year:** 2025 (forthcoming; published online)  
+**Abstract:** *“Using an occupational probability of computerization, we measure a firm’s ability to replace labor with automated capital. Our evidence suggests that the potential to automate a workforce enhances operating flexibility, allowing firms to hold less precautionary cash. To provide evidence for this mechanism, we exploit the 2011–2012 Thailand hard drive crisis as an exogenous shock to the cost of automation. In addition, the negative relation between prospective automation and cash holdings is greater for firms with a lower expected cost of worker displacement and greater labor-induced operating leverage.”* ([The Fed - Workplace Automation and Corporate Liquidity Policy](https://www.federalreserve.gov/econres/feds/workplace-automation-and-corporate-liquidity-policy.htm#:~:text=Using%20an%20occupational%20probability%20of,induced%20operating%20leverage))
+
+### **Robots and Jobs: Evidence from US Labor Markets** (2020, *Journal of Political Economy*)
+
+**Authors:** Daron Acemoglu, Pascual Restrepo  
+**Journal:** *Journal of Political Economy*  
+**Year:** 2020  
+**Abstract:** *“We study the effects of industrial robots on US labor markets. We show theoretically that robots may reduce employment and wages and that their local impacts can be estimated using variation in exposure to robots—defined from industry-level advances in robotics and local industry employment. We estimate robust negative effects of robots on employment and wages across commuting zones. We also show that areas most exposed to robots after 1990 do not exhibit any differential trends before then, and robots’ impact is distinct from other capital and technologies. One more robot per thousand workers reduces the employment-to-population ratio by 0.2 percentage points and wages by 0.42%.”* ([Robots and Jobs: Evidence from US Labor Markets](https://ideas.repec.org/a/ucp/jpolec/doi10.1086-705716.html#:~:text=We%20study%20the%20effects%20of,42))
+
+### **The Global Decline of the Labor Share** (2014, *Quarterly Journal of Economics*)
+
+**Authors:** Loukas Karabarbounis, Brent Neiman  
+**Journal:** *Quarterly Journal of Economics*  
+**Year:** 2014  
+**Abstract:** *“The stability of the labor share of income is a key foundation in macroeconomic models. We document, however, that the global labor share has significantly declined since the early 1980s, with the decline occurring within the large majority of countries and industries. We show that the decrease in the relative price of investment goods, often attributed to advances in information technology and the computer age, induced firms to shift away from labor and toward capital. The lower price of investment goods explains roughly half of the observed decline in the labor share, even when we allow for other mechanisms influencing factor shares such as increasing profits, capital-augmenting technology growth, and the changing skill composition of the labor force. We highlight the implications of this explanation for welfare and macroeconomic dynamics.”* ([title](https://www.nber.org/system/files/working_papers/w19136/w19136.pdf#:~:text=The%20stability%20of%20the%20labor,The%20lower%20price)) ([title](https://www.nber.org/system/files/working_papers/w19136/w19136.pdf#:~:text=of%20investment%20goods%20explains%20roughly,for%20welfare%20and%20macroeconomic%20dynamics))
+
+Each of these papers provides insight into how advances in AI and automation impact labor markets and financial markets. Several of the finance papers (Zhang 2019; Knesl 2023; Gomes *et al.* 2024) explicitly connect the risk of labor-displacing technology to asset prices or portfolio choices, suggesting ways investors might hedge or are affected by this risk through stock holdings. The economics papers (Acemoglu & Restrepo 2020; Karabarbounis & Neiman 2014) focus on the broader labor market and macroeconomic consequences of automation, providing context for why such *“AI disruption”* risks matter and how they might translate into financial implications. Each abstract above offers a concise summary of the paper’s findings and approach, directly from the source.

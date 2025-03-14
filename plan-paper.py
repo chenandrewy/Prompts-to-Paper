@@ -19,7 +19,7 @@ from utils import clean_latex_aux_files, print_wrapped  # Import utility functio
 # Load environment variables from .env file (if it exists)
 load_dotenv()
 
-def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
+def query_llm(prompt_name, context_names=None, add_lit=False, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
@@ -59,22 +59,22 @@ def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./
                 # Error out if context file is not found
                 raise FileNotFoundError(f"Context file not found: {context_path}")
 
-    # add bib context if requested
-    if add_bib:
-        # find all bib files in prompts folder
-        bib_files = [f for f in os.listdir(prompts_folder) if f.startswith("bib-") and f.endswith(input_extension)]
+    # add literature context if requested
+    if add_lit:
+        # find all lit files in prompts folder
+        lit_files = [f for f in os.listdir(prompts_folder) if f.startswith("lit-") and f.endswith(input_extension)]
 
-        # if no bib files, error out
-        if not bib_files:
-            raise FileNotFoundError("No bib files found in prompts folder")
+        # if no lit files, error out
+        if not lit_files:
+            raise FileNotFoundError("No lit files found in prompts folder")
 
-        # read in bib files
-        for bib_file in bib_files:
-            bib_path = os.path.join(prompts_folder, bib_file)
-            print(f"Reading bib from {bib_path}...")
-            with open(bib_path, 'r', encoding='utf-8') as file:
-                bib_content = file.read()
-            combined_context += f"--- BEGIN BIB ---\n{bib_content}\n--- END BIB ---\n\n"
+        # read in lit files
+        for lit_file in lit_files:
+            lit_path = os.path.join(prompts_folder, lit_file)
+            print(f"Reading lit from {lit_path}...")
+            with open(lit_path, 'r', encoding='utf-8') as file:
+                lit_content = file.read()
+            combined_context += f"--- BEGIN LITERATURE ---\n{lit_content}\n--- END LITERATURE ---\n\n"
 
     # Read the system prompt if it exists and is requested
     system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
@@ -242,7 +242,7 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     else:
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
-def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", input_extension=".txt", 
+def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", input_extension=".txt", 
                  api_provider="anthropic", model_name="claude-3-7-sonnet-20250219", 
                  use_system_prompt=True, use_thinking=True, max_tokens=4000, temperature=1):
     """
@@ -250,7 +250,7 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
     
     Args:
         plan_range: Range of prompts to process (e.g., "01-03" or "full")
-        bib_range: Range of prompts that should include bibliography context (e.g., "04-99")
+        lit_range: Range of prompts that should include literature context (e.g., "04-99")
         prompts_folder: Directory containing prompt files
         input_extension: File extension for prompt files
         api_provider: API provider to use ('replicate' or 'anthropic')
@@ -290,11 +290,11 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 
     print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
 
-    # Parse the bibliography range
-    bib_parts = bib_range.split("-")
-    bib_start = int(bib_parts[0])
-    bib_end = int(bib_parts[1]) if len(bib_parts) > 1 else bib_start
-    print(f"Using bibliography for prompts {bib_start} through {bib_end}")
+    # Parse the literature range
+    lit_parts = lit_range.split("-")
+    lit_start = int(lit_parts[0])
+    lit_end = int(lit_parts[1]) if len(lit_parts) > 1 else lit_start
+    print(f"Using literature for prompts {lit_start} through {lit_end}")
     
     # loop over plan prompts
     for index in range(index_start, index_end+1):    
@@ -317,11 +317,11 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 
         # Determine if this prompt should include bibliography
         current_prompt_num = int(plan_df["number"][index])
-        add_bib = bib_start <= current_prompt_num <= bib_end
-        print(f"Including bibliography: {add_bib}")
+        add_lit = lit_start <= current_prompt_num <= lit_end
+        print(f"Including literature: {add_lit}")
 
         # Query the model
-        response, used_prompt_name = query_llm(prompt, context_names, add_bib, prompts_folder, input_extension, 
+        response, used_prompt_name = query_llm(prompt, context_names, add_lit, prompts_folder, input_extension, 
                                               api_provider, model_name, use_system_prompt, use_thinking)
 
         # Save
@@ -334,8 +334,8 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-# model_name = "claude-3-7-sonnet-20250219"
-model_name = "claude-3-5-haiku-20241022"
+model_name = "claude-3-7-sonnet-20250219"
+# model_name = "claude-3-5-haiku-20241022"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
@@ -346,11 +346,11 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_range = "01-99"  # Use planning prompts XX-YY
-bib_range = "05-99"  # Include bibliography for planning prompts XX-YY
+plan_range = "01-01"  # Use planning prompts XX-YY
+lit_range = "01-99"  # Include bibliography for planning prompts XX-YY
 
 # Call the planning loop with the plan range and bib range
-planning_loop(plan_range, bib_range, prompts_folder, input_extension, 
+planning_loop(plan_range, lit_range, prompts_folder, input_extension, 
               api_provider, model_name, use_system_prompt, use_thinking,
               max_tokens, temperature)    
 

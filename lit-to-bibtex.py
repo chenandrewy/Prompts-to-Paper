@@ -62,8 +62,8 @@ def convert_to_bibtex(lit_overview):
     
     print(f"Sending request to Claude for lit overview: {lit_overview[:1000]}...")
 
-    # save message to temp/message-bib-to-bibtex.txt
-    with open("./temp/message-bib-to-bibtex.txt", "w", encoding="utf-8") as f:
+    # save message to temp/message-lit-to-bibtex.txt
+    with open("./temp/message-lit-to-bibtex.txt", "w", encoding="utf-8") as f:
         f.write(message)
     
     # Start timer
@@ -92,10 +92,10 @@ def convert_to_bibtex(lit_overview):
 os.makedirs("./temp", exist_ok=True)
 
 # Gather all bib*.txt files from prompts directory
-bib_files = sorted(glob.glob("./prompts/bib-*.txt"))
+bib_files = sorted(glob.glob("./prompts/lit-*.txt"))
 
-# remove bib-99-bibtex.txt from list
-bib_files = [f for f in bib_files if "bib-99-bibtex.txt" not in f]
+# remove lit-99-bibtex.txt from list
+bib_files = [f for f in bib_files if "lit-99-bibtex.txt" not in f]
 
 print(f"Found {len(bib_files)} bibliography files.")
 
@@ -122,12 +122,12 @@ for file_path in bib_files:
     all_bibtex.append(f"% From {file_name}\n{bibtex_claude}\n")
 
 # save for prompt
-output_path1 = "./prompts/bib-99-bibtex.txt"
+output_path1 = "./prompts/lit-99-bibtex.txt"
 with open(output_path1, "w", encoding="utf-8") as f:
     f.write("\n\n".join(all_bibtex))
 
 # save for latex input
-output_path2 = "./input-other/bib-99-bibtex.bib"
+output_path2 = "./input-other/lit-99-bibtex.bib"
 with open(output_path2, "w", encoding="utf-8") as f:
     f.write("\n\n".join(all_bibtex))        
 
