@@ -7,7 +7,7 @@ import numpy as np
 import os
 import shutil
 
-num_papers = 10
+num_papers = 2
 
 for paper_i in range(1,num_papers+1):
 
@@ -40,9 +40,11 @@ for paper_i in range(1,num_papers+1):
             print("Warning: Could not clean up ./responses/ and ./latex/")
             print(f"Encountered error: {e}")
 
-    # Run plan-paper.py first
+    # === run plan-paper.py ===
     print("Running plan-paper.py...")
-    out_plan_paper = subprocess.run(["python", "plan-paper.py"], capture_output=True, text=True)
+    out_plan_paper = subprocess.run([
+        "python", "plan-paper.py"
+    ], capture_output=True, text=True)
 
     # Print the output
     print("STDOUT:")
@@ -61,7 +63,7 @@ for paper_i in range(1,num_papers+1):
             f.write(out_plan_paper.stdout)
         continue
 
-    # Then run make-paper.py
+    # === run make-paper.py ===
     print("Running make-paper.py...")
     out_make_paper = subprocess.run([
         "python", "make-paper.py", 
@@ -84,6 +86,8 @@ for paper_i in range(1,num_papers+1):
         print(f"Paper {paper_i} failed, saving out_make_paper.stderr to ./2-many-papers/paper-{paper_i:03}-make-paper-stderr.txt")
         with open(f"./2-many-papers/paper-{paper_i:03}-make-paper-stderr.txt", "w") as f:
             f.write(out_make_paper.stderr)
+        with open(f"./2-many-papers/paper-{paper_i:03}-make-paper-stdout.txt", "w") as f:
+            f.write(out_make_paper.stdout)
         continue
 
     # Copy the responses folder to 1-many-responses subfolder

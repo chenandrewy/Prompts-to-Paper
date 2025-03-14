@@ -19,7 +19,10 @@ from utils import clean_latex_aux_files, print_wrapped  # Import utility functio
 # Load environment variables from .env file (if it exists)
 load_dotenv()
 
-def query_llm(prompt_name, context_names=None, add_lit=False, prompts_folder="./prompts", input_extension=".txt", api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
+def query_llm(prompt_name, context_names=None, add_lit=False, 
+              prompts_folder="./prompts", input_extension=".txt", 
+              response_folder = "./responses", response_ext = ".tex",
+              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
@@ -49,7 +52,7 @@ def query_llm(prompt_name, context_names=None, add_lit=False, prompts_folder="./
             context_names = []
             
         for context_name in context_names:
-            context_path = os.path.join(prompts_folder, context_name + input_extension)
+            context_path = os.path.join(response_folder, context_name + response_ext)
             if os.path.exists(context_path):
                 print(f"Reading context from {context_path}...")
                 with open(context_path, 'r', encoding='utf-8') as file:
@@ -89,6 +92,11 @@ def query_llm(prompt_name, context_names=None, add_lit=False, prompts_folder="./
     if combined_context:
         full_prompt = f"Here is some context:\n\n{combined_context}\n\n{prompt}"
     
+    # save full prompt to responses folder
+    temp_prompt_path = os.path.join(response_folder, f"{prompt_name}-full-prompt.txt")
+    with open(temp_prompt_path, "w", encoding="utf-8") as file:
+        file.write(full_prompt)
+
     # Process based on API provider
     if api_provider.lower() == 'replicate':
         # Replicate API
@@ -130,11 +138,6 @@ def query_llm(prompt_name, context_names=None, add_lit=False, prompts_folder="./
         print(f"Using Anthropic model: {anthropic_model}")
         print(f"Thinking mode: {'enabled' if use_thinking else 'disabled'}")
         print(f"First 1000 characters of full prompt: {full_prompt[:1000]}")
-
-        # save full prompt to responses folder
-        temp_prompt_path = os.path.join("./responses", f"{prompt_name}-full-prompt.txt")
-        with open(temp_prompt_path, "w", encoding="utf-8") as file:
-            file.write(full_prompt)
         
         # Prepare common parameters
         params = {
@@ -320,9 +323,22 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
         add_lit = lit_start <= current_prompt_num <= lit_end
         print(f"Including literature: {add_lit}")
 
+        # # fix me
+        # response_folder = "./responses"
+        # response_ext = ".tex"
+
         # Query the model
-        response, used_prompt_name = query_llm(prompt, context_names, add_lit, prompts_folder, input_extension, 
-                                              api_provider, model_name, use_system_prompt, use_thinking)
+        response, used_prompt_name = query_llm(
+            prompt_name = prompt, 
+            context_names = context_names, 
+            add_lit = add_lit, 
+            prompts_folder = prompts_folder, 
+            input_extension = input_extension, 
+            api_provider = api_provider, 
+            model_name = model_name, 
+            use_system_prompt = use_system_prompt, 
+            use_thinking = use_thinking
+        )
 
         # Save
         save_response(response, used_prompt_name)
@@ -334,8 +350,8 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-model_name = "claude-3-7-sonnet-20250219"
-# model_name = "claude-3-5-haiku-20241022"
+# model_name = "claude-3-7-sonnet-20250219"
+model_name = "claude-3-5-haiku-20241022"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
@@ -346,13 +362,19 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_range = "01-01"  # Use planning prompts XX-YY
-lit_range = "01-99"  # Include bibliography for planning prompts XX-YY
+plan_range = "03-03"  # Use planning prompts XX-YY
+lit_range = "09-99"  # Include bibliography for planning prompts XX-YY
 
 # Call the planning loop with the plan range and bib range
-planning_loop(plan_range, lit_range, prompts_folder, input_extension, 
-              api_provider, model_name, use_system_prompt, use_thinking,
-              max_tokens, temperature)    
+planning_loop(
+    plan_range = plan_range, 
+    lit_range = lit_range, 
+    model_name = model_name, 
+    use_system_prompt = use_system_prompt, 
+    use_thinking = use_thinking,
+    max_tokens = max_tokens, 
+    temperature = temperature
+)    
 
 #%%
 
