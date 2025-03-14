@@ -267,7 +267,7 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 
     # extract name and prompt number
     plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
-    plan_df["number"] = plan_df["name"].str.extract(r"(\d+)")
+    plan_df["number"] = plan_df["name"].str.extract(r"(\d+)").astype(int)
     
     # Sort by number to ensure correct order
     plan_df = plan_df.sort_values("number").reset_index(drop=True)
@@ -278,30 +278,17 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
             prompt = file.read()
         plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
 
-    # Parse the plan range
-    if plan_range == "full":
-        # Process all prompts
-        index_start = 0
-        index_end = len(plan_df) - 1
-        print(f"Processing all plan prompts from {plan_df['number'].iloc[0]} to {plan_df['number'].iloc[-1]}")
-    else:
-        # Parse the range format "XX-YY"
-        plan_parts = plan_range.split("-")
-        plan_start = plan_parts[0]
-        plan_end = plan_parts[1] if len(plan_parts) > 1 else plan_start
-        
-        # Find index for start
-        index_start = plan_df[plan_df["number"] == plan_start].index[0] if not plan_df[plan_df["number"] == plan_start].empty else 0
-        
-        # For the end, use either the specified prompt or the last available prompt
-        if plan_df[plan_df["number"] == plan_end].empty:
-            index_end = len(plan_df) - 1
-            print(f"Note: Plan end number {plan_end} not found, running all prompts. Last prompt is {plan_df['number'].iloc[-1]}")
-        else:
-            index_end = plan_df[plan_df["number"] == plan_end].index[0]
-        
-        print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
+    # Parse the range format "XX-YY"
+    plan_parts = plan_range.split("-")
+    plan_start = max(int(plan_parts[0]), plan_df["number"].min())
+    plan_end = min(int(plan_parts[1]), plan_df["number"].max())
     
+    # Find index for start
+    index_start = plan_df[plan_df["number"] == plan_start].index[0] 
+    index_end = plan_df[plan_df["number"] == plan_end].index[0]
+
+    print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
+
     # Parse the bibliography range
     bib_parts = bib_range.split("-")
     bib_start = int(bib_parts[0])
@@ -358,7 +345,7 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_range = "01-99"  # Use planning prompts XX-YY
+plan_range = "02-03"  # Use planning prompts XX-YY
 bib_range = "05-99"  # Include bibliography for planning prompts XX-YY
 
 # Call the planning loop with the plan range and bib range
