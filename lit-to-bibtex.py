@@ -48,9 +48,7 @@ def convert_to_bibtex(lit_overview):
     """
     instructions = """
     Convert the following literature overview into BibTeX entries. 
-    Include all available information such as authors, title, journal/conference, year, volume, pages, DOI, etc.
-    Return ONLY the BibTeX entries, nothing else.
-    Be careful to use only the information provided in the literature overview. Do not change any author names, years, titles, or journal names.
+    Include authors, title, journal/conference, year, volume, pages, DOI, if available. Be careful to use only the information provided in the literature overview. Do not change any author names, years, titles, or journal names. Return ONLY the BibTeX entries, nothing else.
     """
     
     message = f"""
@@ -121,15 +119,30 @@ for file_path in bib_files:
 
     all_bibtex.append(f"% From {file_name}\n{bibtex_claude}\n")
 
+#%%
+
+# clean up output
+
+all_bibtex_clean = []
+
+for bibtex in all_bibtex:
+    # remove any lines with ```
+    bibtex_clean = "\n".join([line for line in bibtex.split("\n") if "```" not in line])
+    all_bibtex_clean.append(bibtex_clean)
+
+
+#%%
+# save to file
+
 # save for prompt
 output_path1 = "./prompts/lit-99-bibtex.txt"
 with open(output_path1, "w", encoding="utf-8") as f:
-    f.write("\n\n".join(all_bibtex))
+    f.write("\n\n".join(all_bibtex_clean))
 
 # save for latex input
 output_path2 = "./input-other/lit-99-bibtex.bib"
 with open(output_path2, "w", encoding="utf-8") as f:
-    f.write("\n\n".join(all_bibtex))        
+    f.write("\n\n".join(all_bibtex_clean))        
 
 print(f"\nAll BibTeX entries have been saved to {output_path1} and {output_path2}")
 

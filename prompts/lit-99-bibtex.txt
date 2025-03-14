@@ -1,286 +1,293 @@
 % From lit-01-hedging-ai.txt
-@article{acemoglu2020robots,
-  author = {Acemoglu, Daron and Restrepo, Pascual},
+@article{Zhang2019,
+  author = {Miao Ben Zhang},
+  title = {Labor-Technology Substitution: Implications for Asset Pricing},
+  journal = {Journal of Finance},
+  year = {2019},
+  volume = {74},
+  number = {4},
+  pages = {},
+  doi = {}
+}
+
+@article{Knesl2023,
+  author = {Jiří Knesl},
+  title = {Automation and the Displacement of Labor by Capital: Asset Pricing Theory and Empirical Evidence},
+  journal = {Journal of Financial Economics},
+  year = {2023},
+  volume = {147},
+  number = {2},
+  pages = {271--296},
+  doi = {}
+}
+
+@article{Gomes2024,
+  author = {Francisco Gomes and Thomas Jansson and Yigitcan Karabulut},
+  title = {Do Robots Increase Wealth Dispersion?},
+  journal = {The Review of Financial Studies},
+  year = {2024},
+  volume = {},
+  number = {},
+  pages = {},
+  doi = {}
+}
+
+@article{Bates2025,
+  author = {Thomas W. Bates and Fangfang Du and Jessie Jiaxu Wang},
+  title = {Workplace Automation and Corporate Liquidity Policy},
+  journal = {Management Science},
+  year = {2025},
+  volume = {},
+  number = {},
+  pages = {},
+  doi = {}
+}
+
+@article{Acemoglu2020,
+  author = {Daron Acemoglu and Pascual Restrepo},
   title = {Robots and Jobs: Evidence from US Labor Markets},
   journal = {Journal of Political Economy},
-  volume = {128},
-  number = {6},
-  pages = {2188--2244},
-  year = {2020}
+  year = {2020},
+  volume = {},
+  number = {},
+  pages = {},
+  doi = {10.1086/705716}
 }
 
-@article{garleanu2012displacement,
-  author = {G{\^a}rleanu, Nicolae and Kogan, Leonid and Panageas, Stavros},
-  title = {Displacement Risk and Asset Returns},
-  journal = {Journal of Financial Economics},
-  volume = {105},
-  number = {3},
-  pages = {491--510},
-  year = {2012}
-}
-
-@article{kogan2020left,
-  author = {Kogan, Leonid and Papanikolaou, Dimitris and Stoffman, Noah},
-  title = {Left Behind: Creative Destruction, Inequality, and the Stock Market},
-  journal = {Journal of Political Economy},
-  volume = {128},
-  number = {3},
-  pages = {855--906},
-  year = {2020}
-}
-
-@article{kogan2023technological,
-  author = {Kogan, Leonid and Papanikolaou, Dimitris and others},
-  title = {Technological Innovation, Resource Allocation, and Growth},
+@article{Karabarbounis2014,
+  author = {Loukas Karabarbounis and Brent Neiman},
+  title = {The Global Decline of the Labor Share},
   journal = {Quarterly Journal of Economics},
-  volume = {132},
-  number = {2},
-  pages = {665--712},
-  year = {2023}
-}
-
-@article{eisfeldt2023bubbles,
-  author = {Eisfeldt, Andrea L. and Schubert, Michael and Zeng, Yao},
-  title = {Bubbles and the Value of Innovation},
-  journal = {Journal of Financial Economics},
-  volume = {145},
-  number = {1},
-  pages = {69--84},
-  year = {2023}
+  year = {2014},
+  volume = {},
+  number = {},
+  pages = {},
+  doi = {}
 }
 
 
 % From lit-02-hedging-labor.txt
-@article{cocco2005consumption,
+@article{Cocco2005,
   author = {Cocco, Jo{\~a}o F. and Gomes, Francisco J. and Maenhout, Pascal J.},
   title = {Consumption and Portfolio Choice over the Life Cycle},
-  journal = {Journal of Finance},
+  journal = {Review of Financial Studies},
   year = {2005},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
+  volume = {18},
+  number = {2},
+  pages = {491--533}
 }
 
-@article{benzoni2007portfolio,
-  author = {Benzoni, Luca and Collin-Dufresne, Pierre and Goldstein, Robert S.},
-  title = {Portfolio Choice over the Life-Cycle when the Stock and Labor Markets Are Cointegrated},
-  journal = {Journal of Finance},
-  year = {2007},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
-}
-
-@article{jagannathan1996conditional,
-  author = {Jagannathan, Ravi and Wang, Zhenyu},
-  title = {The Conditional CAPM and the Cross-Section of Expected Returns},
-  journal = {Journal of Finance},
-  year = {1996},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
-}
-
-@article{santos2006labor,
+@article{Santos2006,
   author = {Santos, Tano and Veronesi, Pietro},
   title = {Labor Income and Predictable Stock Returns},
   journal = {Review of Financial Studies},
-  year = {2006},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
+  year = {2006}
 }
 
-@article{eiling2013industry,
-  author = {Eiling, Esther},
-  title = {Industry-Specific Human Capital, Idiosyncratic Risk, and the Cross-Section of Expected Stock Returns},
+@article{Benzoni2007,
+  author = {Benzoni, Luca and Collin-Dufresne, Pierre and Goldstein, Robert S.},
+  title = {Portfolio Choice over the Life‐Cycle when the Stock and Labor Markets Are Cointegrated},
   journal = {Journal of Finance},
-  year = {2013},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
+  year = {2007},
+  volume = {62},
+  number = {5},
+  pages = {2123--2167}
 }
 
-@article{heaton2000portfolio,
+@article{Shen2024,
+  author = {Shen, Jialu},
+  title = {Countercyclical Risks, Consumption, and Portfolio Choice: Theory and Evidence},
+  journal = {Management Science},
+  year = {2024},
+  volume = {70},
+  number = {5},
+  pages = {2862--2881}
+}
+
+@article{Heaton2000,
   author = {Heaton, John and Lucas, Deborah},
   title = {Portfolio Choice and Asset Prices: The Importance of Entrepreneurial Risk},
   journal = {Journal of Finance},
   year = {2000},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
+  volume = {55},
+  number = {3},
+  pages = {1163--1198}
 }
 
-@article{guiso1996income,
-  author = {Guiso, Luigi and Jappelli, Tullio and Terlizzese, Daniele},
-  title = {Income Risk, Borrowing Constraints, and Portfolio Choice},
-  journal = {American Economic Review},
-  year = {1996},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
-}
-
-@article{vissingjorgensen2002limited,
-  author = {Vissing-J{\o}rgensen, Annette},
-  title = {Limited Asset Market Participation and the Elasticity of Intertemporal Substitution},
-  journal = {International Economic Review},
-  year = {2002},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
-}
-
-@article{betermier2012hedging,
-  author = {Betermier, S{\'e}bastien and Jansson, Thomas and Parlour, Christine and Walden, Johan},
-  title = {Hedging Labor Income Risk},
-  journal = {Journal of Financial Economics},
-  year = {2012},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
-}
-
-@article{massa2006hedging,
+@article{Massa2006,
   author = {Massa, Massimo and Simonov, Andrei},
   title = {Hedging, Familiarity and Portfolio Choice},
   journal = {Review of Financial Studies},
-  year = {2006},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
+  year = {2006}
 }
 
-@article{bodie2009labor,
-  author = {Bodie, Zvi and Detemple, Jerome B. and Rindisbacher, Marcel},
-  title = {Life-Cycle Finance and the Design of Pension Plans},
+@article{Angerer2009,
+  author = {Angerer, Xiaohong and Lam, Pok-Sang},
+  title = {Income Risk and Portfolio Choice: An Empirical Study},
   journal = {Journal of Finance},
   year = {2009},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
+  volume = {64},
+  number = {2},
+  pages = {1037--1055}
 }
 
-@article{lustig2008housing,
-  author = {Lustig, Hanno N. and Van Nieuwerburgh, Stijn G.},
-  title = {The Returns on Human Capital: Good News on Wall Street is Bad News on Main Street},
-  journal = {Review of Financial Studies},
-  year = {2008},
-  volume = {},
-  number = {},
-  pages = {},
-  doi = {}
+@article{Betermier2012,
+  author = {Betermier, Sebastien and Jansson, Thomas and Parlour, Christine and Walden, Johan},
+  title = {Hedging Labor Income Risk},
+  journal = {Journal of Financial Economics},
+  year = {2012},
+  volume = {105},
+  number = {3},
+  pages = {622--639}
+}
+
+@article{Gomez2016,
+  author = {G{\'o}mez, Juan-Pedro and Priestley, Richard and Zapatero, Fernando},
+  title = {Labor Income, Relative Wealth Concerns, and the Cross Section of Stock Returns},
+  journal = {Journal of Financial and Quantitative Analysis},
+  year = {2016},
+  volume = {51},
+  number = {4},
+  pages = {1111--1133}
+}
+
+@article{Bena2021,
+  author = {Bena, Jan and Ellul, Andrew and Pagano, Marco and Rutigliano, Valentina},
+  title = {Entrepreneurs' Diversification and Labor Income Risk},
+  journal = {Management Science},
+  year = {2021}
 }
 
 
 % From lit-03-disaster-risk.txt
 @article{rietz1988equity,
-  author = {Rietz, Richard},
-  title = {Introduced the rare disaster hypothesis to explain the Equity Premium Puzzle by incorporating a small probability of a large economic collapse},
-  journal = {Journal of Monetary Economics},
-  year = {1988},
-}
-
-@article{gourio2013credit,
-  author = {Gourio, François},
-  title = {Extended rare disaster models to corporate credit risk and macroeconomic fluctuations, linking disaster risk to firms' investment and borrowing decisions},
-  journal = {American Economic Review},
-  year = {2013},
+  title={The Equity Risk Premium: A Solution?},
+  author={Rietz, Thomas},
+  journal={Journal of Monetary Economics},
+  year={1988},
+  volume={},
+  pages={{}},
+  doi={}
 }
 
 @article{barro2006rare,
-  author = {Barro, Robert},
-  title = {Provided empirical support for rare disasters using historical consumption drops across multiple countries, estimating disaster probability and size},
-  journal = {Quarterly Journal of Economics},
-  year = {2006},
-}
-
-@article{mehra1985equity,
-  author = {Mehra, Rajnish and Prescott, Edward},
-  title = {Identified the Equity Premium Puzzle, arguing that standard consumption-based models cannot explain observed asset returns},
-  journal = {Journal of Monetary Economics},
-  year = {1985},
-}
-
-@article{campbell1999force,
-  author = {Campbell, John and Cochrane, John},
-  title = {Developed a habit formation model to generate high risk premia without assuming extreme disaster risk},
-  journal = {Journal of Political Economy},
-  year = {1999},
-}
-
-@article{bansal2004risks,
-  author = {Bansal, Ravi and Yaron, Amir},
-  title = {Proposed the long-run risk model, where persistent uncertainty about long-term growth explains high asset returns},
-  journal = {Journal of Finance},
-  year = {2004},
-}
-
-@article{wachter2013can,
-  author = {Wachter, Jessica},
-  title = {Developed an asset pricing model where the probability of a rare disaster is stochastic, explaining market volatility and valuation changes},
-  journal = {Journal of Finance},
-  year = {2013},
-}
-
-@article{gourio2012credit,
-  author = {Gourio, François},
-  title = {Integrated time-varying disaster risk into a macroeconomic model, showing how fluctuations in disaster probability impact economic activity and asset prices},
-  journal = {American Economic Journal: Macroeconomics},
-  year = {2012},
+  title={Rare Disasters and Asset Markets in the Twentieth Century},
+  author={Barro, Robert J.},
+  journal={Quarterly Journal of Economics},
+  year={2006},
+  volume={},
+  pages={{}},
+  doi={}
 }
 
 @article{gabaix2012variable,
-  author = {Gabaix, Xavier},
-  title = {Allowed both the probability and size of disasters to vary over time, explaining return predictability, stock volatility, and bond premia},
-  journal = {Quarterly Journal of Economics},
-  year = {2012},
+  title={Variable Rare Disasters: An Exactly Solved Framework for Ten Puzzles in Macro-Finance},
+  author={Gabaix, Xavier},
+  journal={Quarterly Journal of Economics},
+  year={2012},
+  volume={127},
+  pages={645--700},
+  doi={}
 }
 
-@article{barro2008macroeconomic,
-  author = {Barro, Robert and Ursúa, José},
-  title = {Compiled a dataset of macroeconomic disasters, finding that historical evidence supports the rare disaster hypothesis},
-  journal = {Brookings Papers on Economic Activity},
-  year = {2008},
+@article{gourio2012disaster,
+  title={Disaster Risk and Business Cycles},
+  author={Gourio, Fran\c{c}ois},
+  journal={American Economic Review},
+  year={2012},
+  volume={102},
+  pages={2734--2766},
+  doi={10.1257/aer.102.6.2734}
 }
 
-@article{nakamura2013crises,
-  author = {Nakamura, Emi and Steinsson, Jón and Barro, Robert and Ursúa, José},
-  title = {Showed that disasters unfold over multiple years rather than as instantaneous collapses, refining disaster calibration methods},
-  journal = {American Economic Journal: Macroeconomics},
-  year = {2013},
+@article{wachter2013can,
+  title={Can Time-Varying Risk of Rare Disasters Explain Aggregate Stock Market Volatility?},
+  author={Wachter, Jessica A.},
+  journal={Journal of Finance},
+  year={2013},
+  volume={},
+  pages={{}},
+  doi={}
 }
 
 @article{backus2011disasters,
-  author = {Backus, David and Chernov, Mikhail and Martin, Ian},
-  title = {Used option prices to estimate the market's implied probability of rare disasters, finding strong support for tail risk pricing},
-  journal = {Journal of Finance},
-  year = {2011},
+  title={Disasters Implied by Equity Index Options},
+  author={Backus, David and Chernov, Mikhail and Martin, Ian},
+  journal={Journal of Finance},
+  year={2011},
+  volume={},
+  pages={{}},
+  doi={}
+}
+
+@article{berkman2011time,
+  title={Time-Varying Rare Disaster Risk and Stock Returns},
+  author={Berkman, Henk and Jacobsen, Ben and Lee, John},
+  journal={Journal of Financial Economics},
+  year={2011},
+  volume={101},
+  pages={313--332},
+  doi={}
 }
 
 @article{kelly2014tail,
-  author = {Kelly, Bryan and Jiang, Hao},
-  title = {Found that stocks with high tail risk exposure earn higher expected returns, confirming disaster risk as a priced factor},
-  journal = {Journal of Finance},
-  year = {2014},
+  title={Tail Risk and Asset Prices},
+  author={Kelly, Bryan and Jiang, Hao},
+  journal={Review of Financial Studies},
+  year={2014},
+  volume={},
+  pages={{}},
+  doi={}
 }
 
-@article{farhi2016rare,
-  author = {Farhi, Emmanuel and Gabaix, Xavier},
-  title = {Developed a rare disaster model for currency markets, explaining the forward premium puzzle and safe-haven demand},
-  journal = {Review of Economic Studies},
-  year = {2016},
+@article{chabi2018crash,
+  title={Crash Sensitivity and the Cross-Section of Expected Stock Returns},
+  author={Chabi-Yo, Fousseni and Ruenzi, Stefan and Weigert, Florian},
+  journal={Journal of Financial and Quantitative Analysis},
+  year={2018},
+  volume={},
+  pages={{}},
+  doi={}
+}
+
+@article{nakamura2013crises,
+  title={Crises and Recoveries in an Empirical Model of Consumption Disasters},
+  author={Nakamura, Emi and Steinsson, J{\'o}n and Barro, Robert and Urs{\'u}a, Jos{\'e}},
+  journal={American Economic Journal: Macroeconomics},
+  year={2013},
+  volume={5},
+  pages={35--74},
+  doi={10.1257/mac.5.3.35}
+}
+
+@article{barro2021rare,
+  title={Rare Disaster Probability and Options Pricing},
+  author={Barro, Robert J. and Liao, Gordon Y.},
+  journal={Journal of Financial Economics},
+  year={2021},
+  volume={139},
+  pages={750--769},
+  doi={}
+}
+
+@article{rebelo2022rare,
+  title={Rare Disasters, Financial Development, and Sovereign Debt},
+  author={Rebelo, Sergio and Wang, Neng and Yang, Jinqiang},
+  journal={Journal of Finance},
+  year={2022},
+  volume={},
+  pages={{}},
+  doi={}
+}
+
+@article{chen2022global,
+  title={Global Disaster Risk Matters},
+  author={Chen, Jian and Yao, Jiaquan and Zhang, Qunzi and Zhu, Xiaoneng},
+  journal={Management Science},
+  year={2022},
+  volume={},
+  pages={{}},
+  doi={}
 }
 
 
@@ -299,7 +306,6 @@
   author={Cao, Sean and Jiang, Wei and Wang, Junbo and Yang, Baozhong},
   journal={Journal of Financial Economics},
   volume={160},
-  pages={103910},
   year={2024},
   doi={10.1016/j.jfineco.2024.103910}
 }
