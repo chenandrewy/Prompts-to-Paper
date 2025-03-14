@@ -48,7 +48,7 @@ def convert_to_bibtex(lit_overview):
     """
     instructions = """
     Convert the following literature overview into BibTeX entries. 
-    Include authors, title, journal/conference, year, volume, pages, DOI, if available. Be careful to use only the information provided in the literature overview. Do not change any author names, years, titles, or journal names. Return ONLY the BibTeX entries, nothing else.
+    Include authors, title, journal/conference, year, volume, pages, DOI, if available. Be careful to use only the information provided in the literature overview. Do not change any author names, years, titles, or journal names. Return ONLY the BibTeX entries, nothing else. Format the bibtex entries as [first author][year][title first word], all lowercase, e.g. "chen2025singularity".
     """
     
     message = f"""
