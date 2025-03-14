@@ -129,6 +129,7 @@ def query_llm(prompt_name, context_names=None, add_bib=False, prompts_folder="./
         
         print(f"Using Anthropic model: {anthropic_model}")
         print(f"Thinking mode: {'enabled' if use_thinking else 'disabled'}")
+        print(f"First 1000 characters of full prompt: {full_prompt[:1000]}")
 
         # save full prompt to responses folder
         temp_prompt_path = os.path.join("./responses", f"{prompt_name}-full-prompt.txt")
@@ -345,8 +346,8 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_range = "02-03"  # Use planning prompts XX-YY
-bib_range = "05-99"  # Include bibliography for planning prompts XX-YY
+plan_range = "02-99"  # Use planning prompts XX-YY
+bib_range = "01-99"  # Include bibliography for planning prompts XX-YY
 
 # Call the planning loop with the plan range and bib range
 planning_loop(plan_range, bib_range, prompts_folder, input_extension, 
