@@ -334,8 +334,8 @@ def planning_loop(plan_range, bib_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-model_name = "claude-3-7-sonnet-20250219"
-# model_name = "claude-3-5-haiku-20241022"
+# model_name = "claude-3-7-sonnet-20250219"
+model_name = "claude-3-5-haiku-20241022"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
@@ -346,7 +346,7 @@ prompts_folder = "./prompts"
 input_extension = ".txt"
 
 # User selection of plan prompt range
-plan_range = "02-99"  # Use planning prompts XX-YY
+plan_range = "01-99"  # Use planning prompts XX-YY
 bib_range = "01-99"  # Include bibliography for planning prompts XX-YY
 
 # Call the planning loop with the plan range and bib range
