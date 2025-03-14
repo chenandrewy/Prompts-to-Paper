@@ -45,3 +45,26 @@ def print_wrapped(text, width=70):
             print(wrapper.fill(para.encode('ascii', 'replace').decode('ascii')))
         # Print a blank line to preserve paragraph separation
         print() 
+
+# Check if running in Jupyter notebook or as a script
+def is_jupyter():
+    try:
+        # This will only exist in Jupyter environments
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':  # Jupyter notebook or qtconsole
+            return True
+        elif shell == 'TerminalInteractiveShell':  # IPython terminal
+            return False
+        else:
+            return False
+    except NameError:  # Not in an IPython environment
+        return False
+
+# validate arguments
+def validate_arguments(args):
+    if args.model_name == "claude-3-5-haiku-20241022":
+        if args.max_tokens > 8192:
+            print("WARNING: claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
+            args.max_tokens = 8192
+    
+    return args

@@ -18,6 +18,7 @@ for paper_i in range(1,num_papers+1):
     print(f"Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Delete all files in ./responses/ and ./latex/
+    print("Cleaning up ./responses/ and ./latex/")
     try:
         for file in os.listdir("./responses"):
             os.remove(os.path.join("./responses", file))
@@ -41,9 +42,15 @@ for paper_i in range(1,num_papers+1):
             print(f"Encountered error: {e}")
 
     # === run plan-paper.py ===
-    print("Running plan-paper.py...")
+    print(f"Running plan-paper.py for paper {paper_i}...")
     out_plan_paper = subprocess.run([
-        "python", "plan-paper.py"
+        "python", "plan-paper.py",
+        "--model_name", "claude-3-7-sonnet-20250219",
+        # "--model_name", "claude-3-5-haiku-20241022", # for testing
+        "--temperature", "1.0",
+        "--max-tokens", "5000",
+        "--plan-range", "01-99",
+        "--lit-range", "01-99"
     ], capture_output=True, text=True)
 
     # Print the output
@@ -64,11 +71,11 @@ for paper_i in range(1,num_papers+1):
         continue
 
     # === run make-paper.py ===
-    print("Running make-paper.py...")
+    print(f"Running make-paper.py for paper {paper_i}...")
     out_make_paper = subprocess.run([
         "python", "make-paper.py", 
-        # "--model", "claude-3-5-haiku-20241022",
-        "--model", "claude-3-7-sonnet-20250219",
+        "--model_name", "claude-3-7-sonnet-20250219",
+        # "--model_name", "claude-3-5-haiku-20241022", # for testing
         "--temperature", "1.0", 
         "--max-tokens", "20000"
     ], capture_output=True, text=True)

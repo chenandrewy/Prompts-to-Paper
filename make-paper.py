@@ -10,13 +10,20 @@ import textwrap
 import time
 import re
 import shutil
-import argparse  # Add this import
-from utils import clean_latex_aux_files, print_wrapped  # Import utility functions
+import argparse  
+# custom functions
+from utils import clean_latex_aux_files, print_wrapped, validate_arguments 
+
+# Load environment variables (API key)
+load_dotenv()
+
+#%%
+# Argument Parsing and Error Handling
 
 # Parse command line arguments
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate an academic paper using Claude AI')
-    parser.add_argument('--model', type=str, default="claude-3-7-sonnet-20250219",
+    parser.add_argument('--model_name', type=str, default="claude-3-7-sonnet-20250219",
                         help='Model to use for generation (default: claude-3-7-sonnet-20250219)')
     parser.add_argument('--temperature', type=float, default=0.5,
                         help='Temperature for generation (default: 0.5)')
@@ -43,7 +50,7 @@ def is_jupyter():
 if is_jupyter():
     class DefaultArgs:
         def __init__(self):
-            self.model = "claude-3-7-sonnet-20250219"
+            self.model_name = "claude-3-7-sonnet-20250219"
             self.temperature = 0.5
             self.max_tokens = 10000
     
@@ -52,10 +59,15 @@ if is_jupyter():
 else:
     # Get command line arguments when running as a script
     args = parse_arguments()
-    print(f"Running as script with arguments: model={args.model}, temperature={args.temperature}, max_tokens={args.max_tokens}")
+    print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, max_tokens={args.max_tokens}")
 
-# Load environment variables (API key)
-load_dotenv()
+# validate arguments
+print("Validating arguments...")
+args = validate_arguments(args)
+
+#%%
+# Functions
+
 
 # Initialize Anthropic client
 client = anthropic.Anthropic()
@@ -184,7 +196,7 @@ start_time = time.time()
 
 # Query with streaming
 with client.messages.stream(
-    model=args.model,
+    model=args.model_name,
     max_tokens=args.max_tokens,
     temperature=args.temperature,
     messages=[

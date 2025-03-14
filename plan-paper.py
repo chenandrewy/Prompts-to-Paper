@@ -14,10 +14,58 @@ import shutil
 import pandas as pd
 import anthropic  # Add anthropic import
 import textwrap
-from utils import clean_latex_aux_files, print_wrapped  # Import utility functions
+from utils import clean_latex_aux_files, print_wrapped, is_jupyter, validate_arguments
+import argparse
 
-# Load environment variables from .env file (if it exists)
+# Load environment variables from .env file 
 load_dotenv()
+
+
+#%%
+# Parse arguments
+
+# for reference
+# model_name = "claude-3-7-sonnet-20250219"
+# model_name = "claude-3-5-haiku-20241022"
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Generate an academic paper using Claude AI')
+    parser.add_argument('--model_name', type=str, default="claude-3-7-sonnet-20250219",
+                        help='Model to use for generation (default: claude-3-7-sonnet-20250219)')
+    parser.add_argument('--temperature', type=float, default=0.5,
+                        help='Temperature for generation (default: 0.5)')
+    parser.add_argument('--max-tokens', type=int, default=10000,
+                        help='Maximum tokens to generate (default: 10000)')
+    parser.add_argument('--plan-range', type=str, default="01-99",
+                        help='Range of planning prompts to process (format: XX-YY, default: 01-99)')
+    parser.add_argument('--lit-range', type=str, default="01-99",
+                        help='Range of prompts that should include literature context (format: XX-YY, default: 01-99)')
+    return parser.parse_args()
+
+# Set default arguments for Jupyter notebooks
+if is_jupyter():
+    class DefaultArgs:
+        def __init__(self):
+            self.model_name = "claude-3-7-sonnet-20250219"
+            self.temperature = 0.5
+            self.max_tokens = 10000
+            self.plan_range = "01-99"
+            self.lit_range = "01-99"
+
+    args = DefaultArgs()
+    print("Running in Jupyter notebook with default arguments")
+else:
+    # Get command line arguments when running as a script
+    args = parse_arguments()
+    print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, "
+          f"max_tokens={args.max_tokens}, plan_range={args.plan_range}, lit_range={args.lit_range}")
+
+# validate arguments
+args = validate_arguments(args)
+
+#%%
+# Functions
 
 def query_llm(prompt_name, context_names=None, add_lit=False, 
               prompts_folder="./prompts", input_extension=".txt", 
@@ -350,30 +398,22 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-# model_name = "claude-3-7-sonnet-20250219"
-model_name = "claude-3-5-haiku-20241022"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
 use_system_prompt = False
-max_tokens = 2000 # approx 350 tokens per page
-temperature = 1.0  # Lower for more deterministic output
 
 prompts_folder = "./prompts"
 input_extension = ".txt"
 
-# User selection of plan prompt range
-plan_range = "03-03"  # Use planning prompts XX-YY
-lit_range = "09-99"  # Include bibliography for planning prompts XX-YY
-
 # Call the planning loop with the plan range and bib range
 planning_loop(
-    plan_range = plan_range, 
-    lit_range = lit_range, 
-    model_name = model_name, 
+    plan_range = args.plan_range, 
+    lit_range = args.lit_range, 
+    model_name = args.model_name, 
     use_system_prompt = use_system_prompt, 
     use_thinking = use_thinking,
-    max_tokens = max_tokens, 
-    temperature = temperature
+    max_tokens = args.max_tokens, 
+    temperature = args.temperature
 )    
 
 #%%
