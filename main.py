@@ -18,16 +18,27 @@ for paper_i in range(1,num_papers+1):
     print(f"Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Delete all files in ./responses/ and ./latex/
-    for file in os.listdir("./responses"):
-        os.remove(os.path.join("./responses", file))
-    for file in os.listdir("./latex"):
-        if file.endswith((".tex", ".pdf")):
-            file_path = os.path.join("./latex", file)
-            try:
-                os.remove(file_path)
-            except PermissionError:
-                print(f"Warning: Could not remove {file_path} - file is in use by another process")
-                continue
+    try:
+        for file in os.listdir("./responses"):
+            os.remove(os.path.join("./responses", file))
+        for file in os.listdir("./latex"):
+            os.remove(os.path.join("./latex", file))
+    except Exception as e:
+        print("Warning: Could not clean up ./responses/ and ./latex/")
+        print("Waiting 20 seconds before trying again...")
+        
+        # wait 20 seconds
+        time.sleep(20)
+
+        # try again
+        try:
+            for file in os.listdir("./responses"):
+                os.remove(os.path.join("./responses", file))
+            for file in os.listdir("./latex"):
+                os.remove(os.path.join("./latex", file))
+        except Exception as e:
+            print("Warning: Could not clean up ./responses/ and ./latex/")
+            print(f"Encountered error: {e}")
 
     # Run plan-paper.py first
     print("Running plan-paper.py...")
