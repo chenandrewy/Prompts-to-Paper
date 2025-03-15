@@ -7,7 +7,28 @@ import numpy as np
 import os
 import shutil
 
-num_papers = 3
+# Number of papers to generate
+num_papers = 2
+
+# Parameters for planning papers
+plan_args = [
+    "python", "plan-paper.py",
+    # "--model_name", "claude-3-7-sonnet-20250219",
+    "--model_name", "claude-3-5-haiku-20241022", # for testing
+    "--temperature", "1.0",
+    "--max-tokens", "5000",
+    "--plan-range", "01-99",
+    "--lit-range", "01-99"
+]
+
+# Parameters for making papers
+make_args = [
+    "python", "make-paper.py", 
+    # "--model_name", "claude-3-7-sonnet-20250219",
+    "--model_name", "claude-3-5-haiku-20241022", # for testing
+    "--temperature", "1.0", 
+    "--max-tokens", "20000"
+]
 
 for paper_i in range(1,num_papers+1):
 
@@ -43,15 +64,7 @@ for paper_i in range(1,num_papers+1):
 
     # === run plan-paper.py ===
     print(f"Running plan-paper.py for paper {paper_i}...")
-    out_plan_paper = subprocess.run([
-        "python", "plan-paper.py",
-        "--model_name", "claude-3-7-sonnet-20250219",
-        # "--model_name", "claude-3-5-haiku-20241022", # for testing
-        "--temperature", "1.0",
-        "--max-tokens", "5000",
-        "--plan-range", "01-99",
-        "--lit-range", "01-99"
-    ], capture_output=True, text=True)
+    out_plan_paper = subprocess.run(plan_args, capture_output=True, text=True)
 
     # Print the output
     print("STDOUT:")
@@ -72,13 +85,7 @@ for paper_i in range(1,num_papers+1):
 
     # === run make-paper.py ===
     print(f"Running make-paper.py for paper {paper_i}...")
-    out_make_paper = subprocess.run([
-        "python", "make-paper.py", 
-        "--model_name", "claude-3-7-sonnet-20250219",
-        # "--model_name", "claude-3-5-haiku-20241022", # for testing
-        "--temperature", "1.0", 
-        "--max-tokens", "20000"
-    ], capture_output=True, text=True)
+    out_make_paper = subprocess.run(make_args, capture_output=True, text=True)
 
     # Print the output
     print("STDOUT:")
