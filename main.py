@@ -7,13 +7,13 @@ import os
 import shutil
 
 # Number of papers to generate
-num_papers = 2
+num_papers = 10
 
 # Parameters for planning papers
 plan_args = [
     "python", "plan-paper.py",
-    # "--model_name", "claude-3-7-sonnet-20250219",
-    "--model_name", "claude-3-5-haiku-20241022", # for testing
+    "--model_name", "claude-3-7-sonnet-20250219",
+    # "--model_name", "claude-3-5-haiku-20241022", # for testing
     "--temperature", "1.0",
     "--max-tokens", "5000",
     "--plan-range", "01-99",
@@ -23,8 +23,8 @@ plan_args = [
 # Parameters for making papers
 make_args = [
     "python", "make-paper.py", 
-    # "--model_name", "claude-3-7-sonnet-20250219",
-    "--model_name", "claude-3-5-haiku-20241022", # for testing
+    "--model_name", "claude-3-7-sonnet-20250219",
+    # "--model_name", "claude-3-5-haiku-20241022", # for testing
     "--temperature", "1.0", 
     "--max-tokens", "20000"
 ]

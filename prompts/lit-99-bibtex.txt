@@ -6,17 +6,17 @@
   year = {2019},
   volume = {74},
   number = {4},
-  pages = {1793--1839}
+  pages = {1793-1839}
 }
 
 @article{knesl2023automation,
-  author = {Knesl, Ji{\v{r}}{\'\i}},
+  author = {Knesl, Jiří},
   title = {Automation and the Displacement of Labor by Capital: Asset Pricing Theory and Empirical Evidence},
   journal = {Journal of Financial Economics},
   year = {2023},
   volume = {147},
   number = {2},
-  pages = {271--296}
+  pages = {271-296}
 }
 
 @article{gomes2024robots,
@@ -31,7 +31,7 @@
   title = {Workplace Automation and Corporate Liquidity Policy},
   journal = {Management Science},
   year = {2025},
-  note = {forthcoming}
+  note = {forthcoming; published online}
 }
 
 @article{acemoglu2020robots,
@@ -51,7 +51,7 @@
 
 % From lit-02-hedging-labor.txt
 @article{cocco2005consumption,
-  author = {Cocco, Jo{\~a}o F. and Gomes, Francisco J. and Maenhout, Pascal J.},
+  author = {Cocco, João F. and Gomes, Francisco J. and Maenhout, Pascal J.},
   title = {Consumption and Portfolio Choice over the Life Cycle},
   journal = {Review of Financial Studies},
   year = {2005},
@@ -71,7 +71,7 @@
 
 @article{benzoni2007portfolio,
   author = {Benzoni, Luca and Collin-Dufresne, Pierre and Goldstein, Robert S.},
-  title = {Portfolio Choice over the Life-Cycle when the Stock and Labor Markets Are Cointegrated},
+  title = {Portfolio Choice over the Life‐Cycle when the Stock and Labor Markets Are Cointegrated},
   journal = {Journal of Finance},
   year = {2007},
   volume = {62},
@@ -129,7 +129,7 @@
 }
 
 @article{gomez2016labor,
-  author = {G{\'o}mez, Juan-Pedro and Priestley, Richard and Zapatero, Fernando},
+  author = {Gómez, Juan-Pedro and Priestley, Richard and Zapatero, Fernando},
   title = {Labor Income, Relative Wealth Concerns, and the Cross Section of Stock Returns},
   journal = {Journal of Financial and Quantitative Analysis},
   year = {2016},
@@ -175,8 +175,7 @@
   journal={Quarterly Journal of Economics},
   year={2012},
   volume={127},
-  number={2},
-  pages={645--700},
+  pages={645-700},
   doi={}
 }
 
@@ -186,8 +185,7 @@
   journal={American Economic Review},
   year={2012},
   volume={102},
-  number={6},
-  pages={2734--2766},
+  pages={2734},
   doi={10.1257/aer.102.6.2734}
 }
 
@@ -217,8 +215,7 @@
   journal={Journal of Financial Economics},
   year={2011},
   volume={101},
-  number={2},
-  pages={313--332},
+  pages={313-332},
   doi={}
 }
 
@@ -232,7 +229,7 @@
   doi={}
 }
 
-@article{chabiyoruenziweigert2018crash,
+@article{chabi2018crash,
   title={Crash Sensitivity and the Cross-Section of Expected Stock Returns},
   author={Chabi-Yo, Fousseni and Ruenzi, Stefan and Weigert, Florian},
   journal={Journal of Financial and Quantitative Analysis},
@@ -248,8 +245,7 @@
   journal={American Economic Journal: Macroeconomics},
   year={2013},
   volume={5},
-  number={3},
-  pages={35--74},
+  pages={35},
   doi={10.1257/mac.5.3.35}
 }
 
@@ -259,8 +255,7 @@
   journal={Journal of Financial Economics},
   year={2021},
   volume={139},
-  number={3},
-  pages={750--769},
+  pages={750-769},
   doi={}
 }
 
@@ -292,16 +287,17 @@
   journal = {Journal of Financial Economics},
   year = {2024},
   volume = {151},
-  pages = {103745},
-  doi = {10.1016/j.jfineco.2024.103745}
+  pages = {Article 103745},
+  doi = {}
 }
 
-@article{cao2024man,
+@article{cao2024from,
   author = {Cao, Sean and Jiang, Wei and Wang, Junbo and Yang, Baozhong},
   title = {From Man vs. Machine to Man + Machine: The art and AI of stock analyses},
   journal = {Journal of Financial Economics},
   year = {2024},
   volume = {160},
+  pages = {Article 103910},
   doi = {10.1016/j.jfineco.2024.103910}
 }
 
@@ -312,7 +308,8 @@
   year = {2024},
   volume = {79},
   number = {1},
-  pages = {631--667}
+  pages = {631--667},
+  doi = {}
 }
 
 @article{vanbinsbergen2023man,
@@ -322,7 +319,8 @@
   year = {2023},
   volume = {36},
   number = {6},
-  pages = {2361--2396}
+  pages = {2361--2396},
+  doi = {}
 }
 
 @article{gu2020empirical,
@@ -332,17 +330,19 @@
   year = {2020},
   volume = {33},
   number = {5},
-  pages = {2223--2273}
+  pages = {2223--2273},
+  doi = {}
 }
 
 @article{mclemore2022active,
-  author = {McLemore, Ping and Sias, Richard and Wan, Chi and Yüksel, H. Zafer},
+  author = {McLemore, Ping and Sias, Richard and Wan, Chi and Y{\"u}ksel, H. Zafer},
   title = {Active Technological Similarity and Mutual Fund Performance},
   journal = {Journal of Financial and Quantitative Analysis},
   year = {2022},
   volume = {57},
   number = {5},
-  pages = {1862--1884}
+  pages = {1862--1884},
+  doi = {}
 }
 
 @article{ofek2003dotcom,
@@ -352,17 +352,19 @@
   year = {2003},
   volume = {58},
   number = {3},
-  pages = {1113--1137}
+  pages = {1113--1137},
+  doi = {}
 }
 
 @article{hong2006asset,
-  author = {Hong, Harrison and Scheinkman, José and Xiong, Wei},
+  author = {Hong, Harrison and Scheinkman, Jos{\'e} and Xiong, Wei},
   title = {Asset Float and Speculative Bubbles},
   journal = {Journal of Finance},
   year = {2006},
   volume = {61},
   number = {3},
-  pages = {1073--1117}
+  pages = {1073--1117},
+  doi = {}
 }
 
 @article{greenwood2009inexperienced,
@@ -372,7 +374,8 @@
   year = {2009},
   volume = {93},
   number = {2},
-  pages = {239--258}
+  pages = {239--258},
+  doi = {}
 }
 
 @article{griffin2011who,
@@ -384,4 +387,34 @@
   number = {4},
   pages = {1251--1290},
   doi = {10.1111/j.1540-6261.2011.01663.x}
+}
+
+
+% From lit-05-arc-agi.txt
+@article{chollet2024arc,
+  author = {François Chollet and Mike Knoop and Gregory Kamradt and Bryan Landers},
+  title = {ARC Prize 2024: Technical Report},
+  journal = {arXiv preprint},
+  year = {2024}
+}
+
+@article{atreides2024solving,
+  author = {Kyrtin Atreides and David J. Kelley},
+  title = {Solving the Abstraction and Reasoning Corpus for Artificial General Intelligence (ARC-AGI) AI Benchmark with ICOM},
+  journal = {ResearchGate preprint},
+  year = {2024}
+}
+
+@article{pfister2025understanding,
+  author = {Rolf Pfister and Hansueli Jud},
+  title = {Understanding and Benchmarking Artificial Intelligence: OpenAI's o3 Is Not AGI},
+  journal = {arXiv preprint},
+  year = {2025}
+}
+
+@article{andrews2024capturing,
+  author = {Martin Andrews},
+  title = {Capturing Sparks of Abstraction for the ARC Challenge},
+  journal = {arXiv preprint},
+  year = {2024}
 }

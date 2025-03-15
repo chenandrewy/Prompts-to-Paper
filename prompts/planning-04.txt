@@ -1,1 +1,1 @@
-Consider an extension in which there are two types of capital: AI capital and traditional capital. Also consider what happens if AI improves productivity sharply.
+Consider an extension in which there are two types of capital, AI capital and traditional capital, and AI dramatically improves total factor productivity.

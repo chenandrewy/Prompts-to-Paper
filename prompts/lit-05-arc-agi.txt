@@ -1,0 +1,31 @@
+Here is an outline of notable papers related to the ARC AGI Challenge, including the "ARC Prize 2024: Technical Report":
+
+**1. "ARC Prize 2024: Technical Report"**
+
+- **Authors:** François Chollet, Mike Knoop, Gregory Kamradt, Bryan Landers
+- **Journal:** arXiv preprint
+- **Year:** 2024
+- **Abstract:** As of December 2024, the ARC-AGI benchmark is five years old and remains unbeaten. We believe it is currently the most important unsolved AI benchmark in the world because it seeks to measure generalization on novel tasks—the essence of intelligence—as opposed to skill at tasks that can be prepared for in advance. This year, we launched ARC Prize, a global competition to inspire new ideas and drive open progress towards AGI by reaching a target benchmark score of 85%. As a result, the state-of-the-art score on the ARC-AGI private evaluation set increased from 33% to 55.5%, propelled by several frontier AGI reasoning techniques including deep learning-guided program synthesis and test-time training. In this paper, we survey top approaches, review new open-source implementations, discuss the limitations of the ARC-AGI-1 dataset, and share key insights gained from the competition. citeturn0search0
+
+**2. "Solving the Abstraction and Reasoning Corpus for Artificial General Intelligence (ARC-AGI) AI Benchmark with ICOM"**
+
+- **Authors:** Kyrtin Atreides, David J. Kelley
+- **Journal:** ResearchGate preprint
+- **Year:** 2024
+- **Abstract:** A fragment of the 8th generation Independent Core Observer Model (ICOM) cognitive architecture is applied to the ARC-AGI Challenge benchmark, absent any training on ARC-AGI or ARC-like puzzles. This achieved a baseline performance of between 83.75% and 85.75%, with an upper bound of the tested fragment resting at 89.5% based on the consistent failures and errors observed. Average human performance is 85% on this benchmark. ICOM's performance is for completely accurate solving of each puzzle, with a substantially higher pixel-level accuracy than other methods, due to observed failures in the remaining incorrect answers being relatively small, often 3-4 pixels in total for a failure. The tested fragment is a mid-development fragment of a general-purpose system slated for commercial deployment, rather than anything designed for this challenge, and indeed even the 7th generation of ICOM predates ARC-AGI. citeturn0search12
+
+**3. "Understanding and Benchmarking Artificial Intelligence: OpenAI's o3 Is Not AGI"**
+
+- **Authors:** Rolf Pfister, Hansueli Jud
+- **Journal:** arXiv preprint
+- **Year:** 2025
+- **Abstract:** OpenAI's o3 achieves a high score of 87.5% on ARC-AGI, a benchmark proposed to measure intelligence. This raises the question of whether systems based on Large Language Models (LLMs), particularly o3, demonstrate intelligence and progress towards artificial general intelligence (AGI). Building on the distinction between skills and intelligence made by François Chollet, the creator of ARC-AGI, a new understanding of intelligence is introduced: an agent is the more intelligent, the more efficiently it can achieve the more diverse goals in the more diverse worlds with the less knowledge. An analysis of the ARC-AGI benchmark shows that its tasks represent a very specific type of problem that can be solved by massive trialing of combinations of predefined operations. This method is also applied by o3, achieving its high score through the extensive use of computing power. However, for most problems in the physical world and in the human domain, solutions cannot be tested in advance and predefined operations are not available. Consequently, massive trialing of predefined operations, as o3 does, cannot be a basis for AGI—instead, new approaches are required that can reliably solve a wide variety of problems without existing skills. To support this development, a new benchmark for intelligence is outlined that covers a much higher diversity of unknown tasks to be solved, thus enabling a comprehensive assessment of intelligence and of progress towards AGI. citeturn0academia21
+
+**4. "Capturing Sparks of Abstraction for the ARC Challenge"**
+
+- **Authors:** Martin Andrews
+- **Journal:** arXiv preprint
+- **Year:** 2024
+- **Abstract:** Excellent progress has been made recently in solving ARC Challenge problems. However, it seems that new techniques may be required to push beyond 60% accuracy. Even commercial Large Language Models (LLMs) struggle to 'understand' many of the problems (when given the input and output grids), which makes discovering solutions by LLM-led program search somewhat futile. In this work, LLM 'understanding' is attempted from a stronger starting position: An LLM is given complete solutions to tasks in code and then asked to explain how the task is being solved at various levels of abstraction. Specifically, the LLM was given code solutions implemented in arc-dsl-llm (an LLM-legible version of Hodel's arc-dsl) to obtain: (a) commented code; (b) code refactored into reusable functional chunks; (c) problem solution steps; and (d) high-level problem-solving tactics. We demonstrate that 'Sparks of Abstraction' can be extracted from the LLM output—in a form that could be used in downstream tasks with Local LLMs eligible to enter the ARC Prize. Both the arc-dsl-llm DSL framework (with the re-engineered solutions) and the Gemini LLM-generated data (along with the generation code) are made Open Source. citeturn0academia22
+
+These papers provide insights into the current research and developments surrounding the ARC AGI Challenge and efforts toward achieving artificial general intelligence. 
