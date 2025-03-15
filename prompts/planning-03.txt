@@ -1,5 +1,1 @@
 Consider the extreme case that the capital share jumps to $\approx 1.0$.
-
-Respond with only new content. Do not repeat anything in the context. 
-
-Output as a latex input (no document environment).

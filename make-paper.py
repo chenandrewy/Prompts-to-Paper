@@ -188,6 +188,13 @@ message = f"""
 with open('responses/full-paper-full-prompt.md', "w", encoding="utf-8") as f:
     f.write(message)
 
+
+#%%
+# load system prompt
+
+with open('prompts/system-prompt-full-paper.txt', "r", encoding="utf-8") as f:
+    system_prompt = f.read()
+
 #%%
 # submit
 
@@ -201,9 +208,11 @@ with client.messages.stream(
     model=args.model_name,
     max_tokens=args.max_tokens,
     temperature=args.temperature,
-    messages=[
-        {"role": "user", "content": message}
-    ]
+    system=system_prompt,
+    messages=[{
+        "role": "user", 
+        "content": message
+    }]
 ) as stream:
     # Process the response as it comes in
     for text in stream.text_stream:

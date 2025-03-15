@@ -3,7 +3,6 @@
 
 import subprocess
 import time
-import numpy as np
 import os
 import shutil
 

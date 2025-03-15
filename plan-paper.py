@@ -128,7 +128,7 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
             combined_context += f"--- BEGIN LITERATURE ---\n{lit_content}\n--- END LITERATURE ---\n\n"
 
     # Read the system prompt if it exists and is requested
-    system_prompt_path = os.path.join(prompts_folder, "claude-system-2025-02.txt")
+    system_prompt_path = os.path.join(prompts_folder, "system-prompt.txt")
     system_prompt = None
     if use_system_prompt and os.path.exists(system_prompt_path):
         print(f"Reading system prompt from {system_prompt_path}...")
@@ -384,8 +384,9 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
             input_extension = input_extension, 
             api_provider = api_provider, 
             model_name = model_name, 
-            use_system_prompt = use_system_prompt, 
-            use_thinking = use_thinking
+            use_thinking = use_thinking,
+            max_tokens = max_tokens,
+            temperature = temperature
         )
 
         # Save
@@ -400,8 +401,6 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
 api_provider = "anthropic"
 use_thinking = False  # Whether to use thinking mode (Anthropic only)
 
-use_system_prompt = False
-
 prompts_folder = "./prompts"
 input_extension = ".txt"
 
@@ -410,7 +409,6 @@ planning_loop(
     plan_range = args.plan_range, 
     lit_range = args.lit_range, 
     model_name = args.model_name, 
-    use_system_prompt = use_system_prompt, 
     use_thinking = use_thinking,
     max_tokens = args.max_tokens, 
     temperature = args.temperature
