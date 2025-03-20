@@ -92,7 +92,7 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
             context_names = []
             
         for context_name in context_names:
-            context_path = os.path.join(response_folder, context_name + response_ext)
+            context_path = os.path.join(response_folder, context_name + "-texinput" +response_ext)
             if os.path.exists(context_path):
                 print(f"Reading context from {context_path}...")
                 with open(context_path, 'r', encoding='utf-8') as file:
@@ -238,8 +238,9 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
         file_ext: File extension for the output file
     """
 
+    # -- save latex input file --
     # Create the base output file path
-    output_file = f"{output_dir}/{prompt_name}{file_ext}"
+    output_file = f"{output_dir}/{prompt_name}-texinput{file_ext}"
     
     # Create the directory if it doesn't exist
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -248,7 +249,7 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
         file.write(response)
     print(f"\n\nResponse saved to {output_file}")      
 
-    # -- output latex 
+    # -- output latex document --
     print(f"Outputting latex for {prompt_name}...")
     
     # read in latex template from new location
@@ -256,9 +257,9 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
         latex_template = file.read()
 
     # replace [prompt-name] with prompt_name
-    latex_template = latex_template.replace("% [input-goes-here]", f"\\input{{../responses/{prompt_name}.tex}}")
+    latex_template = latex_template.replace("% [input-goes-here]", f"\\input{{../responses/{prompt_name}-texinput.tex}}")
 
-    # save latex template
+    # save complete latex doc
     with open(f"./latex/{prompt_name}.tex", "w") as file:
         file.write(latex_template)
 
