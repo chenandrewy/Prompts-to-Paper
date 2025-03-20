@@ -22,7 +22,7 @@ load_dotenv()
 
 
 #%%
-# Parse arguments
+# Parse arguments from command line
 
 # for reference
 # model_name = "claude-3-7-sonnet-20250219"
@@ -45,16 +45,18 @@ def parse_arguments():
                         help='Range of prompts that should include literature context (format: XX-YY, default: 01-99)')
     return parser.parse_args()
 
-# parse for jupyter notebook (testing)
+#%%
+# parse for jupyter notebook (for testing)
+
 if is_jupyter():
     class DefaultArgs:
         def __init__(self):
             self.model_name = "claude-3-7-sonnet-20250219"
             self.temperature = 0.5
-            self.max_tokens = 4000
+            self.max_tokens = 2000
             self.plan_range = "01-01"
             self.lit_range = "09-99"
-            self.thinking_budget = 4000
+            self.thinking_budget = 0
 
     args = DefaultArgs()
     print("Running in Jupyter notebook with default arguments")
@@ -315,118 +317,100 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     else:
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
-def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", input_extension=".txt", 
-                 api_provider="anthropic", model_name="claude-3-7-sonnet-20250219", 
-                 use_system_prompt=True, thinking_budget=0, max_tokens=4000, temperature=1):
-    """
-    Process a sequence of planning prompts with context from previous prompts.
-    
-    Args:
-        plan_range: Range of prompts to process (e.g., "01-03" or "full")
-        lit_range: Range of prompts that should include literature context (e.g., "04-99")
-        prompts_folder: Directory containing prompt files
-        input_extension: File extension for prompt files
-        api_provider: API provider to use ('replicate' or 'anthropic')
-        model_name: Model version to use
-        use_system_prompt: Whether to use the system prompt
-        thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode (default: 0)
-        max_tokens: Maximum tokens for response
-        temperature: Temperature for response generation
-    """
-    # Get list of plan prompts
-    plan_prompts = [f for f in os.listdir(prompts_folder) if f.startswith("plan") and f.endswith(input_extension)]
-
-    # create a dataframe of the planning prompts
-    plan_df = pd.DataFrame(plan_prompts, columns=["filename"])
-
-    # extract name and prompt number
-    plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
-    plan_df["number"] = plan_df["name"].str.extract(r"(\d+)").astype(int)
-    plan_df["prompt"] = ""  # Pre-allocate the prompt column with empty strings
-    
-    # Sort by number to ensure correct order
-    plan_df = plan_df.sort_values("number").reset_index(drop=True)
-
-    # read in prompts
-    for filename in plan_df["filename"]:
-        with open(os.path.join(prompts_folder, filename), 'r', encoding='utf-8') as file:
-            prompt = file.read()
-        plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
-
-    # Parse the range format "XX-YY"
-    plan_parts = plan_range.split("-")
-    plan_start = max(int(plan_parts[0]), plan_df["number"].min())
-    plan_end = min(int(plan_parts[1]), plan_df["number"].max())
-    
-    # Find index for start
-    index_start = plan_df[plan_df["number"] == plan_start].index[0] 
-    index_end = plan_df[plan_df["number"] == plan_end].index[0]
-
-    print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
-
-    # Parse the literature range
-    lit_parts = lit_range.split("-")
-    lit_start = int(lit_parts[0])
-    lit_end = int(lit_parts[1]) if len(lit_parts) > 1 else lit_start
-    print(f"Using literature for prompts {lit_start} through {lit_end}")
-    
-    # loop over plan prompts
-    for index in range(index_start, index_end+1):    
-        # Set context
-        if index == 0:
-            context_names = "none"
-        else:
-            # Use all previous prompt outputs as context
-            context_names = plan_df["name"].iloc[:index].tolist()
-
-        print("================================================")
-        print(f"Processing prompt number {plan_df['number'][index]}...")
-
-        # set prompt
-        prompt = plan_df["name"][index]
-
-        # Feedback
-        print(f"Prompt: {prompt}")
-        print(f"Context: {context_names}")
-
-        # Determine if this prompt should include bibliography
-        current_prompt_num = int(plan_df["number"][index])
-        add_lit = lit_start <= current_prompt_num <= lit_end
-        print(f"Including literature: {add_lit}")
-
-        # Query the model
-        response, used_prompt_name = query_llm(
-            prompt_name = prompt, 
-            context_names = context_names, 
-            add_lit = add_lit, 
-            prompts_folder = prompts_folder, 
-            input_extension = input_extension, 
-            api_provider = api_provider, 
-            model_name = model_name, 
-            thinking_budget = thinking_budget,
-            max_tokens = max_tokens,
-            temperature = temperature
-        )
-
-        # Save
-        save_response(response, used_prompt_name)
-
-        print("================================================")
-
-
 #%%
 # main
 
+# globals
 api_provider = "anthropic"
 prompts_folder = "./prompts"
 input_extension = ".txt"
 
-# Call the planning loop with the plan range and bib range
-planning_loop(
-    plan_range = args.plan_range, 
-    lit_range = args.lit_range, 
-    model_name = args.model_name, 
-    thinking_budget = args.thinking_budget,
-    max_tokens = args.max_tokens, 
-    temperature = args.temperature
-)    
+# from command line or user
+plan_range = args.plan_range
+lit_range = args.lit_range
+model_name = args.model_name
+thinking_budget = args.thinking_budget
+max_tokens = args.max_tokens
+temperature = args.temperature
+
+# Get list of plan prompts
+plan_prompts = [f for f in os.listdir(prompts_folder) if f.startswith("plan") and f.endswith(input_extension)]
+
+# create a dataframe of the planning prompts
+plan_df = pd.DataFrame(plan_prompts, columns=["filename"])
+
+# extract name and prompt number
+plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
+plan_df["number"] = plan_df["name"].str.extract(r"(\d+)").astype(int)
+plan_df["prompt"] = ""  # Pre-allocate the prompt column with empty strings
+
+# Sort by number to ensure correct order
+plan_df = plan_df.sort_values("number").reset_index(drop=True)
+
+# read in prompts
+for filename in plan_df["filename"]:
+    with open(os.path.join(prompts_folder, filename), 'r', encoding='utf-8') as file:
+        prompt = file.read()
+    plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
+
+# Parse the range format "XX-YY"
+plan_parts = plan_range.split("-")
+plan_start = max(int(plan_parts[0]), plan_df["number"].min())
+plan_end = min(int(plan_parts[1]), plan_df["number"].max())
+
+# Find index for start
+index_start = plan_df[plan_df["number"] == plan_start].index[0] 
+index_end = plan_df[plan_df["number"] == plan_end].index[0]
+
+print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
+
+# Parse the literature range
+lit_parts = lit_range.split("-")
+lit_start = int(lit_parts[0])
+lit_end = int(lit_parts[1]) if len(lit_parts) > 1 else lit_start
+print(f"Using literature for prompts {lit_start} through {lit_end}")
+
+# loop over plan prompts
+for index in range(index_start, index_end+1):    
+    # Set context
+    if index == 0:
+        context_names = "none"
+    else:
+        # Use all previous prompt outputs as context
+        context_names = plan_df["name"].iloc[:index].tolist()
+
+    print("================================================")
+    print(f"Processing prompt number {plan_df['number'][index]}...")
+
+    # set prompt
+    prompt = plan_df["name"][index]
+
+    # Feedback
+    print(f"Prompt: {prompt}")
+    print(f"Context: {context_names}")
+
+    # Determine if this prompt should include bibliography
+    current_prompt_num = int(plan_df["number"][index])
+    add_lit = lit_start <= current_prompt_num <= lit_end
+    print(f"Including literature: {add_lit}")
+
+    # Query the model
+    response, used_prompt_name = query_llm(
+        prompt_name = prompt, 
+        context_names = context_names, 
+        add_lit = add_lit, 
+        prompts_folder = prompts_folder, 
+        input_extension = input_extension, 
+        api_provider = api_provider, 
+        model_name = model_name, 
+        thinking_budget = thinking_budget,
+        max_tokens = max_tokens,
+        temperature = temperature
+    )
+
+    # Save
+    save_response(response, used_prompt_name)
+
+    print("================================================")
+
+
