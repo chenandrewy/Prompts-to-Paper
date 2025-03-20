@@ -59,12 +59,3 @@ def is_jupyter():
             return False
     except NameError:  # Not in an IPython environment
         return False
-
-# validate arguments
-def validate_arguments(args):
-    if args.model_name == "claude-3-5-haiku-20241022":
-        if args.max_tokens > 8192:
-            print("WARNING: claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
-            args.max_tokens = 8192
-    
-    return args

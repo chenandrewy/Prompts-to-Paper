@@ -14,7 +14,7 @@ import shutil
 import pandas as pd
 import anthropic  # Add anthropic import
 import textwrap
-from utils import clean_latex_aux_files, print_wrapped, is_jupyter, validate_arguments
+from utils import clean_latex_aux_files, print_wrapped, is_jupyter
 import argparse
 import yaml
 
@@ -73,7 +73,15 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
     if (thinking_budget > 0) & (thinking_budget < 1024):
         print(f"Warning: Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
         thinking_budget = 1024    
-        
+
+    if (model_name == "claude-3-5-haiku-20241022"):
+        if max_tokens > 8192:
+            print(f"Warning: claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
+            max_tokens = 8192
+        if thinking_budget > 0:
+            print(f"Warning: claude-3-5-haiku-20241022 does not support thinking mode. Setting thinking budget to 0.")
+            thinking_budget = 0
+
     # Read the contexts if specified
     combined_context = ""
     if context_names:
@@ -217,13 +225,47 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
             # For standard mode, the response is in content[0]
             result = response.content[0].text
 
-        # Check if max tokens was nearly reached
-        # add token usage as a latex comment in the output
-        token_usage = response.usage.prompt_tokens
-        result = f"% Token usage: {token_usage}\n\n{result}"
+        # -- check spending --
+        MODEL_PRICES = {
+            "claude-3-7-sonnet-20250219": {
+                "input":   3.0*10**-6,  # $3 per M tokens
+                "output": 15.0*10**-6,  # $15 per M tokens
+            },
+            "claude-3-5-haiku-20241022": {
+                "input": 0.8*10**-6,   
+                "output": 4.0*10**-6,  
+            }
+        }
 
-        if token_usage >= 0.95 * max_tokens:
-            print(f"Warning: Max tokens were nearly reached. Prompt tokens: {token_usage}, Max tokens: {max_tokens}")
+        # Get token counts from response
+        input_tokens = response.usage.input_tokens
+        output_tokens = response.usage.output_tokens
+        total_tokens = input_tokens + output_tokens
+        
+        # Calculate costs
+        input_cost = input_tokens * MODEL_PRICES[anthropic_model]["input"]
+        output_cost = output_tokens * MODEL_PRICES[anthropic_model]["output"]
+        total_cost = input_cost + output_cost        
+
+        # Summarize costs
+        cost_summary = f"""
+        %% TOKEN USAGE
+        % Input tokens: {input_tokens}
+        % Output tokens: {output_tokens}
+        % max_tokens: {max_tokens}
+        % thinking_budget: {thinking_budget}
+        %% COSTS        
+        % Total tokens: {total_tokens}
+        % Input cost: ${input_cost:.2f}
+        % Output cost: ${output_cost:.2f}
+        % Total cost: ${total_cost:.2f}
+        """
+
+        # add cost summary to result
+        result = f"{cost_summary}\n\n{result}"
+
+        if output_tokens >= 0.95 * max_tokens:
+            print(f"Warning: Max tokens were nearly reached. Output tokens: {output_tokens}, Max tokens: {max_tokens}")
 
     else:
         raise ValueError(f"Unsupported API provider: {api_provider}")
@@ -303,7 +345,7 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
 if is_jupyter():
     class DefaultArgs:
         def __init__(self):
-            self.model_name = "claude-3-7-sonnet-20250219"
+            self.model_name = "claude-3-5-haiku-20241022"
             self.temperature = 0.5
             self.plan_range = "02-02"
 
@@ -314,12 +356,6 @@ else:
     args = parse_arguments()
     print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, "
           f"plan_range={args.plan_range}")
-
-# validate arguments
-args = validate_arguments(args)
-
-#%%
-# main
 
 # globals
 api_provider = "anthropic"
