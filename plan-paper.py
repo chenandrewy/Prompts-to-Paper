@@ -216,6 +216,15 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         else:
             # For standard mode, the response is in content[0]
             result = response.content[0].text
+
+        # Check if max tokens was nearly reached
+        # add token usage as a latex comment in the output
+        token_usage = response.usage.prompt_tokens
+        result = f"% Token usage: {token_usage}\n\n{result}"
+
+        if token_usage >= 0.95 * max_tokens:
+            print(f"Warning: Max tokens were nearly reached. Prompt tokens: {token_usage}, Max tokens: {max_tokens}")
+
     else:
         raise ValueError(f"Unsupported API provider: {api_provider}")
     
