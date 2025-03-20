@@ -21,21 +21,6 @@ import yaml
 # Load environment variables from .env file 
 load_dotenv()
 
-
-#%%
-# Parse arguments from command line
-
-# parse from command line
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Generate an academic paper using Claude AI')
-    parser.add_argument('--model_name', type=str, default="claude-3-7-sonnet-20250219",
-                        help='Model to use for generation (default: claude-3-7-sonnet-20250219)')
-    parser.add_argument('--temperature', type=float, default=0.5,
-                        help='Temperature for generation (default: 0.5)')
-    parser.add_argument('--plan-range', type=str, default="01-99",
-                        help='Range of planning prompts to process (format: XX-YY, default: 01-99)')
-    return parser.parse_args()
-
 #%%
 # Functions
 
@@ -336,56 +321,37 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
 #%%
-# parse for jupyter notebook (for testing)
+# SETUP
 
-# for reference
-# model_name = "claude-3-7-sonnet-20250219"
-# model_name = "claude-3-5-haiku-20241022"
-
-if is_jupyter():
-    class DefaultArgs:
-        def __init__(self):
-            self.model_name = "claude-3-5-haiku-20241022"
-            self.temperature = 0.5
-            self.plan_range = "02-02"
-
-    args = DefaultArgs()
-    print("Running in Jupyter notebook with default arguments")
-else:
-    # Get command line arguments when running as a script
-    args = parse_arguments()
-    print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, "
-          f"plan_range={args.plan_range}")
-
-# globals
-api_provider = "anthropic"
+# Global (tbc: make it nicer somehow?)
 prompts_folder = "./prompts"
 
-# from command line or user
-plan_range = args.plan_range
-model_name = args.model_name
-temperature = args.temperature
-
-# Get list of plan prompts
+# Load all config and prompts
 with open(os.path.join(prompts_folder, "planning-prompts.yaml"), "r") as f:
-    prompts_data = yaml.safe_load(f)
+    settings = yaml.safe_load(f)
+
+# Get config
+config = settings["config"]
+api_provider = config["api_provider"][0]
 
 # Create DataFrame from YAML data
-plan_df = pd.DataFrame(prompts_data["prompts"])
+plan_df = pd.DataFrame(settings["prompts"])
 
 # Sort by number to ensure correct order
 plan_df = plan_df.sort_values("number").reset_index(drop=True)
 
-# Parse the range format "XX-YY"
-plan_parts = plan_range.split("-")
-plan_start = max(int(plan_parts[0]), plan_df["number"].min())
-plan_end = min(int(plan_parts[1]), plan_df["number"].max())
+# Fix run range
+plan_start = max(int(config["run_range"]["start"]), plan_df["number"].min())
+plan_end = min(int(config["run_range"]["end"]), plan_df["number"].max())
 
 # Find index for start
 index_start = plan_df[plan_df["number"] == plan_start].index[0] 
 index_end = plan_df[plan_df["number"] == plan_end].index[0]
 
 print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
+
+#%%
+# LOOP OVER PROMPTS
 
 # loop over plan prompts
 for index in range(index_start, index_end+1):    
@@ -429,10 +395,10 @@ for index in range(index_start, index_end+1):
         response_folder = "./responses", 
         response_ext = ".tex",
         api_provider = api_provider, 
-        model_name = model_name, 
+        model_name = config["model_name"][0], 
         thinking_budget = prompt_thinking_budget,
         max_tokens = prompt_max_tokens,
-        temperature = temperature
+        temperature = config["temperature"][0]
     )
 
     # Save
