@@ -32,10 +32,6 @@ def parse_arguments():
                         help='Model to use for generation (default: claude-3-7-sonnet-20250219)')
     parser.add_argument('--temperature', type=float, default=0.5,
                         help='Temperature for generation (default: 0.5)')
-    parser.add_argument('--max-tokens', type=int, default=10000,
-                        help='Default max tokens when not specified in YAML (default: 10000)')
-    parser.add_argument('--thinking-budget', type=int, default=0,
-                        help='Default thinking budget when not specified in YAML (default: 0)')
     parser.add_argument('--plan-range', type=str, default="01-99",
                         help='Range of planning prompts to process (format: XX-YY, default: 01-99)')
     return parser.parse_args()
@@ -61,6 +57,9 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         use_system_prompt: Whether to use the system prompt (default: True)
         thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode with specified budget (default: 0)
     """
+    # convert pandas integers to native python
+    max_tokens = int(max_tokens)
+    thinking_budget = int(thinking_budget)
 
     # Argument check
     if (thinking_budget > 0) & (temperature != 1):
@@ -207,13 +206,7 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         # Call the API
         print(f"Thinking budget: {thinking_budget}")
         print(f"Max tokens: {max_tokens}")
-
-        # convert pandas integers to native python
-        keys_to_convert = ["max_tokens", "budget_tokens"]
-        for key in keys_to_convert:
-            if key in params:
-                params[key] = int(params[key])
-
+   
         response = client.messages.create(**params)
         
         # Extract the response text based on whether thinking mode is enabled
@@ -301,11 +294,9 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
 if is_jupyter():
     class DefaultArgs:
         def __init__(self):
-            self.model_name = "claude-3-5-haiku-20241022"
+            self.model_name = "claude-3-7-sonnet-20250219"
             self.temperature = 0.5
-            self.max_tokens = 2000
-            self.plan_range = "01-02"
-            self.thinking_budget = 0
+            self.plan_range = "02-02"
 
     args = DefaultArgs()
     print("Running in Jupyter notebook with default arguments")
@@ -313,7 +304,7 @@ else:
     # Get command line arguments when running as a script
     args = parse_arguments()
     print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, "
-          f"max_tokens={args.max_tokens}, plan_range={args.plan_range}")
+          f"plan_range={args.plan_range}")
 
 # validate arguments
 args = validate_arguments(args)
@@ -328,8 +319,6 @@ prompts_folder = "./prompts"
 # from command line or user
 plan_range = args.plan_range
 model_name = args.model_name
-thinking_budget = args.thinking_budget
-max_tokens = args.max_tokens
 temperature = args.temperature
 
 # Get list of plan prompts
@@ -368,9 +357,12 @@ for index in range(index_start, index_end+1):
     # extract instructions and parameters
     instructions = plan_df["instructions"][index]
     
-    # Get max_tokens and thinking_budget from YAML if specified, otherwise use command line defaults
-    prompt_max_tokens = plan_df["max_tokens"].iloc[index] if "max_tokens" in plan_df.columns else max_tokens
-    prompt_thinking_budget = plan_df["thinking_budget"].iloc[index] if "thinking_budget" in plan_df.columns else thinking_budget
+    # Require max_tokens and thinking_budget in YAML
+    if "max_tokens" not in plan_df.columns or "thinking_budget" not in plan_df.columns:
+        raise ValueError("YAML must specify max_tokens and thinking_budget for each prompt")
+    
+    prompt_max_tokens = plan_df["max_tokens"].iloc[index]
+    prompt_thinking_budget = plan_df["thinking_budget"].iloc[index]
 
     # Feedback
     print(f"Instructions: {instructions}")
@@ -403,3 +395,5 @@ for index in range(index_start, index_end+1):
 
     print("================================================")
 
+
+# %%
