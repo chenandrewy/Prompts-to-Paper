@@ -16,6 +16,7 @@ import anthropic  # Add anthropic import
 import textwrap
 from utils import clean_latex_aux_files, print_wrapped, is_jupyter, validate_arguments
 import argparse
+import yaml
 
 # Load environment variables from .env file 
 load_dotenv()
@@ -23,10 +24,6 @@ load_dotenv()
 
 #%%
 # Parse arguments from command line
-
-# for reference
-# model_name = "claude-3-7-sonnet-20250219"
-# model_name = "claude-3-5-haiku-20241022"
 
 # parse from command line
 def parse_arguments():
@@ -44,30 +41,6 @@ def parse_arguments():
     parser.add_argument('--lit-range', type=str, default="01-99",
                         help='Range of prompts that should include literature context (format: XX-YY, default: 01-99)')
     return parser.parse_args()
-
-#%%
-# parse for jupyter notebook (for testing)
-
-if is_jupyter():
-    class DefaultArgs:
-        def __init__(self):
-            self.model_name = "claude-3-7-sonnet-20250219"
-            self.temperature = 0.5
-            self.max_tokens = 2000
-            self.plan_range = "01-01"
-            self.lit_range = "09-99"
-            self.thinking_budget = 0
-
-    args = DefaultArgs()
-    print("Running in Jupyter notebook with default arguments")
-else:
-    # Get command line arguments when running as a script
-    args = parse_arguments()
-    print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, "
-          f"max_tokens={args.max_tokens}, plan_range={args.plan_range}, lit_range={args.lit_range}")
-
-# validate arguments
-args = validate_arguments(args)
 
 #%%
 # Functions
@@ -318,6 +291,34 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
         print(f"Warning: LaTeX compilation failed for {prompt_name}")
 
 #%%
+# parse for jupyter notebook (for testing)
+
+# for reference
+# model_name = "claude-3-7-sonnet-20250219"
+# model_name = "claude-3-5-haiku-20241022"
+
+if is_jupyter():
+    class DefaultArgs:
+        def __init__(self):
+            self.model_name = "claude-3-5-haiku-20241022"
+            self.temperature = 0.5
+            self.max_tokens = 2000
+            self.plan_range = "01-02"
+            self.lit_range = "09-99"
+            self.thinking_budget = 0
+
+    args = DefaultArgs()
+    print("Running in Jupyter notebook with default arguments")
+else:
+    # Get command line arguments when running as a script
+    args = parse_arguments()
+    print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, "
+          f"max_tokens={args.max_tokens}, plan_range={args.plan_range}, lit_range={args.lit_range}")
+
+# validate arguments
+args = validate_arguments(args)
+
+#%%
 # main
 
 # globals
@@ -334,24 +335,14 @@ max_tokens = args.max_tokens
 temperature = args.temperature
 
 # Get list of plan prompts
-plan_prompts = [f for f in os.listdir(prompts_folder) if f.startswith("plan") and f.endswith(input_extension)]
+with open("prompts/prompts.yaml", "r") as f:
+    prompts_data = yaml.safe_load(f)
 
-# create a dataframe of the planning prompts
-plan_df = pd.DataFrame(plan_prompts, columns=["filename"])
-
-# extract name and prompt number
-plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
-plan_df["number"] = plan_df["name"].str.extract(r"(\d+)").astype(int)
-plan_df["prompt"] = ""  # Pre-allocate the prompt column with empty strings
+# Create DataFrame from YAML data
+plan_df = pd.DataFrame(prompts_data["prompts"])
 
 # Sort by number to ensure correct order
 plan_df = plan_df.sort_values("number").reset_index(drop=True)
-
-# read in prompts
-for filename in plan_df["filename"]:
-    with open(os.path.join(prompts_folder, filename), 'r', encoding='utf-8') as file:
-        prompt = file.read()
-    plan_df.loc[plan_df["filename"] == filename, "prompt"] = prompt
 
 # Parse the range format "XX-YY"
 plan_parts = plan_range.split("-")
@@ -412,5 +403,4 @@ for index in range(index_start, index_end+1):
     save_response(response, used_prompt_name)
 
     print("================================================")
-
 
