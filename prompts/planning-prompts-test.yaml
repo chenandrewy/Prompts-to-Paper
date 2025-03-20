@@ -2,8 +2,6 @@ config:
   run_range:
     start: 1
     end: 99
-  model_name:
-    - claude-3-5-haiku-20241022
   temperature:
     - 0.5
   api_provider:
@@ -14,6 +12,7 @@ prompts:
   - number: 1
     name: planning-01
     include_lit: false
+    model_name: claude-3-5-haiku-20241022
     max_tokens: 4000
     thinking_budget: 0
     instructions: |
@@ -22,6 +21,7 @@ prompts:
   - number: 2
     name: planning-02
     include_lit: false
+    model_name: claude-3-5-haiku-20241022
     max_tokens: 2000
     thinking_budget: 1000
     instructions: |
@@ -30,7 +30,17 @@ prompts:
   - number: 3
     name: planning-03
     include_lit: false
+    model_name: claude-3-5-haiku-20241022
     max_tokens: 2000
     thinking_budget: 1000
     instructions: |
       Consider how the expected return of the AI asset depends on the disaster probability. Discuss the worst case.
+
+  - number: 4
+    name: planning-04
+    include_lit: true
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 2000
+    thinking_budget: 1000
+    instructions: |
+      Find the most relevant papers and write a short two paragraph lit review.

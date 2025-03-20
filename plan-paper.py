@@ -398,7 +398,7 @@ for index in range(index_start, index_end+1):
         response_folder = "./responses", 
         response_ext = ".tex",
         api_provider = api_provider, 
-        model_name = config["model_name"][0], 
+        model_name = plan_df["model_name"][index], 
         thinking_budget = prompt_thinking_budget,
         max_tokens = prompt_max_tokens,
         temperature = config["temperature"][0]
