@@ -28,7 +28,7 @@ load_dotenv()
 # model_name = "claude-3-7-sonnet-20250219"
 # model_name = "claude-3-5-haiku-20241022"
 
-
+# parse from command line
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate an academic paper using Claude AI')
     parser.add_argument('--model_name', type=str, default="claude-3-7-sonnet-20250219",
@@ -37,21 +37,24 @@ def parse_arguments():
                         help='Temperature for generation (default: 0.5)')
     parser.add_argument('--max-tokens', type=int, default=10000,
                         help='Maximum tokens to generate (default: 10000)')
+    parser.add_argument('--thinking-budget', type=int, default=0,
+                        help='Budget tokens for thinking mode (default: 0)')
     parser.add_argument('--plan-range', type=str, default="01-99",
                         help='Range of planning prompts to process (format: XX-YY, default: 01-99)')
     parser.add_argument('--lit-range', type=str, default="01-99",
                         help='Range of prompts that should include literature context (format: XX-YY, default: 01-99)')
     return parser.parse_args()
 
-# Set default arguments for Jupyter notebooks
+# parse for jupyter notebook (testing)
 if is_jupyter():
     class DefaultArgs:
         def __init__(self):
             self.model_name = "claude-3-7-sonnet-20250219"
             self.temperature = 0.5
-            self.max_tokens = 10000
-            self.plan_range = "01-99"
-            self.lit_range = "01-99"
+            self.max_tokens = 4000
+            self.plan_range = "01-01"
+            self.lit_range = "09-99"
+            self.thinking_budget = 4000
 
     args = DefaultArgs()
     print("Running in Jupyter notebook with default arguments")
@@ -70,7 +73,7 @@ args = validate_arguments(args)
 def query_llm(prompt_name, context_names=None, add_lit=False, 
               prompts_folder="./prompts", input_extension=".txt", 
               response_folder = "./responses", response_ext = ".tex",
-              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, use_thinking=False, max_tokens=4000, temperature=0.5):
+              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, thinking_budget=0, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
@@ -81,8 +84,22 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
         api_provider: API provider to use ('replicate' or 'anthropic')
         model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
         use_system_prompt: Whether to use the system prompt (default: True)
-        use_thinking: Whether to use thinking mode (Anthropic only)
+        thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode with specified budget (default: 0)
     """
+
+    # Argument check
+    if (thinking_budget > 0) & (temperature != 1):
+        print(f"Warning: Thinking mode is enabled, but temperature is not 1. Setting temperature to 1.")
+        temperature = 1
+
+    if thinking_budget >= max_tokens:
+        print(f"Warning: Thinking budget ({thinking_budget}) cannot be greater than max tokens ({max_tokens}). Setting thinking budget equal to 1/2 of max tokens.")
+        thinking_budget = max_tokens // 2
+    
+    if (thinking_budget > 0) & (thinking_budget < 1024):
+        print(f"Warning: Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
+        thinking_budget = 1024
+    
     
     # Read the prompt file
     input_path = os.path.join(prompts_folder, prompt_name + input_extension)
@@ -184,7 +201,10 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
             anthropic_model = anthropic_model.split("/")[-1]
         
         print(f"Using Anthropic model: {anthropic_model}")
-        print(f"Thinking mode: {'enabled' if use_thinking else 'disabled'}")
+        if thinking_budget > 0:
+            print(f"Thinking mode: enabled with budget {thinking_budget} tokens")
+        else:
+            print(f"Thinking mode: disabled")
         print(f"First 1000 characters of full prompt: {full_prompt[:1000]}")
         
         # Prepare common parameters
@@ -209,18 +229,20 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
         if system_prompt:
             params["system"] = system_prompt
         
-        # Add thinking parameters if enabled
-        if use_thinking:
+        # Add thinking parameters if budget > 0
+        if thinking_budget > 0:
             params["thinking"] = {
                 "type": "enabled",
-                "budget_tokens": 1600
+                "budget_tokens": thinking_budget
             }
         
         # Call the API
+        print(f"Thinking budget: {thinking_budget}")
+        print(f"Max tokens: {max_tokens}")
         response = client.messages.create(**params)
         
         # Extract the response text based on whether thinking mode is enabled
-        if use_thinking:
+        if thinking_budget > 0:
             # For thinking mode, the response is in content[1]
             result = response.content[1].text
         else:
@@ -295,7 +317,7 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
 
 def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", input_extension=".txt", 
                  api_provider="anthropic", model_name="claude-3-7-sonnet-20250219", 
-                 use_system_prompt=True, use_thinking=True, max_tokens=4000, temperature=1):
+                 use_system_prompt=True, thinking_budget=0, max_tokens=4000, temperature=1):
     """
     Process a sequence of planning prompts with context from previous prompts.
     
@@ -307,7 +329,7 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
         api_provider: API provider to use ('replicate' or 'anthropic')
         model_name: Model version to use
         use_system_prompt: Whether to use the system prompt
-        use_thinking: Whether to use thinking mode (Anthropic only)
+        thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode (default: 0)
         max_tokens: Maximum tokens for response
         temperature: Temperature for response generation
     """
@@ -320,6 +342,7 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
     # extract name and prompt number
     plan_df["name"] = plan_df["filename"].str.replace(input_extension, "")
     plan_df["number"] = plan_df["name"].str.extract(r"(\d+)").astype(int)
+    plan_df["prompt"] = ""  # Pre-allocate the prompt column with empty strings
     
     # Sort by number to ensure correct order
     plan_df = plan_df.sort_values("number").reset_index(drop=True)
@@ -371,10 +394,6 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
         add_lit = lit_start <= current_prompt_num <= lit_end
         print(f"Including literature: {add_lit}")
 
-        # # fix me
-        # response_folder = "./responses"
-        # response_ext = ".tex"
-
         # Query the model
         response, used_prompt_name = query_llm(
             prompt_name = prompt, 
@@ -384,7 +403,7 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
             input_extension = input_extension, 
             api_provider = api_provider, 
             model_name = model_name, 
-            use_thinking = use_thinking,
+            thinking_budget = thinking_budget,
             max_tokens = max_tokens,
             temperature = temperature
         )
@@ -399,8 +418,6 @@ def planning_loop(plan_range, lit_range="04-99", prompts_folder="./prompts", inp
 # main
 
 api_provider = "anthropic"
-use_thinking = False  # Whether to use thinking mode (Anthropic only)
-
 prompts_folder = "./prompts"
 input_extension = ".txt"
 
@@ -409,11 +426,7 @@ planning_loop(
     plan_range = args.plan_range, 
     lit_range = args.lit_range, 
     model_name = args.model_name, 
-    use_thinking = use_thinking,
+    thinking_budget = args.thinking_budget,
     max_tokens = args.max_tokens, 
     temperature = args.temperature
 )    
-
-#%%
-
-
