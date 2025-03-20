@@ -45,17 +45,19 @@ def parse_arguments():
 #%%
 # Functions
 
-def query_llm(prompt_name, context_names=None, add_lit=False, 
-              prompts_folder="./prompts", input_extension=".txt", 
+def query_llm(prompt_name, instructions, context_names=None, add_lit=False, 
+              prompts_folder="./prompts", 
               response_folder = "./responses", response_ext = ".tex",
               api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, thinking_budget=0, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
         prompt_name: Name of the prompt file (without extension)
+        instructions: The actual instructions text to send to the model
         context_names: List of context file names (without extension), or None for no context
         prompts_folder: Directory containing prompt files
-        input_extension: File extension for prompt and context files
+        response_folder: Directory to save the response
+        response_ext: File extension for the response
         api_provider: API provider to use ('replicate' or 'anthropic')
         model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
         use_system_prompt: Whether to use the system prompt (default: True)
@@ -73,15 +75,8 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
     
     if (thinking_budget > 0) & (thinking_budget < 1024):
         print(f"Warning: Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
-        thinking_budget = 1024
-    
-    
-    # Read the prompt file
-    input_path = os.path.join(prompts_folder, prompt_name + input_extension)
-    with open(input_path, 'r', encoding='utf-8') as file:
-        prompt = file.read()
-    print(f"Reading prompt from {input_path}...")
-    
+        thinking_budget = 1024    
+        
     # Read the contexts if specified
     combined_context = ""
     if context_names:
@@ -92,7 +87,7 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
             context_names = []
             
         for context_name in context_names:
-            context_path = os.path.join(response_folder, context_name + "-texinput" +response_ext)
+            context_path = os.path.join(response_folder, context_name + "-texinput" + response_ext)
             if os.path.exists(context_path):
                 print(f"Reading context from {context_path}...")
                 with open(context_path, 'r', encoding='utf-8') as file:
@@ -105,7 +100,7 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
     # add literature context if requested
     if add_lit:
         # find all lit files in prompts folder
-        lit_files = [f for f in os.listdir(prompts_folder) if f.startswith("lit-") and f.endswith(input_extension)]
+        lit_files = [f for f in os.listdir(prompts_folder) if f.startswith("lit-") and f.endswith(".txt")]
 
         # if no lit files, error out
         if not lit_files:
@@ -128,9 +123,9 @@ def query_llm(prompt_name, context_names=None, add_lit=False,
             system_prompt = file.read()
     
     # Prepare the full prompt with context if provided
-    full_prompt = prompt
+    full_prompt = instructions
     if combined_context:
-        full_prompt = f"Here is some context:\n\n{combined_context}\n\n{prompt}"
+        full_prompt = f"Here is some context:\n\n{combined_context}\n\n{instructions}"
     
     # save full prompt to responses folder
     temp_prompt_path = os.path.join(response_folder, f"{prompt_name}-full-prompt.txt")
@@ -325,7 +320,6 @@ args = validate_arguments(args)
 # globals
 api_provider = "anthropic"
 prompts_folder = "./prompts"
-input_extension = ".txt"
 
 # from command line or user
 plan_range = args.plan_range
@@ -336,7 +330,7 @@ max_tokens = args.max_tokens
 temperature = args.temperature
 
 # Get list of plan prompts
-with open("prompts/prompts.yaml", "r") as f:
+with open(os.path.join(prompts_folder, "planning-prompts.yaml"), "r") as f:
     prompts_data = yaml.safe_load(f)
 
 # Create DataFrame from YAML data
@@ -374,11 +368,11 @@ for index in range(index_start, index_end+1):
     print("================================================")
     print(f"Processing prompt number {plan_df['number'][index]}...")
 
-    # set prompt
-    prompt = plan_df["name"][index]
+    # extract instructions
+    instructions = plan_df["instructions"][index]
 
     # Feedback
-    print(f"Prompt: {prompt}")
+    print(f"Instructions: {instructions}")
     print(f"Context: {context_names}")
 
     # Determine if this prompt should include bibliography
@@ -388,11 +382,13 @@ for index in range(index_start, index_end+1):
 
     # Query the model
     response, used_prompt_name = query_llm(
-        prompt_name = prompt, 
+        prompt_name = plan_df["name"][index], 
+        instructions = instructions,
         context_names = context_names, 
         add_lit = add_lit, 
         prompts_folder = prompts_folder, 
-        input_extension = input_extension, 
+        response_folder = "./responses", 
+        response_ext = ".tex",
         api_provider = api_provider, 
         model_name = model_name, 
         thinking_budget = thinking_budget,
