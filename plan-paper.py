@@ -323,11 +323,14 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
 #%%
 # SETUP
 
+# User
+plan_name = "planning-prompts-test"
+
 # Global (tbc: make it nicer somehow?)
 prompts_folder = "./prompts"
 
 # Load all config and prompts
-with open(os.path.join(prompts_folder, "planning-prompts.yaml"), "r") as f:
+with open(os.path.join(prompts_folder, f"{plan_name}.yaml"), "r") as f:
     settings = yaml.safe_load(f)
 
 # Get config
