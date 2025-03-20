@@ -38,8 +38,6 @@ def parse_arguments():
                         help='Budget tokens for thinking mode (default: 0)')
     parser.add_argument('--plan-range', type=str, default="01-99",
                         help='Range of planning prompts to process (format: XX-YY, default: 01-99)')
-    parser.add_argument('--lit-range', type=str, default="01-99",
-                        help='Range of prompts that should include literature context (format: XX-YY, default: 01-99)')
     return parser.parse_args()
 
 #%%
@@ -300,7 +298,6 @@ if is_jupyter():
             self.temperature = 0.5
             self.max_tokens = 2000
             self.plan_range = "01-02"
-            self.lit_range = "09-99"
             self.thinking_budget = 0
 
     args = DefaultArgs()
@@ -309,7 +306,7 @@ else:
     # Get command line arguments when running as a script
     args = parse_arguments()
     print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, "
-          f"max_tokens={args.max_tokens}, plan_range={args.plan_range}, lit_range={args.lit_range}")
+          f"max_tokens={args.max_tokens}, plan_range={args.plan_range}")
 
 # validate arguments
 args = validate_arguments(args)
@@ -323,7 +320,6 @@ prompts_folder = "./prompts"
 
 # from command line or user
 plan_range = args.plan_range
-lit_range = args.lit_range
 model_name = args.model_name
 thinking_budget = args.thinking_budget
 max_tokens = args.max_tokens
@@ -350,12 +346,6 @@ index_end = plan_df[plan_df["number"] == plan_end].index[0]
 
 print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
 
-# Parse the literature range
-lit_parts = lit_range.split("-")
-lit_start = int(lit_parts[0])
-lit_end = int(lit_parts[1]) if len(lit_parts) > 1 else lit_start
-print(f"Using literature for prompts {lit_start} through {lit_end}")
-
 # loop over plan prompts
 for index in range(index_start, index_end+1):    
     # Set context
@@ -375,9 +365,8 @@ for index in range(index_start, index_end+1):
     print(f"Instructions: {instructions}")
     print(f"Context: {context_names}")
 
-    # Determine if this prompt should include bibliography
-    current_prompt_num = int(plan_df["number"][index])
-    add_lit = lit_start <= current_prompt_num <= lit_end
+    # Determine if this prompt should include bibliography from YAML
+    add_lit = plan_df["include_lit"][index]
     print(f"Including literature: {add_lit}")
 
     # Query the model
