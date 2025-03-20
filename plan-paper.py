@@ -33,9 +33,9 @@ def parse_arguments():
     parser.add_argument('--temperature', type=float, default=0.5,
                         help='Temperature for generation (default: 0.5)')
     parser.add_argument('--max-tokens', type=int, default=10000,
-                        help='Maximum tokens to generate (default: 10000)')
+                        help='Default max tokens when not specified in YAML (default: 10000)')
     parser.add_argument('--thinking-budget', type=int, default=0,
-                        help='Budget tokens for thinking mode (default: 0)')
+                        help='Default thinking budget when not specified in YAML (default: 0)')
     parser.add_argument('--plan-range', type=str, default="01-99",
                         help='Range of planning prompts to process (format: XX-YY, default: 01-99)')
     return parser.parse_args()
@@ -207,6 +207,13 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         # Call the API
         print(f"Thinking budget: {thinking_budget}")
         print(f"Max tokens: {max_tokens}")
+
+        # convert pandas integers to native python
+        keys_to_convert = ["max_tokens", "budget_tokens"]
+        for key in keys_to_convert:
+            if key in params:
+                params[key] = int(params[key])
+
         response = client.messages.create(**params)
         
         # Extract the response text based on whether thinking mode is enabled
@@ -358,12 +365,18 @@ for index in range(index_start, index_end+1):
     print("================================================")
     print(f"Processing prompt number {plan_df['number'][index]}...")
 
-    # extract instructions
+    # extract instructions and parameters
     instructions = plan_df["instructions"][index]
+    
+    # Get max_tokens and thinking_budget from YAML if specified, otherwise use command line defaults
+    prompt_max_tokens = plan_df["max_tokens"].iloc[index] if "max_tokens" in plan_df.columns else max_tokens
+    prompt_thinking_budget = plan_df["thinking_budget"].iloc[index] if "thinking_budget" in plan_df.columns else thinking_budget
 
     # Feedback
     print(f"Instructions: {instructions}")
     print(f"Context: {context_names}")
+    print(f"Max tokens: {prompt_max_tokens}")
+    print(f"Thinking budget: {prompt_thinking_budget}")
 
     # Determine if this prompt should include bibliography from YAML
     add_lit = plan_df["include_lit"][index]
@@ -380,8 +393,8 @@ for index in range(index_start, index_end+1):
         response_ext = ".tex",
         api_provider = api_provider, 
         model_name = model_name, 
-        thinking_budget = thinking_budget,
-        max_tokens = max_tokens,
+        thinking_budget = prompt_thinking_budget,
+        max_tokens = prompt_max_tokens,
         temperature = temperature
     )
 
