@@ -30,6 +30,15 @@
 \usepackage[backend=biber,style=authoryear,uniquename=false, maxbibnames=99, maxcitenames=3, uniquelist=false, natbib=true]{biblatex}
 \addbibresource{../input-other/lit-99-bibtex.bib}
 
+% custom math commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathbb{V}}
+
+% margins and spacing
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
 \begin{document}
 
 % [input-goes-here]

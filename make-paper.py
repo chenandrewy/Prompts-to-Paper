@@ -1,307 +1,383 @@
 #%%
-# setup
+# Setup
 
 import os
-import glob
-import anthropic
 import subprocess
+import sys
+import replicate
 from dotenv import load_dotenv
-import textwrap
 import time
-import re
-import shutil
-import argparse  
-# custom functions
-from utils import clean_latex_aux_files, print_wrapped, validate_arguments 
+import markdown2
+import pdfkit
+from datetime import datetime
+import shutil  
+import pandas as pd
+import anthropic  # Add anthropic import
+import textwrap
+from utils import texinput_to_pdf, print_wrapped, is_jupyter, calculate_costs, save_cost_table
+import argparse
+import yaml
 
-# Load environment variables (API key)
+
+# Load environment variables from .env file 
 load_dotenv()
-
-#%%
-# Argument Parsing and Error Handling
-
-# Parse command line arguments
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Generate an academic paper using Claude AI')
-    parser.add_argument('--model_name', type=str, default="claude-3-7-sonnet-20250219",
-                        help='Model to use for generation (default: claude-3-7-sonnet-20250219)')
-    parser.add_argument('--temperature', type=float, default=0.5,
-                        help='Temperature for generation (default: 0.5)')
-    parser.add_argument('--max-tokens', type=int, default=10000,
-                        help='Maximum tokens to generate (default: 10000)')
-    return parser.parse_args()
-
-
-# Check if running in Jupyter notebook or as a script
-def is_jupyter():
-    try:
-        # This will only exist in Jupyter environments
-        shell = get_ipython().__class__.__name__
-        if shell == 'ZMQInteractiveShell':  # Jupyter notebook or qtconsole
-            return True
-        elif shell == 'TerminalInteractiveShell':  # IPython terminal
-            return False
-        else:
-            return False
-    except NameError:  # Not in an IPython environment
-        return False
-
-# Set default arguments for Jupyter notebooks
-if is_jupyter():
-    class DefaultArgs:
-        def __init__(self):
-            self.model_name = "claude-3-7-sonnet-20250219"
-            self.temperature = 0.5
-            self.max_tokens = 10000
-    
-    args = DefaultArgs()
-    print("Running in Jupyter notebook with default arguments")
-else:
-    # Get command line arguments when running as a script
-    args = parse_arguments()
-    print(f"Running as script with arguments: model_name={args.model_name}, temperature={args.temperature}, max_tokens={args.max_tokens}")
-
-# validate arguments
-print("Validating arguments...")
-args = validate_arguments(args)
 
 #%%
 # Functions
 
-
-# Initialize Anthropic client
-client = anthropic.Anthropic()
-
-def print_wrapped(text, width=70):
-    """
-    Prints the input text with word wrapping while preserving paragraph breaks.
+def query_llm(prompt_name, instructions, context_names=None, add_lit=False, 
+              lit_folder="./prompts", 
+              response_folder = "./responses", response_ext = ".tex",
+              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", thinking_budget=0, max_tokens=4000, temperature=0.5):
+    """Query an llm
     
     Args:
-        text (str): The input text to print.
-        width (int, optional): Maximum width for each line. Defaults to 70.
+        prompt_name: Name of the prompt file (without extension)
+        instructions: The actual instructions text to send to the model
+        context_names: List of context file names (without extension), or None for no context
+        lit_folder: Directory containing prompt files
+        response_folder: Directory to save the response
+        response_ext: File extension for the response
+        api_provider: API provider to use ('replicate' or 'anthropic')
+        model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
+        thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode with specified budget (default: 0)
     """
-    # Create a TextWrapper instance with the desired width
-    wrapper = textwrap.TextWrapper(width=width)
-    
-    # Split the text into paragraphs using double newlines
-    paragraphs = text.split("\n\n")
-    
-    # Wrap and print each paragraph separately
-    for para in paragraphs:
-        try:
-            print(wrapper.fill(para))
-        except UnicodeEncodeError:
-            # Handle Unicode encoding errors by replacing problematic characters
-            print(wrapper.fill(para.encode('ascii', 'replace').decode('ascii')))
-        # Print a blank line to preserve paragraph separation
-        print()
+    # convert pandas integers to native python
+    max_tokens = int(max_tokens)
+    thinking_budget = int(thinking_budget)
 
-def clean_latex_aux_files(prompt_name):
-    """Clean up auxiliary files created by LaTeX."""
-    aux_files = [
-        f"{prompt_name}.aux",
-        f"{prompt_name}.bbl",
-        f"{prompt_name}.blg",
-        f"{prompt_name}.out"
-    ]
+    # Argument check
+    if (thinking_budget > 0) & (temperature != 1):
+        print(f"Warning: Thinking mode is enabled, but temperature is not 1. Setting temperature to 1.")
+        temperature = 1
 
-    for file in aux_files:
-        if os.path.exists(file):
-            os.remove(file)
+    if thinking_budget >= max_tokens:
+        print(f"Warning: Thinking budget ({thinking_budget}) cannot be greater than max tokens ({max_tokens}). Setting thinking budget equal to 1/2 of max tokens.")
+        thinking_budget = max_tokens // 2
+    
+    if (thinking_budget > 0) & (thinking_budget < 1024):
+        print(f"Warning: Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
+        thinking_budget = 1024    
 
-def clean_latex_code(file_path):
-    """Clean the LaTeX code to remove problematic Unicode characters."""
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
+    if (model_name == "claude-3-5-haiku-20241022"):
+        if max_tokens > 8192:
+            print(f"Warning: claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
+            max_tokens = 8192
+        if thinking_budget > 0:
+            print(f"Warning: claude-3-5-haiku-20241022 does not support thinking mode. Setting thinking budget to 0.")
+            thinking_budget = 0
+
+    # Read the contexts if specified
+    combined_context = ""
+    if context_names:
+        # Handle both string and list inputs for backward compatibility
+        if isinstance(context_names, str) and context_names != "none":
+            context_names = [context_names]
+        elif isinstance(context_names, str) and context_names == "none":
+            context_names = []
+            
+        for context_name in context_names:
+            context_path = os.path.join(response_folder, context_name + "-texinput" + response_ext)
+            if os.path.exists(context_path):
+                print(f"Reading context from {context_path}...")
+                with open(context_path, 'r', encoding='utf-8') as file:
+                    context_content = file.read()
+                combined_context += f"--- BEGIN CONTEXT: {context_name} ---\n{context_content}\n--- END CONTEXT: {context_name} ---\n\n"
+            else:
+                # Error out if context file is not found
+                raise FileNotFoundError(f"Context file not found: {context_path}")
+
+    # add literature context if requested
+    if add_lit:
+        # find all lit files in prompts folder
+        lit_files = [f for f in os.listdir(lit_folder) if f.startswith("lit-") and f.endswith(".txt")]
+
+        # if no lit files, error out
+        if not lit_files:
+            raise FileNotFoundError("No lit files found in prompts folder")
+
+        # read in lit files
+        for lit_file in lit_files:
+            lit_path = os.path.join(lit_folder, lit_file)
+            print(f"Reading lit from {lit_path}...")
+            with open(lit_path, 'r', encoding='utf-8') as file:
+                lit_content = file.read()
+            combined_context += f"--- BEGIN LITERATURE ---\n{lit_content}\n--- END LITERATURE ---\n\n"
+
+    # Get system prompt from YAML config if it exists
+    system_prompt = None
+    if "system_prompt" in config:
+        print("Using system prompt from YAML config...")
+        system_prompt = config["system_prompt"]
+        print(system_prompt)
     
-    # Replace emojis and other problematic Unicode characters
-    # Replace winking emoji with LaTeX-friendly alternative
-    content = content.replace("😉", "\\texttt{;)}")
+    # Prepare the full prompt with context if provided
+    full_prompt = instructions
+    if combined_context:
+        full_prompt = f"Here is some context:\n\n{combined_context}\n\n{instructions}"
     
-    # Add more replacements as needed for other Unicode characters
+    # save full prompt to responses folder
+    temp_prompt_path = os.path.join(response_folder, f"{prompt_name}-full-prompt.txt")
+    with open(temp_prompt_path, "w", encoding="utf-8") as file:
+        file.write(full_prompt)
+
+    # Process based on API provider
+    if api_provider.lower() == 'replicate':
+        # Replicate API
+        print(f"Using Replicate model: {model_name}")
+        
+        # Prepare input parameters
+        input_params = {
+            "prompt": full_prompt,
+            "max_tokens": max_tokens,
+            "temperature": temperature
+        }
+        
+        # Add system prompt if provided
+        if system_prompt:
+            input_params["system"] = system_prompt
+        
+        # Run the model
+        output = replicate.run(
+            model_name,
+            input=input_params
+        )
+        
+        # Collect the output
+        result = ""
+        for item in output:
+            result += item
+            print(item, end="", flush=True)  # Stream the output
+            
+    elif api_provider.lower() == 'anthropic':
+        # Anthropic API
+        # Create Anthropic client
+        client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+        
+        # Extract the model name from the full model string if needed
+        anthropic_model = model_name
+        if "/" in anthropic_model:
+            anthropic_model = anthropic_model.split("/")[-1]
+        
+        print(f"Using Anthropic model: {anthropic_model}")
+        if thinking_budget > 0:
+            print(f"Thinking mode: enabled with budget {thinking_budget} tokens")
+        else:
+            print(f"Thinking mode: disabled")
+        print(f"First 1000 characters of full prompt: {full_prompt[:1000]}")
+        
+        # Prepare common parameters
+        params = {
+            "model": anthropic_model,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": full_prompt
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        # Add system prompt if provided
+        if system_prompt:
+            params["system"] = system_prompt
+        
+        # Add thinking parameters if budget > 0
+        if thinking_budget > 0:
+            params["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": thinking_budget
+            }
+        
+        # Call the API
+        print(f"Thinking budget: {thinking_budget}")
+        print(f"Max tokens: {max_tokens}")
+   
+        response = client.messages.create(**params)
+        
+        # Extract the response text based on whether thinking mode is enabled
+        if thinking_budget > 0:
+            # For thinking mode, the response is in content[1]
+            result = response.content[1].text
+        else:
+            # For standard mode, the response is in content[0]
+            result = response.content[0].text
+
+        # Calculate costs using the utility function
+        cost_dict, cost_summary = calculate_costs(response, anthropic_model, max_tokens, thinking_budget)
+        
+        # Add cost summary to the result
+        result = f"{cost_summary}\n\n{result}"
+
+        # Print cost information
+        print("\nCost Summary:")
+        print(f"Model: {cost_dict['model']['name']} ({cost_dict['model']['type']})")
+        print(f"Total tokens: {cost_dict['token_usage']['total_tokens']}")
+        print(f"Total cost: ${cost_dict['costs']['total_cost']:.2f}")
+
+        if cost_dict['token_usage']['output_tokens'] >= 0.95 * max_tokens:
+            print(f"Warning: Max tokens were nearly reached. Output tokens: {cost_dict['token_usage']['output_tokens']}, Max tokens: {max_tokens}")
+
+    else:
+        raise ValueError(f"Unsupported API provider: {api_provider}")
     
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
+    return result, prompt_name, cost_dict
+
+def save_response(response, prompt_name, output_dir="./responses", file_ext=".tex"):
+    """Save the model's response to a file.
+    
+    Args:
+        response: The text response from Claude
+        prompt_name: Name of the prompt used (for filename)
+        output_dir: Directory to save the response
+        file_ext: File extension for the output file
+    """
+
+    # -- save latex input file --
+    # Create the base output file path
+    output_file = f"{output_dir}/{prompt_name}-texinput{file_ext}"
+    
+    # Create the directory if it doesn't exist
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    
+    with open(output_file, 'w', encoding='utf-8') as file:
+        file.write(response)
+    print(f"\n\nResponse saved to {output_file}")      
+
+    # -- output latex document --
+    texinput_to_pdf(prompt_name)
+ 
 
 #%%
-# create prompt
+# SETUP
 
-# Gather all planning*.tex files from responses directory
-planning_files = glob.glob("responses/planning*.tex")
+# User
+plan_name = "prompts-test"
 
-# Read content from planning files
-context = ""
-for file_path in planning_files:
-    with open(file_path, "r") as f:
-        file_content = f.read()
-        file_name = os.path.basename(file_path)
-        context += f"\n\n## {file_name}\n{file_content}\n\n"
+# Global (tbc: make it nicer somehow?)
+lit_folder = "./lit-context"
 
-# Gather all literature inputs
-lit_files = glob.glob("prompts/lit-*.txt")
+# Load all config and prompts
+with open(f"{plan_name}.yaml", "r") as f:
+    settings = yaml.safe_load(f)
 
-lit_context = ""
-for file_path in lit_files:
-    with open(file_path, "r", encoding="utf-8") as f:
-        file_content = f.read()
-        file_name = os.path.basename(file_path)
-        lit_context += f"\n\n# {file_name}\n{file_content}\n\n"
+# Get config
+config = settings["config"]
+api_provider = config["api_provider"]
 
-# Grab latex template
-with open("input-other/latex-template.txt", "r", encoding="utf-8") as f:
-    latex_template = f.read()
+# Create DataFrame from YAML data
+plan_df = pd.DataFrame(settings["prompts"])
 
-# Read writing prompt 01 (only one for now)
-with open("prompts/writing-01.txt", "r", encoding="utf-8") as f:
-    instructions = f.read()
+# Sort by number to ensure correct order
+plan_df = plan_df.sort_values("number").reset_index(drop=True)
 
-# Construct the message with better formatting for human readability
-message = f"""
-<BEGIN_PLANNING_DOCUMENTS>
-# PLANNING DOCUMENTS
-{context}
-<END_PLANNING_DOCUMENTS>
+# Fix run range
+plan_start = max(int(config["run_range"]["start"]), plan_df["number"].min())
+plan_end = min(int(config["run_range"]["end"]), plan_df["number"].max())
 
-<BEGIN_LITERATURE_DOCUMENTS>
-# LITERATURE DOCUMENTS
-{lit_context}
-<END_LITERATURE_DOCUMENTS>
+# Find index for start
+index_start = plan_df[plan_df["number"] == plan_start].index[0] 
+index_end = plan_df[plan_df["number"] == plan_end].index[0]
 
-<BEGIN_LATEX_TEMPLATE>
-# LATEX TEMPLATE
-{latex_template}
-<END_LATEX_TEMPLATE>
-
-# INSTRUCTIONS
-{instructions}
-"""
-
-# save to full prompt
-with open('responses/full-paper-full-prompt.md', "w", encoding="utf-8") as f:
-    f.write(message)
-
+print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
 
 #%%
-# load system prompt
+# LOOP OVER PROMPTS
 
-with open('prompts/system-prompt-full-paper.txt', "r", encoding="utf-8") as f:
-    system_prompt = f.read()
+# At the start of the script, before the loop
+# Initialize an empty list to store all cost dictionaries
+all_costs = []
 
-#%%
-# submit
+# loop over plan prompts
+for index in range(index_start, index_end+1):    
+    # Set context
+    if index == 0:
+        context_names = "none"
+    else:
+        # Use all previous prompt outputs as context
+        context_names = plan_df["name"].iloc[:index].tolist()
 
-print("Sending request to Claude...")
+    print("================================================")
+    print(f"Processing prompt number {plan_df['number'][index]}...")
 
-# start timer
-start_time = time.time()
-
-# Query with streaming
-with client.messages.stream(
-    model=args.model_name,
-    max_tokens=args.max_tokens,
-    temperature=args.temperature,
-    system=system_prompt,
-    messages=[{
-        "role": "user", 
-        "content": message
-    }]
-) as stream:
-    # Process the response as it comes in
-    for text in stream.text_stream:
-        # Process or display each chunk of text as it arrives
-        print(text, end="", flush=True)  # For example
+    # extract instructions and parameters
+    instructions = plan_df["instructions"][index]
     
-    # If you need the final complete message
-    final_message = stream.get_final_message()
-
-# end timer
-end_time = time.time()
-print('end claude stream---------------------------\n\n')
-print(f"Time taken: {round((end_time - start_time) / 60, 2)} minutes")
-
-# save latex code
-output_file = "./latex/full_paper.tex"
-with open(output_file, "w", encoding="utf-8") as f:
-    f.write(final_message.content[0].text)
-
-# Clean the LaTeX code to handle Unicode characters
-clean_latex_code(output_file)
-
-#%% 
-# clean the latex code
-
-# remove everything before \documentclass and everything after \end{document}
-with open(output_file, "r", encoding="utf-8") as f:
-    lines = f.readlines()
-    start_index = next((i for i, line in enumerate(lines) if r'\documentclass' in line.strip()), None)
-    if start_index is not None:
-        lines = lines[start_index:]
-    end_index = next((i for i, line in enumerate(lines) if r'\end{document}' in line.strip()), None)
-    if end_index is not None:
-        lines = lines[:end_index+1]
+    # Require max_tokens and thinking_budget in YAML
+    if "max_tokens" not in plan_df.columns or "thinking_budget" not in plan_df.columns:
+        raise ValueError("YAML must specify max_tokens and thinking_budget for each prompt")
     
-# save the cleaned latex code
-cleaned_output_file = "./latex/full_paper_cleaned.tex"
-with open(cleaned_output_file, "w", encoding="utf-8") as f:
-    f.writelines(lines)
+    prompt_max_tokens = plan_df["max_tokens"].iloc[index]
+    prompt_thinking_budget = plan_df["thinking_budget"].iloc[index]
+
+    # Feedback
+    print(f"Instructions: {instructions}")
+    print(f"Context: {context_names}")
+    print(f"Max tokens: {prompt_max_tokens}")
+    print(f"Thinking budget: {prompt_thinking_budget}")
+
+    # Determine if this prompt should include bibliography from YAML
+    add_lit = plan_df["include_lit"][index]
+    print(f"Including literature: {add_lit}")
+
+    # Query the model
+    response, used_prompt_name, cost_dict = query_llm(
+        prompt_name = plan_df["name"][index], 
+        instructions = instructions,
+        context_names = context_names, 
+        add_lit = add_lit, 
+        lit_folder = lit_folder, 
+        response_folder = "./responses", 
+        response_ext = ".tex",
+        api_provider = api_provider, 
+        model_name = plan_df["model_name"][index], 
+        thinking_budget = prompt_thinking_budget,
+        max_tokens = prompt_max_tokens,
+        temperature = config["temperature"]
+    )
+
+    # Add prompt name and timestamp to cost_dict
+    cost_dict["prompt_name"] = used_prompt_name
+    cost_dict["timestamp"] = datetime.now()
+    
+    # Append to our collection
+    all_costs.append(cost_dict)
+
+    # Save
+    save_response(response, used_prompt_name)
+
+    print("================================================")
+
+# After the loop ends, create and save the complete cost dataframe
+cost_df = pd.DataFrame([{
+    'timestamp': cost['timestamp'],
+    'prompt_name': cost['prompt_name'],
+    'model_name': cost['model']['name'],
+    'model_type': cost['model']['type'],
+    'input_tokens': cost['token_usage']['input_tokens'],
+    'output_tokens': cost['token_usage']['output_tokens'],
+    'total_tokens': cost['token_usage']['total_tokens'],
+    'input_cost': cost['costs']['input_cost'],
+    'output_cost': cost['costs']['output_cost'],
+    'total_cost': cost['costs']['total_cost']
+} for cost in all_costs])
+
+# Save as markdown table
+save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")
 
 #%%
-# compile latex
-# clean aux files
-clean_latex_aux_files("full_paper_cleaned")
+# DEBUGGING
+# from importlib import reload
+# import utils
+# reload(utils)
+# from utils import save_cost_table
 
-# remove pdf for safety
-if os.path.exists("./latex/full_paper_cleaned.pdf"):
-    os.remove("./latex/full_paper_cleaned.pdf")
+# save_cost_table(cost_df)
 
-# Compile with literature support
-compile_command = ["pdflatex", "-interaction=nonstopmode", "-halt-on-error", "-output-directory=./latex", "./latex/full_paper_cleaned.tex"]
-print(f"Running first LaTeX pass: {' '.join(compile_command)}")
-result = subprocess.run(compile_command, capture_output=True)
-if result.returncode != 0:
-    print(f"LaTeX compilation failed with code {result.returncode}")
-    print("Error output:")
-    print(result.stderr.decode('utf-8', errors='replace'))
-
-# Run Biber without changing directory
-biber_command = ["biber", "./latex/full_paper_cleaned"]
-print(f"Running Biber: {' '.join(biber_command)}")
-biber_result = subprocess.run(biber_command, capture_output=True)
-if biber_result.returncode != 0:
-    print(f"Biber failed with code {biber_result.returncode}")
-    print("Error output:")
-    print(biber_result.stderr.decode('utf-8', errors='replace'))
-
-# Run LaTeX again (twice) to resolve references
-print("Running second LaTeX pass...")
-result2 = subprocess.run(compile_command, capture_output=True)
-if result2.returncode != 0:
-    print(f"Second LaTeX pass failed with code {result2.returncode}")
-    print("Error output:")
-    print(result2.stderr.decode('utf-8', errors='replace'))
-
-print("Running final LaTeX pass...")
-result3 = subprocess.run(compile_command, capture_output=True)
-if result3.returncode != 0:
-    print(f"Final LaTeX pass failed with code {result3.returncode}")
-    print("Error output:")
-    print(result3.stderr.decode('utf-8', errors='replace'))
-
-# Store the final result for later use
-final_result = result3.returncode
-
-#%%
-# copy over output
-
-# copy latex file to responses folder
-shutil.copy("./latex/full_paper_cleaned.tex", "./responses/full_paper_cleaned.tex")
-
-# copy pdf to responses folder
-if os.path.exists("./latex/full_paper_cleaned.pdf"):
-    shutil.copy("./latex/full_paper_cleaned.pdf", "./responses/full_paper_cleaned.pdf")
-    print("PDF saved to ./responses/full_paper_cleaned.pdf")
-else:
-    # copy over the log file instead
-    shutil.copy("./latex/full_paper_cleaned.log", "./responses/full_paper_cleaned.log")
-    print("PDF failed, copying log file instead to ./responses/full_paper_cleaned.log")
-
+# # %%

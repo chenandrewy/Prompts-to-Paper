@@ -5,13 +5,36 @@ Utility functions for the Prompts-to-Paper project.
 import os
 import textwrap
 import pandas as pd
+import re
+import shutil
 
-def clean_latex_aux_files(prompt_name):
-    """Clean up auxiliary files created by LaTeX.
+
+def texinput_to_pdf(prompt_name = "planning-01"):
+    # all work goes in ./latex/ for cleanliness
     
-    Args:
-        prompt_name: Base name of the LaTeX file (without extension)
-    """
+    # -- clean texinput --
+    with open(f"responses/{prompt_name}-texinput.tex", "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Comment out any lines that contain bibliography commands
+    content = re.sub(r"\\bibliography\{.*?\}", "%\\bibliography{.*?}", content)
+
+    # Ensure we write with UTF-8 encoding
+    with open(f"latex/{prompt_name}-texinput-clean.tex", "w", encoding="utf-8") as f:
+        f.write(content)
+    
+    # -- plug clean texinput into latex template --
+    with open("./input-other/latex-template.txt", "r", encoding="utf-8") as file:
+        latex_template = file.read()
+
+    # Replace the marker with the actual content instead of an \input command
+    latex_template = latex_template.replace("% [input-goes-here]", content)
+
+    # Ensure we write with UTF-8 encoding
+    with open(f"./latex/{prompt_name}.tex", "w", encoding="utf-8") as file:
+        file.write(latex_template)
+    
+    # -- clean aux files --
     aux_files = [
         f"{prompt_name}.aux",
         f"{prompt_name}.bbl",
@@ -22,6 +45,36 @@ def clean_latex_aux_files(prompt_name):
     for file in aux_files:
         if os.path.exists(file):
             os.remove(file)
+
+    
+    # -- compile --
+    # Compile with bibliography support
+    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex"
+    print(f"Running first LaTeX pass: {compile_command}")
+    os.system(compile_command)
+
+    # Run Biber without changing directory
+    biber_command = f"biber ./latex/{prompt_name}"
+    print(f"Running Biber: {biber_command}")
+    os.system(biber_command)
+
+    # Run LaTeX again (twice) to resolve references
+    print("Running second LaTeX pass...")
+    os.system(compile_command)
+
+    print("Running final LaTeX pass...")
+    result = os.system(compile_command)
+
+    # Check if PDF was created before trying to copy it
+    pdf_path = f"./latex/{prompt_name}.pdf"
+    if os.path.exists(pdf_path):
+        shutil.copy(pdf_path, f"./responses/{prompt_name}.pdf")
+        print(f"PDF saved to ./responses/{prompt_name}.pdf")
+    else:
+        print(f"Warning: LaTeX compilation failed for {prompt_name}")
+        print(f"Copying over log file")
+        shutil.copy(f"./latex/{prompt_name}.log", f"./responses/{prompt_name}.log")
+
 
 def print_wrapped(text, width=70):
     """
