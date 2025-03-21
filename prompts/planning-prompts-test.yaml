@@ -16,7 +16,9 @@ prompts:
     max_tokens: 4000
     thinking_budget: 0
     instructions: |
-      consider a simplified barro rietz disaster risk asset pricing model. consumption growth is either 0 or -b, i.i.d. CRRA utility. derive the price/dividend ratio and expected return of the consumption claim.
+      consider a simplified barro rietz disaster risk asset pricing model. consumption growth is either 0 or -b, i.i.d. CRRA utility. derive the price/dividend ratio and expected return of the consumption claim. 
+
+      In the exposition, the consumption disaster represents not just goods and services, but also the loss of a way of life, meaning and purpose.
 
   - number: 2
     name: planning-02
@@ -44,3 +46,20 @@ prompts:
     thinking_budget: 1000
     instructions: |
       Find the most relevant papers and write a short two paragraph lit review.
+
+  - number: 5
+    name: planning-05
+    include_lit: true
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 2000
+    thinking_budget: 0
+    instructions: |
+      Write an introduction for an academic finance paper titled 'Hedging the AI Singularity' based on the following planning documents. 
+
+      Start with background. Describe how AI progress is happening quickly, and investors may be concerned about their wages being displaced. 
+
+      Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principal create. This differs from say, the internet revolution. AI progress may also be incredibly sudden (the AI singularity).
+
+      Then describe what the paper does. It studies how AI stocks are priced, given that there is the risk that AI will destroy consumption. 
+
+      Cite papers as appropriate. Ensure citations correspond to items from all-bib.
