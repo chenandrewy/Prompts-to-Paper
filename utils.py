@@ -4,6 +4,7 @@ Utility functions for the Prompts-to-Paper project.
 
 import os
 import textwrap
+import pandas as pd
 
 def clean_latex_aux_files(prompt_name):
     """Clean up auxiliary files created by LaTeX.
@@ -144,3 +145,48 @@ def calculate_costs(response, model_name, max_tokens, thinking_budget):
     """
 
     return cost_dict, cost_summary
+
+def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
+    """Format and save a DataFrame as a nicely spaced markdown table.
+    
+    Args:
+        cost_df (pd.DataFrame): DataFrame containing cost tracking information
+        output_path (str): Path where to save the markdown table
+    """
+
+    # round all values to 3 decimal places
+    cost_df = cost_df.round(3)
+
+    # clean up
+    cost_df = cost_df.drop(columns=["timestamp", "model_type"])
+
+    # convert to long format
+    cost_df = cost_df.melt(id_vars=["prompt_name"], var_name="name", value_name="value").sort_values(by=["prompt_name"])    
+    
+    def format_table_row(row, col_widths):
+        return '| ' + ' | '.join(f"{str(val):{width}}" for val, width in zip(row, col_widths)) + ' |'
+
+    # Calculate column widths based on maximum content length
+    col_widths = {}
+    for col in cost_df.columns:
+        # Get max length of column name and values
+        max_val_length = max(
+            len(str(val)) for val in cost_df[col].astype(str)
+        )
+        col_widths[col] = max(len(col), max_val_length)
+
+    # Create markdown table content
+    md_content = []
+    # Header
+    headers = list(cost_df.columns)
+    md_content.append(format_table_row(headers, [col_widths[col] for col in headers]))
+    # Separator
+    md_content.append('|' + '|'.join('-' * (col_widths[col] + 2) for col in headers) + '|')
+    # Data rows
+    for _, row in cost_df.iterrows():
+        md_content.append(format_table_row(row, [col_widths[col] for col in headers]))
+
+    # Save markdown table
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write('\n'.join(md_content))

@@ -14,9 +14,10 @@ import shutil
 import pandas as pd
 import anthropic  # Add anthropic import
 import textwrap
-from utils import clean_latex_aux_files, print_wrapped, is_jupyter, calculate_costs
+from utils import clean_latex_aux_files, print_wrapped, is_jupyter, calculate_costs, save_cost_table
 import argparse
 import yaml
+
 
 # Load environment variables from .env file 
 load_dotenv()
@@ -225,7 +226,7 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
     else:
         raise ValueError(f"Unsupported API provider: {api_provider}")
     
-    return result, prompt_name
+    return result, prompt_name, cost_dict
 
 def save_response(response, prompt_name, output_dir="./responses", file_ext=".tex"):
     """Save the model's response to a file.
@@ -326,6 +327,10 @@ print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[ind
 #%%
 # LOOP OVER PROMPTS
 
+# At the start of the script, before the loop
+# Initialize an empty list to store all cost dictionaries
+all_costs = []
+
 # loop over plan prompts
 for index in range(index_start, index_end+1):    
     # Set context
@@ -359,7 +364,7 @@ for index in range(index_start, index_end+1):
     print(f"Including literature: {add_lit}")
 
     # Query the model
-    response, used_prompt_name = query_llm(
+    response, used_prompt_name, cost_dict = query_llm(
         prompt_name = plan_df["name"][index], 
         instructions = instructions,
         context_names = context_names, 
@@ -374,10 +379,42 @@ for index in range(index_start, index_end+1):
         temperature = config["temperature"]
     )
 
+    # Add prompt name and timestamp to cost_dict
+    cost_dict["prompt_name"] = used_prompt_name
+    cost_dict["timestamp"] = datetime.now()
+    
+    # Append to our collection
+    all_costs.append(cost_dict)
+
     # Save
     save_response(response, used_prompt_name)
 
     print("================================================")
 
+# After the loop ends, create and save the complete cost dataframe
+cost_df = pd.DataFrame([{
+    'timestamp': cost['timestamp'],
+    'prompt_name': cost['prompt_name'],
+    'model_name': cost['model']['name'],
+    'model_type': cost['model']['type'],
+    'input_tokens': cost['token_usage']['input_tokens'],
+    'output_tokens': cost['token_usage']['output_tokens'],
+    'total_tokens': cost['token_usage']['total_tokens'],
+    'input_cost': cost['costs']['input_cost'],
+    'output_cost': cost['costs']['output_cost'],
+    'total_cost': cost['costs']['total_cost']
+} for cost in all_costs])
 
-# %%
+# Save as markdown table
+save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")
+
+#%%
+# DEBUGGING
+# from importlib import reload
+# import utils
+# reload(utils)
+# from utils import save_cost_table
+
+# save_cost_table(cost_df)
+
+# # %%
