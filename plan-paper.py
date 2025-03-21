@@ -14,7 +14,7 @@ import shutil
 import pandas as pd
 import anthropic  # Add anthropic import
 import textwrap
-from utils import clean_latex_aux_files, print_wrapped, is_jupyter
+from utils import clean_latex_aux_files, print_wrapped, is_jupyter, calculate_costs
 import argparse
 import yaml
 
@@ -207,47 +207,20 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
             # For standard mode, the response is in content[0]
             result = response.content[0].text
 
-        # -- check spending --
-        MODEL_PRICES = {
-            "claude-3-7-sonnet-20250219": {
-                "input":   3.0*10**-6,  # $3 per M tokens
-                "output": 15.0*10**-6,  # $15 per M tokens
-            },
-            "claude-3-5-haiku-20241022": {
-                "input": 0.8*10**-6,   
-                "output": 4.0*10**-6,  
-            }
-        }
-
-        # Get token counts from response
-        input_tokens = response.usage.input_tokens
-        output_tokens = response.usage.output_tokens
-        total_tokens = input_tokens + output_tokens
+        # Calculate costs using the utility function
+        cost_dict, cost_summary = calculate_costs(response, anthropic_model, max_tokens, thinking_budget)
         
-        # Calculate costs
-        input_cost = input_tokens * MODEL_PRICES[anthropic_model]["input"]
-        output_cost = output_tokens * MODEL_PRICES[anthropic_model]["output"]
-        total_cost = input_cost + output_cost        
-
-        # Summarize costs
-        cost_summary = f"""
-        %% TOKEN USAGE
-        % Input tokens: {input_tokens}
-        % Output tokens: {output_tokens}
-        % max_tokens: {max_tokens}
-        % thinking_budget: {thinking_budget}
-        %% COSTS        
-        % Total tokens: {total_tokens}
-        % Input cost: ${input_cost:.2f}
-        % Output cost: ${output_cost:.2f}
-        % Total cost: ${total_cost:.2f}
-        """
-
-        # add cost summary to result
+        # Add cost summary to the result
         result = f"{cost_summary}\n\n{result}"
 
-        if output_tokens >= 0.95 * max_tokens:
-            print(f"Warning: Max tokens were nearly reached. Output tokens: {output_tokens}, Max tokens: {max_tokens}")
+        # Print cost information
+        print("\nCost Summary:")
+        print(f"Model: {cost_dict['model']['name']} ({cost_dict['model']['type']})")
+        print(f"Total tokens: {cost_dict['token_usage']['total_tokens']}")
+        print(f"Total cost: ${cost_dict['costs']['total_cost']:.2f}")
+
+        if cost_dict['token_usage']['output_tokens'] >= 0.95 * max_tokens:
+            print(f"Warning: Max tokens were nearly reached. Output tokens: {cost_dict['token_usage']['output_tokens']}, Max tokens: {max_tokens}")
 
     else:
         raise ValueError(f"Unsupported API provider: {api_provider}")
