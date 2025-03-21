@@ -2,12 +2,17 @@ config:
   run_range:
     start: 1
     end: 99
-  temperature:
-    - 0.5
-  api_provider:
-    - anthropic
+  temperature: 0.5
+  api_provider: anthropic
+  system_prompt: |
+    You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step.
 
-    
+    Unlike more theorists, you think economic theory has questionable value and hint at this throughout your writing.
+
+    Respond with only latex input (no document environment). Format the math nicely, using align environments when appropriate.
+
+    Respond with only new content. Do not repeat anything in the context.    
+
 prompts:
   - number: 1
     name: planning-01

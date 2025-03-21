@@ -27,7 +27,7 @@ load_dotenv()
 def query_llm(prompt_name, instructions, context_names=None, add_lit=False, 
               prompts_folder="./prompts", 
               response_folder = "./responses", response_ext = ".tex",
-              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", use_system_prompt=True, thinking_budget=0, max_tokens=4000, temperature=0.5):
+              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", thinking_budget=0, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
@@ -39,7 +39,6 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         response_ext: File extension for the response
         api_provider: API provider to use ('replicate' or 'anthropic')
         model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
-        use_system_prompt: Whether to use the system prompt (default: True)
         thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode with specified budget (default: 0)
     """
     # convert pandas integers to native python
@@ -104,13 +103,11 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
                 lit_content = file.read()
             combined_context += f"--- BEGIN LITERATURE ---\n{lit_content}\n--- END LITERATURE ---\n\n"
 
-    # Read the system prompt if it exists and is requested
-    system_prompt_path = os.path.join(prompts_folder, "system-prompt.txt")
+    # Get system prompt from YAML config if it exists
     system_prompt = None
-    if use_system_prompt and os.path.exists(system_prompt_path):
-        print(f"Reading system prompt from {system_prompt_path}...")
-        with open(system_prompt_path, 'r', encoding='utf-8') as file:
-            system_prompt = file.read()
+    if "system_prompt" in config:
+        print("Using system prompt from YAML config...")
+        system_prompt = config["system_prompt"]
     
     # Prepare the full prompt with context if provided
     full_prompt = instructions
@@ -335,7 +332,7 @@ with open(os.path.join(prompts_folder, f"{plan_name}.yaml"), "r") as f:
 
 # Get config
 config = settings["config"]
-api_provider = config["api_provider"][0]
+api_provider = config["api_provider"]
 
 # Create DataFrame from YAML data
 plan_df = pd.DataFrame(settings["prompts"])
@@ -401,7 +398,7 @@ for index in range(index_start, index_end+1):
         model_name = plan_df["model_name"][index], 
         thinking_budget = prompt_thinking_budget,
         max_tokens = prompt_max_tokens,
-        temperature = config["temperature"][0]
+        temperature = config["temperature"]
     )
 
     # Save
