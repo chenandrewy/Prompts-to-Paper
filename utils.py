@@ -17,7 +17,7 @@ def texinput_to_pdf(prompt_name = "planning-01"):
         content = f.read()
 
     # Comment out any lines that contain bibliography commands
-    content = re.sub(r"\\bibliography\{.*?\}", "%\\bibliography{.*?}", content)
+    content = re.sub(r"(\\biblio.*)", r"%\1", content)
 
     # Ensure we write with UTF-8 encoding
     with open(f"latex/{prompt_name}-texinput-clean.tex", "w", encoding="utf-8") as f:

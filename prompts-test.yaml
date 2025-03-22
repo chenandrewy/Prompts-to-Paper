@@ -83,3 +83,5 @@ prompts:
       The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. Include the maketitle command. 
 
       Make sure all citations match actual papers in the literature documents. 
+
+      Respond with only latex input (no document environment).
