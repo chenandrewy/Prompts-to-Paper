@@ -1,0 +1,85 @@
+config:
+  run_range:
+    start: 2
+    end:   2
+  temperature: 0.5
+  api_provider: anthropic
+  system_prompt: |
+    You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step.
+
+    Respond with only latex input (no document environment). Format the math nicely, using align environments when appropriate, but do not define new environments or commands.
+
+    Respond with only new content. Do not repeat anything in the context.    
+
+prompts:
+  - number: 1
+    name: planning-01
+    include_lit: false
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 10000
+    thinking_budget: 5000
+    instructions: |
+      consider a simplified barro rietz disaster risk asset pricing model. consumption growth is either 0 or -b is i.i.d. CRRA utility. derive the price/dividend ratio and expected return of the consumption claim. 
+
+  - number: 2
+    name: planning-02
+    include_lit: false
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 20000
+    thinking_budget: 10000
+    instructions: |
+      Now consider an "AI asset" that pays 1% of consumption in periods without a disaster, and 50% of consumption if there is a disaster.  derive the price/dividend ratio and expected return of the AI asset.
+
+  - number: 3
+    name: planning-03
+    include_lit: false
+    model_name: claude-3-5-haiku-20241022
+    max_tokens: 4000
+    thinking_budget: 0
+    instructions: |
+      Consider how the expected return of the AI asset depends on the disaster probability. Discuss the worst case.
+
+  - number: 4
+    name: planning-04
+    include_lit: true
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 4000
+    thinking_budget: 0
+    instructions: |
+      Find the most relevant papers and write a short two paragraph lit review.
+
+  - number: 5
+    name: planning-05
+    include_lit: true
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 4000
+    thinking_budget: 0
+    instructions: |
+      Write an introduction for an academic finance paper titled 'Hedging the AI Singularity' based on the following planning documents. 
+
+      Start with background. Describe how AI progress is happening quickly, and investors may be concerned about their wages being displaced. 
+
+      Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principal create.      An example is the current paper, which is entirely written by AI, using a few short prompts. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. This differs from say, the internet revolution. AI progress may also be incredibly sudden (the AI singularity).
+
+      Then describe what the paper does. It studies how AI stocks are priced, given that there is the risk that AI will destroy livelihoods andconsumption. 
+
+      Include a footnote noting that "we" refers to one human author and multiple LLMs.
+
+      Cite papers as appropriate. Ensure citations correspond to items from all-bib.
+
+  - number: 6
+    name: full-paper
+    include_lit: true
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 10000
+    thinking_budget: 0
+    instructions: |
+      Write a short, 5 page paper titled "Hedging the AI Singularity" based on the following planning and literature documents. 
+
+      Be modest. Do not to over-claim. 
+
+      The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. Include the maketitle command. 
+
+      Make sure all citations match actual papers in the literature documents. 
+
+      Respond with only latex input (no document environment).

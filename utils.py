@@ -233,13 +233,13 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
         col_widths[col] = max(len(col), max_val_length)
 
     # Calculate grand total of costs
-    grand_total = cost_df[cost_df['name'] == 'cost']['value'].sum()
+    grand_total = cost_df[cost_df['name'] == 'total_cost']['value'].sum()
 
     # Create markdown table content
     md_content = []
     
-    # Add total cost at the top
-    md_content.append(f"**Total Cost**: ${grand_total:.3f}\n")
+    # Add total across queries at the top
+    md_content.append(f"**Total Cost Across Queries**: ${grand_total:.3f}\n")
     
     # Header
     headers = list(cost_df.columns)

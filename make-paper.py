@@ -195,22 +195,18 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
                 "budget_tokens": thinking_budget
             }
         
-        # Call the API
+        # Call the API with streaming
         print(f"Thinking budget: {thinking_budget}")
         print(f"Max tokens: {max_tokens}")
-   
-        response = client.messages.create(**params)
         
-        # Extract the response text based on whether thinking mode is enabled
-        if thinking_budget > 0:
-            # For thinking mode, the response is in content[1]
-            result = response.content[1].text
-        else:
-            # For standard mode, the response is in content[0]
-            result = response.content[0].text
+        result = ""
+        with client.messages.stream(**params) as stream:
+            for text in stream.text_stream:
+                result += text
+                print(text, end="", flush=True)  # Stream the output
 
         # Calculate costs using the utility function
-        cost_dict, cost_summary = calculate_costs(response, anthropic_model, max_tokens, thinking_budget)
+        cost_dict, cost_summary = calculate_costs(stream.get_final_message(), anthropic_model, max_tokens, thinking_budget)
         
         # Add cost summary to the result
         result = f"{cost_summary}\n\n{result}"
@@ -258,6 +254,7 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
 # SETUP
 
 # User
+# plan_name = "prompts-try1"
 plan_name = "prompts-test"
 
 # Global (tbc: make it nicer somehow?)
