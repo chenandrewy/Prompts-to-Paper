@@ -369,12 +369,10 @@ cost_df = pd.DataFrame([{
 save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")
 
 #%%
-# DEBUGGING
+# # DEBUGGING
 # from importlib import reload
 # import utils
 # reload(utils)
 # from utils import save_cost_table
 
-# save_cost_table(cost_df)
-
-# # %%
+# save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")

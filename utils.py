@@ -210,30 +210,45 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
     # round all values to 3 decimal places
     cost_df = cost_df.round(3)
 
-    # clean up
+    # -- clean up --
     cost_df = cost_df.drop(columns=["timestamp", "model_type"])
 
-    # convert to long format with two id columns
-    cost_df = cost_df.melt(
-        id_vars=["prompt_name", "model_name"], 
-        var_name="name", 
-        value_name="value"
-    ).sort_values(by=["prompt_name", "model_name"])
+    # make token df
+    token_df = cost_df[['prompt_name', 'model_name', 'input_tokens', 'output_tokens', 'total_tokens']]
+    token_df = token_df.rename(columns={
+        'input_tokens': 'input',
+        'output_tokens': 'output',
+        'total_tokens': 'total'
+    })
+    token_df['type'] = 'tokens'
+
+    # make cost only df
+    cost_df2 = cost_df[['prompt_name', 'model_name', 'input_cost', 'output_cost', 'total_cost']]
+    cost_df2 = cost_df2.rename(columns={
+        'input_cost': 'input',
+        'output_cost': 'output',
+        'total_cost': 'total'
+    })
+    cost_df2['type'] = 'cost'
+
+    # append and sort
+    cost_df_clean = pd.concat([token_df, cost_df2])
+    cost_df_clean = cost_df_clean.sort_values(by=['prompt_name', 'model_name', 'type'], ascending=[True, True, False])    
     
     def format_table_row(row, col_widths):
         return '| ' + ' | '.join(f"{str(val):{width}}" for val, width in zip(row, col_widths)) + ' |'
 
     # Calculate column widths based on maximum content length
     col_widths = {}
-    for col in cost_df.columns:
+    for col in cost_df_clean.columns:
         # Get max length of column name and values
         max_val_length = max(
-            len(str(val)) for val in cost_df[col].astype(str)
+            len(str(val)) for val in cost_df_clean[col].astype(str)
         )
         col_widths[col] = max(len(col), max_val_length)
 
     # Calculate grand total of costs
-    grand_total = cost_df[cost_df['name'] == 'total_cost']['value'].sum()
+    grand_total = cost_df_clean[cost_df_clean['type'] == 'cost']['total'].sum()
 
     # Create markdown table content
     md_content = []
@@ -242,12 +257,12 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
     md_content.append(f"**Total Cost Across Queries**: ${grand_total:.3f}\n")
     
     # Header
-    headers = list(cost_df.columns)
+    headers = list(cost_df_clean.columns)
     md_content.append(format_table_row(headers, [col_widths[col] for col in headers]))
     # Separator
     md_content.append('|' + '|'.join('-' * (col_widths[col] + 2) for col in headers) + '|')
     # Data rows
-    for _, row in cost_df.iterrows():
+    for _, row in cost_df_clean.iterrows():
         md_content.append(format_table_row(row, [col_widths[col] for col in headers]))
 
     # Save markdown table
