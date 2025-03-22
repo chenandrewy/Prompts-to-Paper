@@ -1,7 +1,7 @@
 config:
   run_range:
     start: 1
-    end: 6
+    end: 2
   temperature: 0.5
   api_provider: anthropic
   system_prompt: |

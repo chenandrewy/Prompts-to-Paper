@@ -213,8 +213,12 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
     # clean up
     cost_df = cost_df.drop(columns=["timestamp", "model_type"])
 
-    # convert to long format
-    cost_df = cost_df.melt(id_vars=["prompt_name"], var_name="name", value_name="value").sort_values(by=["prompt_name"])    
+    # convert to long format with two id columns
+    cost_df = cost_df.melt(
+        id_vars=["prompt_name", "model_name"], 
+        var_name="name", 
+        value_name="value"
+    ).sort_values(by=["prompt_name", "model_name"])
     
     def format_table_row(row, col_widths):
         return '| ' + ' | '.join(f"{str(val):{width}}" for val, width in zip(row, col_widths)) + ' |'
@@ -228,8 +232,15 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
         )
         col_widths[col] = max(len(col), max_val_length)
 
+    # Calculate grand total of costs
+    grand_total = cost_df[cost_df['name'] == 'cost']['value'].sum()
+
     # Create markdown table content
     md_content = []
+    
+    # Add total cost at the top
+    md_content.append(f"**Total Cost**: ${grand_total:.3f}\n")
+    
     # Header
     headers = list(cost_df.columns)
     md_content.append(format_table_row(headers, [col_widths[col] for col in headers]))
