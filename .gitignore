@@ -9,6 +9,7 @@ latex/*
 responses/*
 1-many-responses/*
 2-many-papers/*
+logs/*
 
 # temp stuff
 zzz-*.py

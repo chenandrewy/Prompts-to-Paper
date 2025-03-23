@@ -17,10 +17,52 @@ import textwrap
 from utils import texinput_to_pdf, print_wrapped, is_jupyter, calculate_costs, save_cost_table
 import argparse
 import yaml
+import logging
 
+# Custom handler for streaming output
+class StreamHandler(logging.Handler):
+    def __init__(self, stream):
+        super().__init__()
+        self.stream = stream
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            self.stream.write(msg)
+            self.stream.flush()
+        except Exception:
+            self.handleError(record)
 
 # Load environment variables from .env file 
 load_dotenv()
+
+# User
+plan_name = "prompts-try2"
+# plan_name = "prompts-try1"
+# plan_name = "prompts-test"
+
+# Global (tbc: make it nicer somehow?)
+lit_folder = "./lit-context"
+
+# Configure logging
+log_filename = f"logs/{plan_name}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.log"
+os.makedirs("logs", exist_ok=True)
+
+# Create formatters
+file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+stream_formatter = logging.Formatter('%(message)s')  # No timestamp for streaming output
+
+# Create handlers
+file_handler = logging.FileHandler(log_filename, encoding='utf-8')
+file_handler.setFormatter(file_formatter)
+
+stream_handler = StreamHandler(sys.stdout)
+stream_handler.setFormatter(stream_formatter)
+
+# Configure root logger
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().addHandler(file_handler)
+logging.getLogger().addHandler(stream_handler)
 
 #%%
 # Functions
@@ -48,23 +90,23 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
 
     # Argument check
     if (thinking_budget > 0) & (temperature != 1):
-        print(f"Warning: Thinking mode is enabled, but temperature is not 1. Setting temperature to 1.")
+        logging.warning("Thinking mode is enabled, but temperature is not 1. Setting temperature to 1.")
         temperature = 1
 
     if thinking_budget >= max_tokens:
-        print(f"Warning: Thinking budget ({thinking_budget}) cannot be greater than max tokens ({max_tokens}). Setting thinking budget equal to 1/2 of max tokens.")
+        logging.warning(f"Thinking budget ({thinking_budget}) cannot be greater than max tokens ({max_tokens}). Setting thinking budget equal to 1/2 of max tokens.")
         thinking_budget = max_tokens // 2
     
     if (thinking_budget > 0) & (thinking_budget < 1024):
-        print(f"Warning: Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
+        logging.warning(f"Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
         thinking_budget = 1024    
 
     if (model_name == "claude-3-5-haiku-20241022"):
         if max_tokens > 8192:
-            print(f"Warning: claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
+            logging.warning("claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
             max_tokens = 8192
         if thinking_budget > 0:
-            print(f"Warning: claude-3-5-haiku-20241022 does not support thinking mode. Setting thinking budget to 0.")
+            logging.warning("claude-3-5-haiku-20241022 does not support thinking mode. Setting thinking budget to 0.")
             thinking_budget = 0
 
     # Read the contexts if specified
@@ -79,7 +121,7 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         for context_name in context_names:
             context_path = os.path.join(response_folder, context_name + "-texinput" + response_ext)
             if os.path.exists(context_path):
-                print(f"Reading context from {context_path}...")
+                logging.info(f"Reading context from {context_path}...")
                 with open(context_path, 'r', encoding='utf-8') as file:
                     context_content = file.read()
                 combined_context += f"--- BEGIN CONTEXT: {context_name} ---\n{context_content}\n--- END CONTEXT: {context_name} ---\n\n"
@@ -99,7 +141,7 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         # read in lit files
         for lit_file in lit_files:
             lit_path = os.path.join(lit_folder, lit_file)
-            print(f"Reading lit from {lit_path}...")
+            logging.info(f"Reading lit from {lit_path}...")
             with open(lit_path, 'r', encoding='utf-8') as file:
                 lit_content = file.read()
             combined_context += f"--- BEGIN LITERATURE ---\n{lit_content}\n--- END LITERATURE ---\n\n"
@@ -107,9 +149,8 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
     # Get system prompt from YAML config if it exists
     system_prompt = None
     if "system_prompt" in config:
-        print("Using system prompt from YAML config...")
+        logging.info("Using system prompt from YAML config...")
         system_prompt = config["system_prompt"]
-        print(system_prompt)
     
     # Prepare the full prompt with context if provided
     full_prompt = instructions
@@ -124,7 +165,7 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
     # Process based on API provider
     if api_provider.lower() == 'replicate':
         # Replicate API
-        print(f"Using Replicate model: {model_name}")
+        logging.info(f"Using Replicate model: {model_name}")
         
         # Prepare input parameters
         input_params = {
@@ -147,7 +188,7 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         result = ""
         for item in output:
             result += item
-            print(item, end="", flush=True)  # Stream the output
+            logging.info(item)  # Changed from print to logging
             
     elif api_provider.lower() == 'anthropic':
         # Anthropic API
@@ -159,12 +200,12 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         if "/" in anthropic_model:
             anthropic_model = anthropic_model.split("/")[-1]
         
-        print(f"Using Anthropic model: {anthropic_model}")
+        logging.info(f"Using Anthropic model: {anthropic_model}")
         if thinking_budget > 0:
-            print(f"Thinking mode: enabled with budget {thinking_budget} tokens")
+            logging.info(f"Thinking mode: enabled with budget {thinking_budget} tokens")
         else:
-            print(f"Thinking mode: disabled")
-        print(f"First 1000 characters of full prompt: {full_prompt[:1000]}")
+            logging.info("Thinking mode: disabled")
+        logging.info(f"First 1000 characters of full prompt: {full_prompt[:1000]}")
         
         # Prepare common parameters
         params = {
@@ -196,14 +237,14 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
             }
         
         # Call the API with streaming
-        print(f"Thinking budget: {thinking_budget}")
-        print(f"Max tokens: {max_tokens}")
+        logging.info(f"Thinking budget: {thinking_budget}")
+        logging.info(f"Max tokens: {max_tokens}")
         
         result = ""
         with client.messages.stream(**params) as stream:
             for text in stream.text_stream:
                 result += text
-                print(text, end="", flush=True)  # Stream the output
+                logging.info(text)  # Changed from print to logging
 
         # Calculate costs using the utility function
         cost_dict, cost_summary = calculate_costs(stream.get_final_message(), anthropic_model, max_tokens, thinking_budget)
@@ -212,13 +253,13 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
         result = f"{cost_summary}\n\n{result}"
 
         # Print cost information
-        print("\nCost Summary:")
-        print(f"Model: {cost_dict['model']['name']} ({cost_dict['model']['type']})")
-        print(f"Total tokens: {cost_dict['token_usage']['total_tokens']}")
-        print(f"Total cost: ${cost_dict['costs']['total_cost']:.2f}")
+        logging.info("\nCost Summary:")
+        logging.info(f"Model: {cost_dict['model']['name']} ({cost_dict['model']['type']})")
+        logging.info(f"Total tokens: {cost_dict['token_usage']['total_tokens']}")
+        logging.info(f"Total cost: ${cost_dict['costs']['total_cost']:.2f}")
 
         if cost_dict['token_usage']['output_tokens'] >= 0.95 * max_tokens:
-            print(f"Warning: Max tokens were nearly reached. Output tokens: {cost_dict['token_usage']['output_tokens']}, Max tokens: {max_tokens}")
+            logging.warning(f"Max tokens were nearly reached. Output tokens: {cost_dict['token_usage']['output_tokens']}, Max tokens: {max_tokens}")
 
     else:
         raise ValueError(f"Unsupported API provider: {api_provider}")
@@ -244,7 +285,7 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     
     with open(output_file, 'w', encoding='utf-8') as file:
         file.write(response)
-    print(f"\n\nResponse saved to {output_file}")      
+    logging.info(f"\n\nResponse saved to {output_file}")      
 
     # -- output latex document --
     texinput_to_pdf(prompt_name)
@@ -252,13 +293,6 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
 
 #%%
 # SETUP
-
-# User
-plan_name = "prompts-try1"
-# plan_name = "prompts-test"
-
-# Global (tbc: make it nicer somehow?)
-lit_folder = "./lit-context"
 
 # Load all config and prompts
 with open(f"{plan_name}.yaml", "r") as f:
@@ -282,7 +316,7 @@ plan_end = min(int(config["run_range"]["end"]), plan_df["number"].max())
 index_start = plan_df[plan_df["number"] == plan_start].index[0] 
 index_end = plan_df[plan_df["number"] == plan_end].index[0]
 
-print(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
+logging.info(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
 
 #%%
 # LOOP OVER PROMPTS
@@ -300,8 +334,8 @@ for index in range(index_start, index_end+1):
         # Use all previous prompt outputs as context
         context_names = plan_df["name"].iloc[:index].tolist()
 
-    print("================================================")
-    print(f"Processing prompt number {plan_df['number'][index]}...")
+    logging.info("================================================")
+    logging.info(f"Processing prompt number {plan_df['number'][index]}...")
 
     # extract instructions and parameters
     instructions = plan_df["instructions"][index]
@@ -314,14 +348,14 @@ for index in range(index_start, index_end+1):
     prompt_thinking_budget = plan_df["thinking_budget"].iloc[index]
 
     # Feedback
-    print(f"Instructions: {instructions}")
-    print(f"Context: {context_names}")
-    print(f"Max tokens: {prompt_max_tokens}")
-    print(f"Thinking budget: {prompt_thinking_budget}")
+    logging.info(f"Instructions: {instructions}")
+    logging.info(f"Context: {context_names}")
+    logging.info(f"Max tokens: {prompt_max_tokens}")
+    logging.info(f"Thinking budget: {prompt_thinking_budget}")
 
     # Determine if this prompt should include bibliography from YAML
     add_lit = plan_df["include_lit"][index]
-    print(f"Including literature: {add_lit}")
+    logging.info(f"Including literature: {add_lit}")
 
     # Query the model
     response, used_prompt_name, cost_dict = query_llm(
@@ -346,10 +380,18 @@ for index in range(index_start, index_end+1):
     # Append to our collection
     all_costs.append(cost_dict)
 
-    # Save
-    save_response(response, used_prompt_name)
+    # Save raw response (texinput)
+    output_file = f"./responses/{used_prompt_name}-texinput.tex"
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    
+    with open(output_file, 'w', encoding='utf-8') as file:
+        file.write(response)
+    logging.info(f"\n\nResponse saved to {output_file}")
 
-    print("================================================")
+    # Convert to PDF    
+    texinput_to_pdf(used_prompt_name)
+
+    logging.info("================================================")
 
 # After the loop ends, create and save the complete cost dataframe
 cost_df = pd.DataFrame([{

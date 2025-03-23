@@ -7,6 +7,7 @@ import textwrap
 import pandas as pd
 import re
 import shutil
+import logging
 
 
 def texinput_to_pdf(prompt_name = "planning-01"):
@@ -50,29 +51,29 @@ def texinput_to_pdf(prompt_name = "planning-01"):
     # -- compile --
     # Compile with bibliography support
     compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex"
-    print(f"Running first LaTeX pass: {compile_command}")
+    logging.info(f"Running first LaTeX pass: {compile_command}")
     os.system(compile_command)
 
     # Run Biber without changing directory
     biber_command = f"biber ./latex/{prompt_name}"
-    print(f"Running Biber: {biber_command}")
+    logging.info(f"Running Biber: {biber_command}")
     os.system(biber_command)
 
     # Run LaTeX again (twice) to resolve references
-    print("Running second LaTeX pass...")
+    logging.info("Running second LaTeX pass...")
     os.system(compile_command)
 
-    print("Running final LaTeX pass...")
+    logging.info("Running final LaTeX pass...")
     result = os.system(compile_command)
 
     # Check if PDF was created before trying to copy it
     pdf_path = f"./latex/{prompt_name}.pdf"
     if os.path.exists(pdf_path):
         shutil.copy(pdf_path, f"./responses/{prompt_name}.pdf")
-        print(f"PDF saved to ./responses/{prompt_name}.pdf")
+        logging.info(f"PDF saved to ./responses/{prompt_name}.pdf")
     else:
-        print(f"Warning: LaTeX compilation failed for {prompt_name}")
-        print(f"Copying over log file")
+        logging.warning(f"LaTeX compilation failed for {prompt_name}")
+        logging.info("Copying over log file")
         shutil.copy(f"./latex/{prompt_name}.log", f"./responses/{prompt_name}.log")
 
 

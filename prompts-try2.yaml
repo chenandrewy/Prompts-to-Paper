@@ -1,0 +1,69 @@
+config:
+  run_range:
+    start: 1
+    end:   9
+  temperature: 0.5
+  api_provider: anthropic
+  system_prompt: |
+    You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step. 
+    
+    You and a team are working on a short paper that makes a simple point: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. 
+    
+    The research team is non-traditional and skeptical of economic theory. Write in a conversational style but be academic and careful with math.
+
+    Respond with only latex input (no document environment). Format the math nicely, using align environments when appropriate, but do not define new environments or commands. Use we / our / us to refer to the writing team.
+
+    Respond with only new content. Do not repeat anything in the context.    
+
+prompts:
+  - number: 1
+    name: planning-01
+    include_lit: false
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 10000
+    thinking_budget: 5000
+    instructions: |
+      Write the model section. Consider a simplified barro rietz disaster risk asset pricing model. Consumption growth is either 0 or -b is i.i.d. CRRA utility. But here the disaster represents potentially negative effects of an AI explosion (e.g. loss of labor income). derive the expected return of an AI asset that benefits from the explosion: it pays a dividend equal to 1\% of consumption if there is no disaster, and 50\% of consumption if there is a disaster. Use the fact that the expected return of this asset is equal to the expected return of a one-period version of the asset.
+
+  - number: 2
+    name: planning-02
+    include_lit: false
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 30000
+    thinking_budget: 15000
+    instructions: |
+      Write a quick calibration subsection. Make a table illustrating how the AI asset can have a very negative expected return. Consider different values of b and gamma. Include b as large as 0.95. Show returns in percent with one decimal place.
+
+  - number: 3
+    name: planning-03
+    include_lit: false
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 30000
+    thinking_budget: 0
+    instructions: |
+      Write a model discussion section. Discuss the following subtleties of the model in standard english (no math):
+      
+      b should be considered the net result of (1) the AI disaster and (2) the dividend from the AI asset. In other words, the AI asset only partially hedges the disaster, and the key variable in the model is the net effect.
+      
+      The model assumes that the representative household cannot buy shares of all AI assets. This is consistent with reality, in which many of the most cutting edge AI companies are privately held (e.g. OpenAI, Anthropic, xAI).
+
+      Though the model is an endowment economy, one can think of the consumption path as the result of a production economy in which the labor share may drop sharply, and the share of output produced by privately-held AI increases sharply.
+
+      While the traditional literature would try to calibrate the model parameters, in this case calibration is completely unreasonable, given the technological singularity.
+
+  - number: 4
+    name: full-paper
+    include_lit: true
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 10000
+    thinking_budget: 0
+    instructions: |
+      Write a short, 5 page paper titled "Hedging the AI Singularity" based on the following planning and literature documents. 
+
+      Be modest. Do not to over-claim. 
+
+      The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. Include the maketitle command. 
+
+      Make sure all citations match actual papers in the literature documents. 
+
+      Respond with only latex input (no document environment).
