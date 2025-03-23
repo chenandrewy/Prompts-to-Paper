@@ -254,8 +254,8 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
 # SETUP
 
 # User
-# plan_name = "prompts-try1"
-plan_name = "prompts-test"
+plan_name = "prompts-try1"
+# plan_name = "prompts-test"
 
 # Global (tbc: make it nicer somehow?)
 lit_folder = "./lit-context"
@@ -368,11 +368,4 @@ cost_df = pd.DataFrame([{
 # Save as markdown table
 save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")
 
-#%%
-# # DEBUGGING
-# from importlib import reload
-# import utils
-# reload(utils)
-# from utils import save_cost_table
 
-# save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")

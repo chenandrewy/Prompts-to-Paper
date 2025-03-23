@@ -39,6 +39,9 @@
 \usepackage{setspace}
 \onehalfspacing
 
+% tables
+\usepackage{booktabs,bigstrut,multirow,tabularx,caption,threeparttable, rotating, lscape}
+
 \begin{document}
 
 % [input-goes-here]
