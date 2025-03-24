@@ -5,11 +5,11 @@ config:
   temperature: 0.5
   api_provider: anthropic
   system_prompt: |
-    You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step. 
+    You are an asset pricing theorist. You think carefully with mathematics and check your work, step by step. 
     
-    You and a team are working on a short paper that makes a simple point: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. 
+    Your team is writing a paper with a simple point: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. 
     
-    The research team is non-traditional and skeptical of economic theory. Write in a conversational style but be academic and careful with math.
+    The research team is non-traditional and skeptical of economic theory. Write in a conversational style but be academic and careful with math. The paper is short. The benefit of reading the paper is larger than the cost of reading it.
 
     Respond with only latex input (no document environment). Format the math nicely, using align environments when appropriate, but do not define new environments or commands. Use we / our / us to refer to the writing team.
 
@@ -62,7 +62,7 @@ prompts:
 
       Be modest. Do not to over-claim. 
 
-      The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. Include the maketitle command. 
+      Include the maketitle command but omit the author and date. Then write the abstract, which should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. 
 
       Make sure all citations match actual papers in the literature documents. 
 

@@ -2,20 +2,13 @@
 # Setup
 
 import os
-import subprocess
 import sys
 import replicate
 from dotenv import load_dotenv
-import time
-import markdown2
-import pdfkit
 from datetime import datetime
-import shutil  
 import pandas as pd
 import anthropic  # Add anthropic import
-import textwrap
-from utils import texinput_to_pdf, print_wrapped, is_jupyter, calculate_costs, save_cost_table
-import argparse
+from utils import texinput_to_pdf, calculate_costs, save_cost_table
 import yaml
 import logging
 
@@ -45,7 +38,7 @@ plan_name = "prompts-try2"
 lit_folder = "./lit-context"
 
 # Configure logging
-log_filename = f"logs/{plan_name}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.log"
+log_filename = f"logs/{plan_name}-{datetime.now().strftime('%Y-%m-%d')}-{datetime.now().strftime('%Hh-%Mm')}.log"
 os.makedirs("logs", exist_ok=True)
 
 # Create formatters
