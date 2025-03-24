@@ -30,9 +30,9 @@ class StreamHandler(logging.Handler):
 load_dotenv()
 
 # User
-plan_name = "prompts-try2"
+# plan_name = "prompts-try2"
 # plan_name = "prompts-try1"
-# plan_name = "prompts-test"
+plan_name = "prompts-test"
 
 # Global (tbc: make it nicer somehow?)
 lit_folder = "./lit-context"
@@ -60,12 +60,12 @@ logging.getLogger().addHandler(stream_handler)
 #%%
 # Functions
 
-def generate_prompt(prompt_name, instructions, context_names=None, add_lit=False, 
+def generate_prompt(instruction_name, instructions, context_names=None, add_lit=False, 
                    lit_folder="./prompts", response_folder="./responses", response_ext=".tex"):
     """Generate a full prompt by combining instructions with context.
     
     Args:
-        prompt_name: Name of the prompt file (without extension)
+        instruction_name: Name of the prompt file (without extension)
         instructions: The actual instructions text to send to the model
         context_names: List of context file names (without extension), or None for no context
         add_lit: Whether to include literature context
@@ -91,7 +91,7 @@ def generate_prompt(prompt_name, instructions, context_names=None, add_lit=False
                 logging.info(f"Reading context from {context_path}...")
                 with open(context_path, 'r', encoding='utf-8') as file:
                     context_content = file.read()
-                combined_context += f"--- BEGIN CONTEXT: {context_name} ---\n{context_content}\n--- END CONTEXT: {context_name} ---\n\n"
+                combined_context += f"<context file='{context_name}'>\n{context_content}\n</context>\n\n"
             else:
                 # Error out if context file is not found
                 raise FileNotFoundError(f"Context file not found: {context_path}")
@@ -111,26 +111,28 @@ def generate_prompt(prompt_name, instructions, context_names=None, add_lit=False
             logging.info(f"Reading lit from {lit_path}...")
             with open(lit_path, 'r', encoding='utf-8') as file:
                 lit_content = file.read()
-            combined_context += f"--- BEGIN LITERATURE ---\n{lit_content}\n--- END LITERATURE ---\n\n"
+            combined_context += f"<literature file='{lit_file}'>\n{lit_content}\n</literature>\n\n"
 
     # Prepare the full prompt with context if provided
     full_prompt = instructions
     if combined_context:
-        full_prompt = f"Here is some context:\n\n{combined_context}\n\n{instructions}"
+        full_prompt = f"<initial_instructions>\n{instructions}\n</initial_instructions>\n\n" \
+                     f"{combined_context}\n\n" \
+                     f"<final_instructions>\n{instructions}\n</final_instructions>"
     
     # save full prompt to responses folder
-    temp_prompt_path = os.path.join(response_folder, f"{prompt_name}-full-prompt.txt")
+    temp_prompt_path = os.path.join(response_folder, f"{instruction_name}-full-prompt.txt")
     with open(temp_prompt_path, "w", encoding="utf-8") as file:
         file.write(full_prompt)
         
     return full_prompt
 
-def query_llm(prompt_name, full_prompt, api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", 
+def query_llm(instruction_name, full_prompt, api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", 
               thinking_budget=0, max_tokens=4000, temperature=0.5):
     """Query an llm
     
     Args:
-        prompt_name: Name of the prompt file (without extension)
+        instruction_name: Name of the prompt file (without extension)
         full_prompt: The complete prompt to send to the model
         api_provider: API provider to use ('replicate' or 'anthropic')
         model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
@@ -256,8 +258,8 @@ def query_llm(prompt_name, full_prompt, api_provider="replicate", model_name="an
         # Calculate costs using the utility function
         cost_dict, cost_summary = calculate_costs(stream.get_final_message(), anthropic_model, max_tokens, thinking_budget)
         
-        # Add cost summary to the result
-        result = f"{cost_summary}\n\n{result}"
+        # Add cost summary to the result (this is now saved to a *-costs.md file)
+        # result = f"{cost_summary}\n\n{result}"
 
         # Print cost information
         logging.info("\nCost Summary:")
@@ -271,21 +273,21 @@ def query_llm(prompt_name, full_prompt, api_provider="replicate", model_name="an
     else:
         raise ValueError(f"Unsupported API provider: {api_provider}")
     
-    return result, prompt_name, cost_dict
+    return result, instruction_name, cost_dict
 
-def save_response(response, prompt_name, output_dir="./responses", file_ext=".tex"):
+def save_response(response, instruction_name, output_dir="./responses", file_ext=".tex"):
     """Save the model's response to a file.
     
     Args:
         response: The text response from Claude
-        prompt_name: Name of the prompt used (for filename)
+        instruction_name: Name of the prompt used (for filename)
         output_dir: Directory to save the response
         file_ext: File extension for the output file
     """
 
     # -- save latex input file --
     # Create the base output file path
-    output_file = f"{output_dir}/{prompt_name}-texinput{file_ext}"
+    output_file = f"{output_dir}/{instruction_name}-texinput{file_ext}"
     
     # Create the directory if it doesn't exist
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -293,9 +295,6 @@ def save_response(response, prompt_name, output_dir="./responses", file_ext=".te
     with open(output_file, 'w', encoding='utf-8') as file:
         file.write(response)
     logging.info(f"\n\nResponse saved to {output_file}")      
-
-    # -- output latex document --
-    texinput_to_pdf(prompt_name)
  
 
 #%%
@@ -366,7 +365,7 @@ for index in range(index_start, index_end+1):
 
     # Generate the full prompt
     full_prompt = generate_prompt(
-        prompt_name=plan_df["name"][index],
+        instruction_name=plan_df["name"][index],
         instructions=instructions,
         context_names=context_names,
         add_lit=add_lit,
@@ -376,8 +375,8 @@ for index in range(index_start, index_end+1):
     )
 
     # Query the model
-    response, used_prompt_name, cost_dict = query_llm(
-        prompt_name=plan_df["name"][index],
+    response, used_instruction_name, cost_dict = query_llm(
+        instruction_name=plan_df["name"][index],
         full_prompt=full_prompt,
         api_provider=api_provider,
         model_name=plan_df["model_name"][index],
@@ -387,14 +386,14 @@ for index in range(index_start, index_end+1):
     )
 
     # Add prompt name and timestamp to cost_dict
-    cost_dict["prompt_name"] = used_prompt_name
+    cost_dict["instruction_name"] = used_instruction_name
     cost_dict["timestamp"] = datetime.now()
     
     # Append to our collection
     all_costs.append(cost_dict)
 
     # Save raw response (texinput)
-    output_file = f"./responses/{used_prompt_name}-texinput.tex"
+    output_file = f"./responses/{used_instruction_name}-texinput.tex"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     
     with open(output_file, 'w', encoding='utf-8') as file:
@@ -402,14 +401,14 @@ for index in range(index_start, index_end+1):
     logging.info(f"\n\nResponse saved to {output_file}")
 
     # Convert to PDF    
-    texinput_to_pdf(used_prompt_name)
+    texinput_to_pdf(used_instruction_name)
 
     logging.info("================================================")
 
 # After the loop ends, create and save the complete cost dataframe
 cost_df = pd.DataFrame([{
     'timestamp': cost['timestamp'],
-    'prompt_name': cost['prompt_name'],
+    'instruction_name': cost['instruction_name'],
     'model_name': cost['model']['name'],
     'model_type': cost['model']['type'],
     'input_tokens': cost['token_usage']['input_tokens'],

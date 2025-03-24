@@ -10,18 +10,18 @@ import shutil
 import logging
 
 
-def texinput_to_pdf(prompt_name = "planning-01"):
+def texinput_to_pdf(instruction_name = "planning-01"):
     # all work goes in ./latex/ for cleanliness
     
     # -- clean texinput --
-    with open(f"responses/{prompt_name}-texinput.tex", "r", encoding="utf-8") as f:
+    with open(f"responses/{instruction_name}-texinput.tex", "r", encoding="utf-8") as f:
         content = f.read()
 
     # Comment out any lines that contain bibliography commands
     content = re.sub(r"(\\biblio.*)", r"%\1", content)
 
     # Ensure we write with UTF-8 encoding
-    with open(f"latex/{prompt_name}-texinput-clean.tex", "w", encoding="utf-8") as f:
+    with open(f"latex/{instruction_name}-texinput-clean.tex", "w", encoding="utf-8") as f:
         f.write(content)
     
     # -- plug clean texinput into latex template --
@@ -32,15 +32,15 @@ def texinput_to_pdf(prompt_name = "planning-01"):
     latex_template = latex_template.replace("% [input-goes-here]", content)
 
     # Ensure we write with UTF-8 encoding
-    with open(f"./latex/{prompt_name}.tex", "w", encoding="utf-8") as file:
+    with open(f"./latex/{instruction_name}.tex", "w", encoding="utf-8") as file:
         file.write(latex_template)
     
     # -- clean aux files --
     aux_files = [
-        f"{prompt_name}.aux",
-        f"{prompt_name}.bbl",
-        f"{prompt_name}.blg",
-        f"{prompt_name}.out"
+        f"{instruction_name}.aux",
+        f"{instruction_name}.bbl",
+        f"{instruction_name}.blg",
+        f"{instruction_name}.out"
     ]
 
     for file in aux_files:
@@ -50,12 +50,12 @@ def texinput_to_pdf(prompt_name = "planning-01"):
     
     # -- compile --
     # Compile with bibliography support
-    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{prompt_name}.tex"
+    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{instruction_name}.tex"
     logging.info(f"Running first LaTeX pass: {compile_command}")
     os.system(compile_command)
 
     # Run Biber without changing directory
-    biber_command = f"biber ./latex/{prompt_name}"
+    biber_command = f"biber ./latex/{instruction_name}"
     logging.info(f"Running Biber: {biber_command}")
     os.system(biber_command)
 
@@ -67,14 +67,14 @@ def texinput_to_pdf(prompt_name = "planning-01"):
     result = os.system(compile_command)
 
     # Check if PDF was created before trying to copy it
-    pdf_path = f"./latex/{prompt_name}.pdf"
+    pdf_path = f"./latex/{instruction_name}.pdf"
     if os.path.exists(pdf_path):
-        shutil.copy(pdf_path, f"./responses/{prompt_name}.pdf")
-        logging.info(f"PDF saved to ./responses/{prompt_name}.pdf")
+        shutil.copy(pdf_path, f"./responses/{instruction_name}.pdf")
+        logging.info(f"PDF saved to ./responses/{instruction_name}.pdf")
     else:
-        logging.warning(f"LaTeX compilation failed for {prompt_name}")
+        logging.warning(f"LaTeX compilation failed for {instruction_name}")
         logging.info("Copying over log file")
-        shutil.copy(f"./latex/{prompt_name}.log", f"./responses/{prompt_name}.log")
+        shutil.copy(f"./latex/{instruction_name}.log", f"./responses/{instruction_name}.log")
 
 
 def print_wrapped(text, width=70):
@@ -215,7 +215,7 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
     cost_df = cost_df.drop(columns=["timestamp", "model_type"])
 
     # make token df
-    token_df = cost_df[['prompt_name', 'model_name', 'input_tokens', 'output_tokens', 'total_tokens']]
+    token_df = cost_df[['instruction_name', 'model_name', 'input_tokens', 'output_tokens', 'total_tokens']]
     token_df = token_df.rename(columns={
         'input_tokens': 'input',
         'output_tokens': 'output',
@@ -224,7 +224,7 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
     token_df['type'] = 'tokens'
 
     # make cost only df
-    cost_df2 = cost_df[['prompt_name', 'model_name', 'input_cost', 'output_cost', 'total_cost']]
+    cost_df2 = cost_df[['instruction_name', 'model_name', 'input_cost', 'output_cost', 'total_cost']]
     cost_df2 = cost_df2.rename(columns={
         'input_cost': 'input',
         'output_cost': 'output',
@@ -234,7 +234,7 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
 
     # append and sort
     cost_df_clean = pd.concat([token_df, cost_df2])
-    cost_df_clean = cost_df_clean.sort_values(by=['prompt_name', 'model_name', 'type'], ascending=[True, True, False])    
+    cost_df_clean = cost_df_clean.sort_values(by=['instruction_name', 'model_name', 'type'], ascending=[True, True, False])    
     
     def format_table_row(row, col_widths):
         return '| ' + ' | '.join(f"{str(val):{width}}" for val, width in zip(row, col_widths)) + ' |'

@@ -50,14 +50,14 @@ prompts:
     name: plan-02-model-result
     include_lit: false
     model_name: claude-3-7-sonnet-20250219
-    max_tokens: 20000
-    thinking_budget: 5000
+    max_tokens: 50000
+    thinking_budget: 10000
     instructions: |
       Derive the main model result.
 
-      Prove that the price-dividend ratio of the AI asset is constant. Use this fact to prove that the expected return of the AI asset is the same as the expected return of a one-period version of the asset.
+      Prove the following lemma: The expected return of the AI asset is the same as the expected return of a one-period version of the asset. 
 
-      Derive the expected return of the AI asset.
+      Using the lemma, derive the expected return of the AI asset.
 
   - number: 3
     name: plan-03-calibration
