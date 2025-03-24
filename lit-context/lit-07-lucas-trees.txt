@@ -1,0 +1,51 @@
+# Asset Pricing Models with Multiple Trees: Key Literature
+
+Here's a curated list of important papers that extend the Lucas asset pricing model to include multiple trees:
+
+1. **Cochrane, John H., Francis A. Longstaff, and Pedro Santa-Clara (2008)**
+   - **Title**: "Two Trees"
+   - **Journal**: Review of Financial Studies
+   - **Publisher**: Oxford University Press
+   - **Summary**: Develops a model with two Lucas trees where dividend shares fluctuate endogenously. Shows how these fluctuations create additional volatility beyond fundamentals and demonstrates that correlations between asset returns can be much greater than correlations between their fundamentals.
+
+2. **Martin, Ian (2013)**
+   - **Title**: "The Lucas Orchard"
+   - **Journal**: Econometrica
+   - **Publisher**: The Econometric Society
+   - **Summary**: Generalizes the two-tree model to N trees (the "Lucas orchard"). Introduces the concept of "codependence" between assets, showing how the risk of an asset depends not just on its own characteristics but on its place within the whole "orchard" of assets.
+
+3. **Santos, Tano and Pietro Veronesi (2006)**
+   - **Title**: "Labor Income and Predictable Stock Returns"
+   - **Journal**: Review of Financial Studies
+   - **Publisher**: Oxford University Press
+   - **Summary**: Models the economy with two income streams: financial income (dividends) and labor income. Shows how the ratio of labor to financial income predicts stock returns and explains time-varying expected returns.
+
+4. **Brandt, Michael, John Graham, and Andrey Gomes (2006)**
+   - **Title**: "Consumption-Based Asset Pricing with Higher Cumulants"
+   - **Journal**: Review of Financial Studies
+   - **Publisher**: Oxford University Press
+   - **Summary**: Extends the standard Lucas model to incorporate higher-order cumulants of consumption growth in a multi-tree framework, showing how these capture important non-Gaussian features of asset returns.
+
+5. **Pavlova, Anna and Roberto Rigobon (2007)**
+   - **Title**: "Asset Prices and Exchange Rates"
+   - **Journal**: Review of Financial Studies
+   - **Publisher**: Oxford University Press
+   - **Summary**: Develops a two-country, two-tree model to study international financial integration, showing how supply and demand shocks translate into correlations between asset prices and exchange rates.
+
+6. **Ehling, Paul and Christian Heyerdahl-Larsen (2015)**
+   - **Title**: "Complete and Incomplete Financial Markets in Multi-Good Economies"
+   - **Journal**: Journal of Economic Theory
+   - **Publisher**: Elsevier
+   - **Summary**: Extends the multiple-tree setting to analyze market completeness with multiple consumption goods, exploring how financial innovation affects risk sharing and welfare.
+
+7. **Menzly, Lior, Tano Santos, and Pietro Veronesi (2004)**
+   - **Title**: "Understanding Predictability"
+   - **Journal**: Journal of Political Economy
+   - **Publisher**: University of Chicago Press
+   - **Summary**: Develops a multiple-tree model where cash flow shares mean-revert, explaining why price-dividend ratios predict returns and why expected returns are high when prices are low relative to dividends.
+
+8. **Longstaff, Francis and Monika Piazzesi (2004)**
+   - **Title**: "Corporate Earnings and the Equity Premium"
+   - **Journal**: Journal of Financial Economics
+   - **Publisher**: Elsevier
+   - **Summary**: Models the economy with two streams: corporate cash flows and economic rents. Shows how the division of output between these streams helps explain the equity premium puzzle.

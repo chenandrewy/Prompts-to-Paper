@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import pandas as pd
 import anthropic  # Add anthropic import
-from utils import texinput_to_pdf, calculate_costs, save_cost_table
+from utils import texinput_to_pdf, calculate_costs, save_cost_table, print_wrapped
 import yaml
 import logging
 
@@ -60,48 +60,22 @@ logging.getLogger().addHandler(stream_handler)
 #%%
 # Functions
 
-def query_llm(prompt_name, instructions, context_names=None, add_lit=False, 
-              lit_folder="./prompts", 
-              response_folder = "./responses", response_ext = ".tex",
-              api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", thinking_budget=0, max_tokens=4000, temperature=0.5):
-    """Query an llm
+def generate_prompt(prompt_name, instructions, context_names=None, add_lit=False, 
+                   lit_folder="./prompts", response_folder="./responses", response_ext=".tex"):
+    """Generate a full prompt by combining instructions with context.
     
     Args:
         prompt_name: Name of the prompt file (without extension)
         instructions: The actual instructions text to send to the model
         context_names: List of context file names (without extension), or None for no context
+        add_lit: Whether to include literature context
         lit_folder: Directory containing prompt files
-        response_folder: Directory to save the response
-        response_ext: File extension for the response
-        api_provider: API provider to use ('replicate' or 'anthropic')
-        model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
-        thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode with specified budget (default: 0)
+        response_folder: Directory containing response files
+        response_ext: File extension for response files
+        
+    Returns:
+        str: The combined prompt with all context
     """
-    # convert pandas integers to native python
-    max_tokens = int(max_tokens)
-    thinking_budget = int(thinking_budget)
-
-    # Argument check
-    if (thinking_budget > 0) & (temperature != 1):
-        logging.warning("Thinking mode is enabled, but temperature is not 1. Setting temperature to 1.")
-        temperature = 1
-
-    if thinking_budget >= max_tokens:
-        logging.warning(f"Thinking budget ({thinking_budget}) cannot be greater than max tokens ({max_tokens}). Setting thinking budget equal to 1/2 of max tokens.")
-        thinking_budget = max_tokens // 2
-    
-    if (thinking_budget > 0) & (thinking_budget < 1024):
-        logging.warning(f"Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
-        thinking_budget = 1024    
-
-    if (model_name == "claude-3-5-haiku-20241022"):
-        if max_tokens > 8192:
-            logging.warning("claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
-            max_tokens = 8192
-        if thinking_budget > 0:
-            logging.warning("claude-3-5-haiku-20241022 does not support thinking mode. Setting thinking budget to 0.")
-            thinking_budget = 0
-
     # Read the contexts if specified
     combined_context = ""
     if context_names:
@@ -139,12 +113,6 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
                 lit_content = file.read()
             combined_context += f"--- BEGIN LITERATURE ---\n{lit_content}\n--- END LITERATURE ---\n\n"
 
-    # Get system prompt from YAML config if it exists
-    system_prompt = None
-    if "system_prompt" in config:
-        logging.info("Using system prompt from YAML config...")
-        system_prompt = config["system_prompt"]
-    
     # Prepare the full prompt with context if provided
     full_prompt = instructions
     if combined_context:
@@ -154,6 +122,52 @@ def query_llm(prompt_name, instructions, context_names=None, add_lit=False,
     temp_prompt_path = os.path.join(response_folder, f"{prompt_name}-full-prompt.txt")
     with open(temp_prompt_path, "w", encoding="utf-8") as file:
         file.write(full_prompt)
+        
+    return full_prompt
+
+def query_llm(prompt_name, full_prompt, api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", 
+              thinking_budget=0, max_tokens=4000, temperature=0.5):
+    """Query an llm
+    
+    Args:
+        prompt_name: Name of the prompt file (without extension)
+        full_prompt: The complete prompt to send to the model
+        api_provider: API provider to use ('replicate' or 'anthropic')
+        model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
+        thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode with specified budget (default: 0)
+        max_tokens: Maximum number of tokens to generate
+        temperature: Temperature parameter for generation
+    """
+    # convert pandas integers to native python
+    max_tokens = int(max_tokens)
+    thinking_budget = int(thinking_budget)
+
+    # Argument check
+    if (thinking_budget > 0) & (temperature != 1):
+        logging.warning("Thinking mode is enabled, but temperature is not 1. Setting temperature to 1.")
+        temperature = 1
+
+    if thinking_budget >= max_tokens:
+        logging.warning(f"Thinking budget ({thinking_budget}) cannot be greater than max tokens ({max_tokens}). Setting thinking budget equal to 1/2 of max tokens.")
+        thinking_budget = max_tokens // 2
+    
+    if (thinking_budget > 0) & (thinking_budget < 1024):
+        logging.warning(f"Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
+        thinking_budget = 1024    
+
+    if (model_name == "claude-3-5-haiku-20241022"):
+        if max_tokens > 8192:
+            logging.warning("claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
+            max_tokens = 8192
+        if thinking_budget > 0:
+            logging.warning("claude-3-5-haiku-20241022 does not support thinking mode. Setting thinking budget to 0.")
+            thinking_budget = 0
+
+    # Get system prompt from YAML config if it exists
+    system_prompt = None
+    if "system_prompt" in config:
+        logging.info("Using system prompt from YAML config...")
+        system_prompt = config["system_prompt"]
 
     # Process based on API provider
     if api_provider.lower() == 'replicate':
@@ -350,20 +364,26 @@ for index in range(index_start, index_end+1):
     add_lit = plan_df["include_lit"][index]
     logging.info(f"Including literature: {add_lit}")
 
+    # Generate the full prompt
+    full_prompt = generate_prompt(
+        prompt_name=plan_df["name"][index],
+        instructions=instructions,
+        context_names=context_names,
+        add_lit=add_lit,
+        lit_folder=lit_folder,
+        response_folder="./responses",
+        response_ext=".tex"
+    )
+
     # Query the model
     response, used_prompt_name, cost_dict = query_llm(
-        prompt_name = plan_df["name"][index], 
-        instructions = instructions,
-        context_names = context_names, 
-        add_lit = add_lit, 
-        lit_folder = lit_folder, 
-        response_folder = "./responses", 
-        response_ext = ".tex",
-        api_provider = api_provider, 
-        model_name = plan_df["model_name"][index], 
-        thinking_budget = prompt_thinking_budget,
-        max_tokens = prompt_max_tokens,
-        temperature = config["temperature"]
+        prompt_name=plan_df["name"][index],
+        full_prompt=full_prompt,
+        api_provider=api_provider,
+        model_name=plan_df["model_name"][index],
+        thinking_budget=prompt_thinking_budget,
+        max_tokens=prompt_max_tokens,
+        temperature=config["temperature"]
     )
 
     # Add prompt name and timestamp to cost_dict

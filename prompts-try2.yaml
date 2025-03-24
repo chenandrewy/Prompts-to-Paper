@@ -1,7 +1,7 @@
 config:
   run_range:
-    start: 1
-    end:   9
+    start: 2
+    end:   2
   temperature: 0.5
   api_provider: anthropic
   system_prompt: |
@@ -9,7 +9,7 @@ config:
     
     Your team is writing a paper with a simple point: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. 
     
-    The research team is non-traditional and skeptical of economic theory. Write in a conversational style but be academic and careful with math. The paper is short. The benefit of reading the paper is larger than the cost of reading it.
+    The research team is non-traditional and skeptical of economic theory. The writing should reflect this skepticism. Write in a style that is conversational, concise, and direct.
 
     Respond with only latex input (no document environment). Format the math nicely, using align environments when appropriate, but do not define new environments or commands. Use we / our / us to refer to the writing team.
 
@@ -17,52 +17,94 @@ config:
 
 prompts:
   - number: 1
-    name: planning-01
+    name: plan-01-model
     include_lit: false
     model_name: claude-3-7-sonnet-20250219
-    max_tokens: 10000
-    thinking_budget: 5000
+    max_tokens: 20000
+    thinking_budget: 0
     instructions: |
-      Write the model section. Consider a simplified barro rietz disaster risk asset pricing model. Consumption growth is either 0 or -b is i.i.d. CRRA utility. But here the disaster represents potentially negative effects of an AI explosion (e.g. loss of labor income). derive the expected return of an AI asset that benefits from the explosion: it pays a dividend equal to 1\% of consumption if there is no disaster, and 50\% of consumption if there is a disaster. Use the fact that the expected return of this asset is equal to the expected return of a one-period version of the asset.
+      Write the model description.
+
+      Two agents:
+        - AI owners
+          - Can participate in the stock market
+          - But they're fully invested in AI so they are not marginal investors in stocks
+        - Representative household
+          - Marginal investor in stocks: only their consumption matters
+          - CRRA utility
+      
+      C_{t+1}/C_t is i.i.d. and for simplicity is either
+        - 1.0 with probability 1-p
+        - exp(-b) with probability p
+          - Represents an AI disaster: negative effects of an AI explosion for the representative household
+          - Includes standard economic losses (e.g. loss of labor income) but also non-standard losses (e.g. loss of way of life, meaning)
+          - Benefits from AI in this disaster are largely captured by the AI owners
+      Including growth and standard consumption volatility has little effect on asset prices.
+
+      There is a publicly traded AI asset that pays a dividend of
+        - 1\% of consumption if there is no disaster
+        - 50\% of consumption if there is a disaster
+      The model assumes that the representative household cannot buy shares of all AI assets, consistent with reality. 
 
   - number: 2
-    name: planning-02
+    name: plan-02-model-result
+    include_lit: false
+    model_name: claude-3-7-sonnet-20250219
+    max_tokens: 20000
+    thinking_budget: 5000
+    instructions: |
+      Derive the main model result.
+
+      Prove that the price-dividend ratio of the AI asset is constant. Use this fact to prove that the expected return of the AI asset is the same as the expected return of a one-period version of the asset.
+
+      Derive the expected return of the AI asset.
+
+  - number: 3
+    name: plan-03-calibration
     include_lit: false
     model_name: claude-3-7-sonnet-20250219
     max_tokens: 30000
     thinking_budget: 15000
     instructions: |
-      Write a quick calibration subsection. Make a table illustrating how the AI asset can have a very negative expected return. Consider different values of b and gamma. Include b as large as 0.95. Show returns in percent with one decimal place.
+      Write a quick calibration subsection. Make a table illustrating how the AI asset can have a very negative expected return. Consider values of the disaster probability from 1 percent to 0.01 percent, and consumption loss from 20 percent to 95 percent. Fix risk aversion at 2.  Show returns in percent with one decimal place.
 
-  - number: 3
-    name: planning-03
+  - number: 4
+    name: plan-04-model-discussion
     include_lit: false
     model_name: claude-3-7-sonnet-20250219
     max_tokens: 30000
     thinking_budget: 0
     instructions: |
-      Write a model discussion section. Discuss the following subtleties of the model in standard english (no math):
-      
-      b should be considered the net result of (1) the AI disaster and (2) the dividend from the AI asset. In other words, the AI asset only partially hedges the disaster, and the key variable in the model is the net effect.
-      
-      The model assumes that the representative household cannot buy shares of all AI assets. This is consistent with reality, in which many of the most cutting edge AI companies are privately held (e.g. OpenAI, Anthropic, xAI).
+      Write a "Model Discussion" section. Discuss the following subtleties of the model in standard english (no math):
 
-      Though the model is an endowment economy, one can think of the consumption path as the result of a production economy in which the labor share may drop sharply, and the share of output produced by privately-held AI increases sharply.
+      The model is much simpler than traditional models. One could instead model multiple trees or endogenize consumption (perhaps have the labor share drop sharply) but it's unclear how much value these complications would add. Similarly, a traditional model would incorporate the AI booms and allow for a richer calibration. But given the uncertainty about the AI singularity, it's unclear how much value these complications would add.
 
-      While the traditional literature would try to calibrate the model parameters, in this case calibration is completely unreasonable, given the technological singularity.
+      The main point will remain: holding AI assets hedges against a negative AI singularity. The model provides a clear framework for thinking about this economic mechanism.
 
-  - number: 4
-    name: full-paper
+      A key implication is that the hedging channel only holds if the AI asset is an incomplete hedge. In the model, $b$ is the net effect of the AI disaster and the dividend from the AI asset. If the dividend fully hedges, then $b=0$ and there is no hedging channel.
+
+  - number: 5
+    name: plan-05-full-paper
     include_lit: true
     model_name: claude-3-7-sonnet-20250219
     max_tokens: 10000
     thinking_budget: 0
     instructions: |
-      Write a short, 5 page paper titled "Hedging the AI Singularity" based on the following planning and literature documents. 
+      Write a short, 10 page paper titled "Hedging the AI Singularity." 
+
+      Start with two short background paragraphs. (1) Describe how AI progress is happening quickly, and investors may be concerned about their wages being displaced. (2) Technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principal create.  And because AI progress may be incredibly sudden (the AI singularity). An example is the current paper, which is entirely written by AI, using a few short prompts, a feat which was not possible a few months ago. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. 
+
+      Then describe what the paper does. It makes the simple point that AI stocks may have high valuations because they hedge against a negative AI singularity. 
+
+      Cite a few closely related papers on AI and asset prices. Then cite a few papers on hedging labor income risk.
+
+      Be concise. Get to the model quickly.
 
       Be modest. Do not to over-claim. 
 
-      Include the maketitle command but omit the author and date. Then write the abstract, which should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. 
+      Include the maketitle command but omit the author and date. Then write the abstract, which should be less than 100 words, not indented. The abstract should mention briefly that the writing is generated by AI. 
+
+      In the introduction, include a footnote noting that "we" refers to one human author and multiple LLMs.      
 
       Make sure all citations match actual papers in the literature documents. 
 

@@ -1,3 +1,6 @@
+# Converts AI-generated lit reviews in ./lit-context/lit-*.txt to BibTeX entries.
+# Saves to ./lit-context/lit-99-bibtex.txt and ./input-other/lit-99-bibtex.bib
+
 #%%
 import os
 import glob
@@ -90,7 +93,7 @@ def convert_to_bibtex(lit_overview):
 os.makedirs("./temp", exist_ok=True)
 
 # Gather all bib*.txt files from prompts directory
-bib_files = sorted(glob.glob("./prompts/lit-*.txt"))
+bib_files = sorted(glob.glob("./lit-context/lit-*.txt"))
 
 # remove lit-99-bibtex.txt from list
 bib_files = [f for f in bib_files if "lit-99-bibtex.txt" not in f]
@@ -135,7 +138,7 @@ for bibtex in all_bibtex:
 # save to file
 
 # save for prompt
-output_path1 = "./prompts/lit-99-bibtex.txt"
+output_path1 = "./lit-context/lit-99-bibtex.txt"
 with open(output_path1, "w", encoding="utf-8") as f:
     f.write("\n\n".join(all_bibtex_clean))
 
