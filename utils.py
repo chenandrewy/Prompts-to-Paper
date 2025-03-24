@@ -159,7 +159,7 @@ def calculate_costs(response, model_name, max_tokens, thinking_budget):
     # Calculate costs
     input_cost = input_tokens * MODEL_PRICES[matching_model]["input"]
     output_cost = output_tokens * MODEL_PRICES[matching_model]["output"]
-    total_cost = input_cost + output_cost        
+    total_cost = input_cost + output_cost       
 
     # Create dictionary format
     cost_dict = {
@@ -207,7 +207,6 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
         cost_df (pd.DataFrame): DataFrame containing cost tracking information
         output_path (str): Path where to save the markdown table
     """
-
     # round all values to 3 decimal places
     cost_df = cost_df.round(3)
 
@@ -215,26 +214,31 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
     cost_df = cost_df.drop(columns=["timestamp", "model_type"])
 
     # make token df
-    token_df = cost_df[['instruction_name', 'model_name', 'input_tokens', 'output_tokens', 'total_tokens']]
+    token_df = cost_df[['instruction_name', 'model_name', 'input_tokens', 'output_tokens', 'total_tokens', 'max_tokens']]
     token_df = token_df.rename(columns={
         'input_tokens': 'input',
         'output_tokens': 'output',
-        'total_tokens': 'total'
+        'total_tokens': 'total',
+        'max_tokens': 'max'
     })
     token_df['type'] = 'tokens'
 
     # make cost only df
-    cost_df2 = cost_df[['instruction_name', 'model_name', 'input_cost', 'output_cost', 'total_cost']]
+    cost_df2 = cost_df[['instruction_name', 'model_name', 'input_cost', 'output_cost', 'total_cost', 'max_cost']]
     cost_df2 = cost_df2.rename(columns={
         'input_cost': 'input',
         'output_cost': 'output',
-        'total_cost': 'total'
+        'total_cost': 'total',
+        'max_cost': 'max'
     })
     cost_df2['type'] = 'cost'
 
     # append and sort
     cost_df_clean = pd.concat([token_df, cost_df2])
     cost_df_clean = cost_df_clean.sort_values(by=['instruction_name', 'model_name', 'type'], ascending=[True, True, False])    
+
+    # shorten the model_name to 20 characters
+    cost_df_clean['model_name'] = cost_df_clean['model_name'].apply(lambda x: x[:20] if len(x) > 20 else x)
     
     def format_table_row(row, col_widths):
         return '| ' + ' | '.join(f"{str(val):{width}}" for val, width in zip(row, col_widths)) + ' |'
@@ -248,8 +252,8 @@ def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
         )
         col_widths[col] = max(len(col), max_val_length)
 
-    # Calculate grand total of costs
-    grand_total = cost_df_clean[cost_df_clean['type'] == 'cost']['total'].sum()
+    # Sum total_cost across all instruction_name
+    grand_total = cost_df['total_cost'].sum()
 
     # Create markdown table content
     md_content = []

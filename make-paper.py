@@ -256,10 +256,7 @@ def query_llm(instruction_name, full_prompt, api_provider="replicate", model_nam
                 logging.info(text)  # Changed from print to logging
 
         # Calculate costs using the utility function
-        cost_dict, cost_summary = calculate_costs(stream.get_final_message(), anthropic_model, max_tokens, thinking_budget)
-        
-        # Add cost summary to the result (this is now saved to a *-costs.md file)
-        # result = f"{cost_summary}\n\n{result}"
+        cost_dict, cost_summary = calculate_costs(stream.get_final_message(), anthropic_model, max_tokens, thinking_budget)        
 
         # Print cost information
         logging.info("\nCost Summary:")
@@ -405,6 +402,9 @@ for index in range(index_start, index_end+1):
 
     logging.info("================================================")
 
+#%%
+# SAVE COSTS
+
 # After the loop ends, create and save the complete cost dataframe
 cost_df = pd.DataFrame([{
     'timestamp': cost['timestamp'],
@@ -414,12 +414,13 @@ cost_df = pd.DataFrame([{
     'input_tokens': cost['token_usage']['input_tokens'],
     'output_tokens': cost['token_usage']['output_tokens'],
     'total_tokens': cost['token_usage']['total_tokens'],
+    'max_tokens': plan_df.loc[plan_df['name'] == cost['instruction_name'], 'max_tokens'].iloc[0],
     'input_cost': cost['costs']['input_cost'],
     'output_cost': cost['costs']['output_cost'],
-    'total_cost': cost['costs']['total_cost']
+    'total_cost': cost['costs']['total_cost'],
+    'max_cost': float('nan')  # Using NaN for max_cost as instructed
 } for cost in all_costs])
 
 # Save as markdown table
 save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")
-
 
