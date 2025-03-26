@@ -164,5 +164,3 @@ grand_total = costs_df['Total_Cost'].sum()
 with open(f"./responses/all-costs.txt", "w", encoding="utf-8") as f:
     f.write(f"Grand Total: ${grand_total:.4f}\n")
     f.write(costs_df.to_string(index=False))
-
-

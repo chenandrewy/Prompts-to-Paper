@@ -8,7 +8,7 @@ import pandas as pd
 import anthropic
 from openai import OpenAI
 import glob
-
+import time
 def print_wrapped(text, width=70):
     """
     Prints the input text with word wrapping while preserving paragraph breaks.
@@ -366,7 +366,7 @@ def texinput_to_pdf(texinput, pdf_fname):
         file.write(full_tex)
     
     # -- clean aux files --
-    aux_files = [
+    base_files = [
         f"{pdf_fname}.aux",
         f"{pdf_fname}.bbl",
         f"{pdf_fname}.blg",
@@ -377,6 +377,7 @@ def texinput_to_pdf(texinput, pdf_fname):
         f"{pdf_fname}.bcf",
         f"{pdf_fname}.run.xml"
     ]
+    aux_files = [f"./responses/{file}" for file in base_files]
 
     for file in aux_files:
         if os.path.exists(file):
@@ -404,7 +405,11 @@ def texinput_to_pdf(texinput, pdf_fname):
     # remove aux files if compilation was successful
     if result == 0:
         print("Removing aux files...")
+
+        # pause to avoid deleting aux files too quickly
+        time.sleep(0.5)
+
         for file in aux_files:
-            print(f"Removing {file}...")
+            # print(f"Removing {file}...")
             if os.path.exists(file):
                 os.remove(file)
