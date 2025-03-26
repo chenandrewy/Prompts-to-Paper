@@ -1,6 +1,6 @@
 config:
   run_range:
-    start: 1
+    start: 4
     end: 9
   temperature: 0.5
   system_prompt: |
@@ -43,6 +43,14 @@ prompts:
     thinking_budget: 0
     instructions: |
       Find the most relevant papers and write a short two paragraph lit review.
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt
 
   - number: 5
     name: 05-intro
@@ -61,6 +69,14 @@ prompts:
       Include a footnote noting that "we" refers to one human author and multiple LLMs.
 
       Cite papers as appropriate. Ensure citations correspond to items from all-bib.
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt      
 
   - number: 6
     name: full-paper
@@ -77,3 +93,11 @@ prompts:
       Make sure all citations match actual papers in the literature documents. 
 
       Respond with only latex input (no document environment).
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt      

@@ -39,7 +39,7 @@ prompts = temp["prompts"]
 all_costs = []
 
 index_start = config["run_range"]["start"]-1
-index_end = min(config["run_range"]["end"]-1, len(prompts))
+index_end = min(config["run_range"]["end"]-1, len(prompts)-1)
 
 
 # loop over plan prompts
