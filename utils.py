@@ -5,77 +5,9 @@ Utility functions for the Prompts-to-Paper project.
 import os
 import textwrap
 import pandas as pd
-import re
-import shutil
-import logging
-
-
-def texinput_to_pdf(instruction_name = "planning-01"):
-    # all work goes in ./latex/ for cleanliness
-    
-    # -- clean texinput --
-    with open(f"responses/{instruction_name}-texinput.tex", "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # Comment out any lines that contain bibliography commands
-    content = re.sub(r"(\\biblio.*)", r"%\1", content)
-
-    # Ensure we write with UTF-8 encoding
-    with open(f"latex/{instruction_name}-texinput-clean.tex", "w", encoding="utf-8") as f:
-        f.write(content)
-    
-    # -- plug clean texinput into latex template --
-    with open("./input-other/latex-template.txt", "r", encoding="utf-8") as file:
-        latex_template = file.read()
-
-    # Replace the marker with the actual content instead of an \input command
-    latex_template = latex_template.replace("% [input-goes-here]", content)
-
-    # Ensure we write with UTF-8 encoding
-    with open(f"./latex/{instruction_name}.tex", "w", encoding="utf-8") as file:
-        file.write(latex_template)
-    
-    # -- clean aux files --
-    aux_files = [
-        f"{instruction_name}.aux",
-        f"{instruction_name}.bbl",
-        f"{instruction_name}.blg",
-        f"{instruction_name}.out"
-    ]
-
-    for file in aux_files:
-        if os.path.exists(file):
-            os.remove(file)
-
-    
-    # -- compile --
-    # Compile with bibliography support
-    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./latex ./latex/{instruction_name}.tex"
-    logging.info(f"Running first LaTeX pass: {compile_command}")
-    os.system(compile_command)
-
-    # Run Biber without changing directory
-    biber_command = f"biber ./latex/{instruction_name}"
-    logging.info(f"Running Biber: {biber_command}")
-    os.system(biber_command)
-
-    # Run LaTeX again (twice) to resolve references
-    logging.info("Running second LaTeX pass...")
-    os.system(compile_command)
-
-    logging.info("Running final LaTeX pass...")
-    result = os.system(compile_command)
-
-    # Check if PDF was created before trying to copy it
-    pdf_path = f"./latex/{instruction_name}.pdf"
-    if os.path.exists(pdf_path):
-        shutil.copy(pdf_path, f"./responses/{instruction_name}.pdf")
-        logging.info(f"PDF saved to ./responses/{instruction_name}.pdf")
-    else:
-        logging.warning(f"LaTeX compilation failed for {instruction_name}")
-        logging.info("Copying over log file")
-        shutil.copy(f"./latex/{instruction_name}.log", f"./responses/{instruction_name}.log")
-
+import anthropic
+from openai import OpenAI
+import glob
 
 def print_wrapped(text, width=70):
     """
@@ -101,176 +33,378 @@ def print_wrapped(text, width=70):
         # Print a blank line to preserve paragraph separation
         print() 
 
-# Check if running in Jupyter notebook or as a script
-def is_jupyter():
-    try:
-        # This will only exist in Jupyter environments
-        shell = get_ipython().__class__.__name__
-        if shell == 'ZMQInteractiveShell':  # Jupyter notebook or qtconsole
-            return True
-        elif shell == 'TerminalInteractiveShell':  # IPython terminal
-            return False
-        else:
-            return False
-    except NameError:  # Not in an IPython environment
-        return False
+# functions
 
-def calculate_costs(response, model_name, max_tokens, thinking_budget):
-    """Calculate token usage and costs for Anthropic API calls.
-    
-    Args:
-        response: The response object from Anthropic API
-        model_name: Name of the model used (e.g., "claude-3-7-sonnet-20250219")
-        max_tokens: Maximum tokens allowed for the response
-        thinking_budget: Budget tokens for thinking mode
-        
-    Returns:
-        tuple: A tuple containing (cost_dict, cost_summary) where:
-            - cost_dict: Dictionary containing token usage and cost information
-            - cost_summary: String containing formatted token usage and cost information
+# docs: 
+# https://docs.anthropic.com/en/docs/about-claude/models/all-models?q=sonnet+maximum+input#model-names
+
+MODEL_CONFIG = {
+    "sonnet": {
+        "input":   3.0*10**-6,  # $3 per M tokens
+        "output": 15.0*10**-6,  # $15 per M tokens
+        "type": "anthropic",
+        "full_name": "claude-3-7-sonnet-20250219",
+        "max_output_tokens": 8192,
+        "max_thinking_tokens": 8192
+    },
+    "haiku": {
+        "input": 0.8*10**-6,   
+        "output": 4.0*10**-6,
+        "type": "anthropic",
+        "full_name": "claude-3-5-haiku-20241022",
+        "max_output_tokens": 8192,
+        "max_thinking_tokens": 0
+    },
+    "o1": {
+        "input": 15.0*10**-6,   
+        "output": 60.0*10**-6,  
+        "type": "openai",
+        "full_name": "o1",
+        "max_output_tokens": 8192
+    },
+    "o3-mini": {
+        "input":   1.10*10**-6,   
+        "output": 4.40*10**-6,  
+        "type": "openai",
+        "full_name": "o3-mini",
+        "max_output_tokens": 8192
+    }
+}
+
+
+def assemble_prompt(instructions, context_files=None):
     """
-    # Model pricing information
-    MODEL_PRICES = {
-        "sonnet": {
-            "input":   3.0*10**-6,  # $3 per M tokens
-            "output": 15.0*10**-6,  # $15 per M tokens
-        },
-        "haiku": {
-            "input": 0.8*10**-6,   
-            "output": 4.0*10**-6,  
-        }
+    Assembles a prompt from instructions and optional context files
+    Args:
+        instructions (str): The main instructions/query
+        context_files (list): Optional list of context file paths starting with @
+    Returns:
+        str: Assembled prompt
+    """
+    prompt_parts = []
+    
+    # Add context if provided
+    if context_files:
+        for file in context_files:
+            with open(file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                prompt_parts.append(f"<context name=\"{file}\">\n{content}\n</context>")
+    
+    # Add instructions
+    prompt_parts.append(f"<instructions>\n{instructions}\n</instructions>")
+    
+    return "\n\n".join(prompt_parts)
+
+def query_claude(model_name, full_prompt, system_prompt, max_tokens, thinking_budget, temperature):
+    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+    # set the model config
+    config = MODEL_CONFIG[model_name]
+    model_full_name = config["full_name"]
+    max_tokens = min(max_tokens, config["max_output_tokens"])
+    thinking_budget = min(thinking_budget, config["max_thinking_tokens"])
+
+    # set llm input parameters
+    params = {
+        "model": model_full_name,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text", 
+                        "text": full_prompt
+                    }
+                ]
+            }
+        ]
     }
 
-    # Find matching model based on substring
-    matching_model = None
-    for model_key in MODEL_PRICES:
-        if model_key in model_name.lower():
-            matching_model = model_key
-            break
-    
-    if matching_model is None:
-        raise ValueError(f"No matching model found for {model_name}")
+    # set system prompt if enabled
+    if system_prompt:
+        params["system"] = system_prompt
 
-    # Get token counts from response
-    input_tokens = response.usage.input_tokens
-    output_tokens = response.usage.output_tokens
-    total_tokens = input_tokens + output_tokens
+    # set thinking budget if enabled
+    if thinking_budget > 0:
+        params["thinking"] = {
+            "type": "enabled",
+            "budget_tokens": thinking_budget
+        }
+        params["temperature"] = 1.0
+
+    response = ""
+    with client.messages.stream(**params) as stream:
+        for text in stream.text_stream:
+            response += text
+            print(text, end='', flush=True)
+
+    final_response = stream.get_final_message()
     
     # Calculate costs
-    input_cost = input_tokens * MODEL_PRICES[matching_model]["input"]
-    output_cost = output_tokens * MODEL_PRICES[matching_model]["output"]
-    total_cost = input_cost + output_cost       
-
-    # Create dictionary format
-    cost_dict = {
-        "model": {
-            "name": model_name,
-            "type": matching_model
-        },
-        "token_usage": {
-            "input_tokens": input_tokens,
-            "output_tokens": output_tokens,
-            "max_tokens": max_tokens,
-            "thinking_budget": thinking_budget,
-            "total_tokens": total_tokens
-        },
-        "costs": {
-            "input_cost": input_cost,
-            "output_cost": output_cost,
-            "total_cost": total_cost
-        }
+    input_cost = final_response.usage.input_tokens * config["input"]
+    output_cost = final_response.usage.output_tokens * config["output"]
+    total_cost = input_cost + output_cost
+    
+    return {
+        "response": response,
+        "input_tokens": final_response.usage.input_tokens,
+        "output_tokens": final_response.usage.output_tokens,
+        "input_cost": input_cost,
+        "output_cost": output_cost,
+        "total_cost": total_cost
     }
 
-    # Format cost summary string
-    cost_summary = f"""
-    %% MODEL INFO
-    % Model name: {model_name}
-    % Model type: {matching_model}
-    %% TOKEN USAGE
-    % Input tokens: {input_tokens}
-    % Output tokens: {output_tokens}
-    % max_tokens: {max_tokens}
-    % thinking_budget: {thinking_budget}
-    %% COSTS        
-    % Total tokens: {total_tokens}
-    % Input cost: ${input_cost:.2f}
-    % Output cost: ${output_cost:.2f}
-    % Total cost: ${total_cost:.2f}
+def query_openai(model_name, full_prompt, system_prompt, max_tokens):
+    client = OpenAI()
+
+    # add system prompt before full_prompt with tags
+    full_prompt2 = f"<system>\n{system_prompt}\n</system>\n\n<user>\n{full_prompt}\n</user>"
+
+    params = {
+        "model": MODEL_CONFIG[model_name]["full_name"],
+        "max_completion_tokens": max_tokens,
+        "messages": [
+            {
+                "role": "user", 
+                "content": full_prompt2
+            }
+        ]
+    }
+
+    final_response = client.chat.completions.create(**params)
+    
+    # Calculate costs
+    config = MODEL_CONFIG[model_name]
+    input_cost = final_response.usage.prompt_tokens * config["input"]
+    output_cost = final_response.usage.completion_tokens * config["output"]
+    total_cost = input_cost + output_cost
+
+    return {
+        "response": final_response.choices[0].message.content,
+        "input_tokens": final_response.usage.prompt_tokens,
+        "output_tokens": final_response.usage.completion_tokens,
+        "input_cost": input_cost,
+        "output_cost": output_cost,
+        "total_cost": total_cost
+    }
+
+def convert_to_texinput(response_raw, par_per_chunk=4, model_name="haiku"):
     """
-
-    return cost_dict, cost_summary
-
-def save_cost_table(cost_df, output_path='./responses/cost_tracking.md'):
-    """Format and save a DataFrame as a nicely spaced markdown table.
+    Converts raw text response to latex format using an LLM
     
     Args:
-        cost_df (pd.DataFrame): DataFrame containing cost tracking information
-        output_path (str): Path where to save the markdown table
+        response_raw (str): Raw text to convert to latex
+        par_per_chunk (int): Number of sections to combine into each chunk
+        model_name (str): Name of the model to use for conversion
+        
+    Returns:
+        dict: Contains converted latex response and usage statistics
     """
-    # round all values to 3 decimal places
-    cost_df = cost_df.round(3)
-
-    # -- clean up --
-    cost_df = cost_df.drop(columns=["timestamp", "model_type"])
-
-    # make token df
-    token_df = cost_df[['instruction_name', 'model_name', 'input_tokens', 'output_tokens', 'total_tokens', 'max_tokens']]
-    token_df = token_df.rename(columns={
-        'input_tokens': 'input',
-        'output_tokens': 'output',
-        'total_tokens': 'total',
-        'max_tokens': 'max'
-    })
-    token_df['type'] = 'tokens'
-
-    # make cost only df
-    cost_df2 = cost_df[['instruction_name', 'model_name', 'input_cost', 'output_cost', 'total_cost', 'max_cost']]
-    cost_df2 = cost_df2.rename(columns={
-        'input_cost': 'input',
-        'output_cost': 'output',
-        'total_cost': 'total',
-        'max_cost': 'max'
-    })
-    cost_df2['type'] = 'cost'
-
-    # append and sort
-    cost_df_clean = pd.concat([token_df, cost_df2])
-    cost_df_clean = cost_df_clean.sort_values(by=['instruction_name', 'model_name', 'type'], ascending=[True, True, False])    
-
-    # shorten the model_name to 20 characters
-    cost_df_clean['model_name'] = cost_df_clean['model_name'].apply(lambda x: x[:20] if len(x) > 20 else x)
+    # Initialize return structure
+    llmdat_tex = {
+        "response": "",
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "input_cost": 0.0,
+        "output_cost": 0.0,
+        "total_cost": 0.0
+    }
     
-    def format_table_row(row, col_widths):
-        return '| ' + ' | '.join(f"{str(val):{width}}" for val, width in zip(row, col_widths)) + ' |'
+    # chunk the response into sections
+    paragraphs = response_raw.split('\n\n')    
+    par_per_chunk = min(par_per_chunk, len(paragraphs))
+    sections = [paragraphs[i:i+par_per_chunk] for i in range(0, len(paragraphs), par_per_chunk)]
+    
+    tex_sections = []
+    for i, section in enumerate(sections):
+        print(f"convert to latex: {i+1} of {len(sections)}")
+        
+        prompt_tex = f"""
+        <document>
+        {section}
+        </document>
 
-    # Calculate column widths based on maximum content length
-    col_widths = {}
-    for col in cost_df_clean.columns:
-        # Get max length of column name and values
-        max_val_length = max(
-            len(str(val)) for val in cost_df_clean[col].astype(str)
+        <instructions>
+        Convert the document to latex. Respond with only latex input (no document environment). Use align environments for standalone math and dollar signs for in-line math. Preserve all original text.
+        </instructions>
+        """
+
+        # use an llm to convert to latex
+        temp_out = query_claude(
+            model_name, 
+            prompt_tex, 
+            max_tokens=20000, 
+            temperature=0.2, 
+            system_prompt="Output only latex code.", 
+            thinking_budget=0
         )
-        col_widths[col] = max(len(col), max_val_length)
 
-    # Sum total_cost across all instruction_name
-    grand_total = cost_df['total_cost'].sum()
+        # accumulate the costs and tokens
+        llmdat_tex["input_tokens"] += temp_out["input_tokens"]
+        llmdat_tex["output_tokens"] += temp_out["output_tokens"]
+        llmdat_tex["input_cost"] += temp_out["input_cost"]
+        llmdat_tex["output_cost"] += temp_out["output_cost"]
+        llmdat_tex["total_cost"] += temp_out["total_cost"]
+        
+        # collect the latex sections
+        tex_sections.append(temp_out["response"])
 
-    # Create markdown table content
-    md_content = []
+    # combine all sections into final response
+    llmdat_tex["response"] = "\n\n".join(tex_sections)
     
-    # Add total across queries at the top
-    md_content.append(f"**Total Cost Across Queries**: ${grand_total:.3f}\n")
-    
-    # Header
-    headers = list(cost_df_clean.columns)
-    md_content.append(format_table_row(headers, [col_widths[col] for col in headers]))
-    # Separator
-    md_content.append('|' + '|'.join('-' * (col_widths[col] + 2) for col in headers) + '|')
-    # Data rows
-    for _, row in cost_df_clean.iterrows():
-        md_content.append(format_table_row(row, [col_widths[col] for col in headers]))
+    return llmdat_tex
 
-    # Save markdown table
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write('\n'.join(md_content))
+def save_costs(prompts, index, llmdat, llmdat_texinput, latex_model):
+    # save cost data for both llmdat and llmdat_texinput
+    costs_data = {
+        'Operation': ['Main', 'LaTeX'],
+        'Model': [prompts[index]['model_name'], latex_model],
+        'Input_Tokens': [llmdat['input_tokens'], llmdat_texinput['input_tokens']],
+        'Output_Tokens': [llmdat['output_tokens'], llmdat_texinput['output_tokens']],
+        'Input_Cost': [llmdat['input_cost'], llmdat_texinput['input_cost']],
+        'Output_Cost': [llmdat['output_cost'], llmdat_texinput['output_cost']],
+        'Total_Cost': [llmdat['total_cost'], llmdat_texinput['total_cost']]
+    }
+    
+    cost_df = pd.DataFrame(costs_data)
+    
+    # Format numeric columns
+    cost_df['Input_Tokens'] = cost_df['Input_Tokens'].apply(lambda x: f"{x:,}")
+    cost_df['Output_Tokens'] = cost_df['Output_Tokens'].apply(lambda x: f"{x:,}")
+    cost_df['Input_Cost'] = cost_df['Input_Cost'].apply(lambda x: f"${x:.4f}")
+    cost_df['Output_Cost'] = cost_df['Output_Cost'].apply(lambda x: f"${x:.4f}")
+    cost_df['Total_Cost'] = cost_df['Total_Cost'].apply(lambda x: f"${x:.4f}")
+
+    # Save DataFrame with formatted columns
+    with open(f"./responses/{prompts[index]['name']}-costs.txt", "w", encoding="utf-8") as f:
+        f.write(cost_df.to_string(
+            index=False,
+            justify='left',
+            col_space={
+                'Operation': 10,
+                'Model': 10,
+                'Input_Tokens': 15,
+                'Output_Tokens': 15,
+                'Input_Cost': 12,
+                'Output_Cost': 12,
+                'Total_Cost': 12
+            }
+        ))        
+    
+    return cost_df
+
+
+def aggregate_costs():
+    """
+    Aggregates costs from all *-costs.txt files in the responses directory.
+    
+    Returns:
+        tuple: (costs_df, grand_total) where:
+            - costs_df: DataFrame containing all cost data
+            - grand_total: float of total costs across all files
+    """
+    # find all *costs.txt files
+    costs_files = glob.glob("./responses/*-costs.txt")
+    
+    # read all costs files into a dataframe
+    costs_data = []
+    for cost_file in costs_files:
+        # Read the file into a DataFrame with explicit column names
+        df = pd.read_csv(cost_file, delim_whitespace=True, 
+                        names=['Operation', 'Model', 'Input_Tokens', 'Output_Tokens', 
+                              'Input_Cost', 'Output_Cost', 'Total_Cost'])
+        
+        # Add filename as reference
+        df['filename'] = os.path.basename(cost_file)
+        
+        # Clean up numeric columns - handle both string and numeric values
+        for col in ['Input_Tokens', 'Output_Tokens']:
+            if df[col].dtype == 'object':  # Only process if it's a string column
+                df[col] = df[col].str.replace(',', '')
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+                
+        for col in ['Input_Cost', 'Output_Cost', 'Total_Cost']:
+            if df[col].dtype == 'object':  # Only process if it's a string column
+                df[col] = df[col].str.replace('$', '')
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        costs_data.append(df)
+    
+    # Combine all dataframes
+    costs_df = pd.concat(costs_data, ignore_index=True)
+    
+    # Reorder columns to match the original format
+    column_order = ['filename', 'Operation', 'Model', 'Input_Tokens', 'Output_Tokens', 
+                   'Input_Cost', 'Output_Cost', 'Total_Cost']
+    costs_df = costs_df[column_order]
+    
+    # Format numeric columns for display
+    costs_df['Input_Tokens'] = costs_df['Input_Tokens'].apply(lambda x: f"{x:,.0f}")
+    costs_df['Output_Tokens'] = costs_df['Output_Tokens'].apply(lambda x: f"{x:,.0f}")
+    costs_df['Input_Cost'] = costs_df['Input_Cost'].apply(lambda x: f"${x:.4f}")
+    costs_df['Output_Cost'] = costs_df['Output_Cost'].apply(lambda x: f"${x:.4f}")
+    costs_df['Total_Cost'] = costs_df['Total_Cost'].apply(lambda x: f"${x:.4f}")
+    
+    # Calculate grand total using numeric values
+    grand_total = pd.to_numeric(costs_df['Total_Cost'].str.replace('$', ''), errors='coerce').sum()
+    
+    return costs_df, grand_total
+
+def texinput_to_pdf(texinput, pdf_fname):    
+    
+    # -- plug clean texinput into latex template --
+    with open("./input-other/template.tex", "r", encoding="utf-8") as file:
+        latex_template = file.read()
+
+    # Replace the marker with the texinput instead of an \input command
+    full_tex = latex_template.replace("% [input-goes-here]", texinput)
+
+    # Ensure we write with UTF-8 encoding
+    with open(f"./responses/{pdf_fname}.tex", "w", encoding="utf-8") as file:
+        file.write(full_tex)
+    
+    # -- clean aux files --
+    aux_files = [
+        f"{pdf_fname}.aux",
+        f"{pdf_fname}.bbl",
+        f"{pdf_fname}.blg",
+        f"{pdf_fname}.out",
+        f"{pdf_fname}.toc",
+        f"{pdf_fname}.lof",
+        f"{pdf_fname}.lot",
+        f"{pdf_fname}.bcf",
+        f"{pdf_fname}.run.xml"
+    ]
+
+    for file in aux_files:
+        if os.path.exists(file):
+            os.remove(file)
+    
+    # -- compile --
+    # Compile with bibliography support
+    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./responses ./responses/{pdf_fname}.tex"
+    print(f"Running first LaTeX pass: {compile_command}")
+    os.system(compile_command)
+
+    # Run Biber without changing directory
+    biber_command = f"biber ./responses/{pdf_fname}"
+    print(f"Running Biber: {biber_command}")
+    os.system(biber_command)
+
+    # Run LaTeX again (twice) to resolve references
+    print("Running second LaTeX pass...")
+    os.system(compile_command)
+
+    print("Running final LaTeX pass...")
+    result = os.system(compile_command)
+    print(f"LaTeX compilation result: {result}")
+
+    # remove aux files if compilation was successful
+    if result == 0:
+        print("Removing aux files...")
+        for file in aux_files:
+            print(f"Removing {file}...")
+            if os.path.exists(file):
+                os.remove(file)

@@ -1,59 +1,52 @@
 config:
   run_range:
     start: 1
-    end: 2
+    end: 9
   temperature: 0.5
-  api_provider: anthropic
   system_prompt: |
     You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step.
 
-    Respond with only latex input (no document environment). Format the math nicely, using align environments when appropriate, but do not define new environments or commands.
-
-    Respond with only new content. Do not repeat anything in the context.    
-
 prompts:
   - number: 1
-    name: planning-01
-    include_lit: false
-    model_name: claude-3-5-haiku-20241022
+    name: 01-model
+    model_name: haiku
     max_tokens: 4000
     thinking_budget: 0
     instructions: |
       consider a simplified barro rietz disaster risk asset pricing model. consumption growth is either 0 or -b, i.i.d. CRRA utility. derive the price/dividend ratio and expected return of the consumption claim. 
-
-      In the exposition, the consumption disaster represents not just goods and services, but also the loss of a way of life, meaning and purpose.
+    lit_files: 
+      - lit-03-disaster-risk.txt
 
   - number: 2
-    name: planning-02
-    include_lit: false
-    model_name: claude-3-5-haiku-20241022
+    name: 02-results
+    model_name: haiku
     max_tokens: 4000
     thinking_budget: 0
     instructions: |
       Now consider an "AI asset" that pays 1% of consumption in periods without a disaster, and 50% of consumption if there is a disaster.  derive the price/dividend ratio and expected return of the AI asset.
+    lit_files:
+      - lit-03-disaster-risk.txt
 
   - number: 3
-    name: planning-03
-    include_lit: false
-    model_name: claude-3-5-haiku-20241022
+    name: 03-discussion
+    model_name: haiku
     max_tokens: 4000
     thinking_budget: 0
     instructions: |
       Consider how the expected return of the AI asset depends on the disaster probability. Discuss the worst case.
 
+
   - number: 4
-    name: planning-04
-    include_lit: true
-    model_name: claude-3-7-sonnet-20250219
+    name: 04-lit
+    model_name: sonnet
     max_tokens: 4000
     thinking_budget: 0
     instructions: |
       Find the most relevant papers and write a short two paragraph lit review.
 
   - number: 5
-    name: planning-05
-    include_lit: true
-    model_name: claude-3-7-sonnet-20250219
+    name: 05-intro
+    model_name: sonnet
     max_tokens: 4000
     thinking_budget: 0
     instructions: |
@@ -71,8 +64,7 @@ prompts:
 
   - number: 6
     name: full-paper
-    include_lit: true
-    model_name: claude-3-7-sonnet-20250219
+    model_name: sonnet
     max_tokens: 10000
     thinking_budget: 0
     instructions: |

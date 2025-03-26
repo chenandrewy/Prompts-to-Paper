@@ -8,318 +8,28 @@ from dotenv import load_dotenv
 from datetime import datetime
 import pandas as pd
 import anthropic  # Add anthropic import
-from utils import texinput_to_pdf, calculate_costs, save_cost_table, print_wrapped
+from utils import MODEL_CONFIG, print_wrapped, assemble_prompt, query_claude, query_openai, convert_to_texinput, texinput_to_pdf
+from utils import save_costs, aggregate_costs
 import yaml
 import logging
-
-# Custom handler for streaming output
-class StreamHandler(logging.Handler):
-    def __init__(self, stream):
-        super().__init__()
-        self.stream = stream
-
-    def emit(self, record):
-        try:
-            msg = self.format(record)
-            self.stream.write(msg)
-            self.stream.flush()
-        except Exception:
-            self.handleError(record)
-
-# Load environment variables from .env file 
-load_dotenv()
+from importlib import reload
 
 # User
 # plan_name = "prompts-try2"
 # plan_name = "prompts-try1"
 plan_name = "prompts-test"
 
-# Global (tbc: make it nicer somehow?)
-lit_folder = "./lit-context"
-
-# Configure logging
-log_filename = f"logs/{plan_name}-{datetime.now().strftime('%Y-%m-%d')}-{datetime.now().strftime('%Hh-%Mm')}.log"
-os.makedirs("logs", exist_ok=True)
-
-# Create formatters
-file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-stream_formatter = logging.Formatter('%(message)s')  # No timestamp for streaming output
-
-# Create handlers
-file_handler = logging.FileHandler(log_filename, encoding='utf-8')
-file_handler.setFormatter(file_formatter)
-
-stream_handler = StreamHandler(sys.stdout)
-stream_handler.setFormatter(stream_formatter)
-
-# Configure root logger
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger().addHandler(file_handler)
-logging.getLogger().addHandler(stream_handler)
-
-#%%
-# Functions
-
-def generate_prompt(instruction_name, instructions, context_names=None, add_lit=False, 
-                   lit_folder="./prompts", response_folder="./responses", response_ext=".tex"):
-    """Generate a full prompt by combining instructions with context.
-    
-    Args:
-        instruction_name: Name of the prompt file (without extension)
-        instructions: The actual instructions text to send to the model
-        context_names: List of context file names (without extension), or None for no context
-        add_lit: Whether to include literature context
-        lit_folder: Directory containing prompt files
-        response_folder: Directory containing response files
-        response_ext: File extension for response files
-        
-    Returns:
-        str: The combined prompt with all context
-    """
-    # Read the contexts if specified
-    combined_context = ""
-    if context_names:
-        # Handle both string and list inputs for backward compatibility
-        if isinstance(context_names, str) and context_names != "none":
-            context_names = [context_names]
-        elif isinstance(context_names, str) and context_names == "none":
-            context_names = []
-            
-        for context_name in context_names:
-            context_path = os.path.join(response_folder, context_name + "-texinput" + response_ext)
-            if os.path.exists(context_path):
-                logging.info(f"Reading context from {context_path}...")
-                with open(context_path, 'r', encoding='utf-8') as file:
-                    context_content = file.read()
-                combined_context += f"<context file='{context_name}'>\n{context_content}\n</context>\n\n"
-            else:
-                # Error out if context file is not found
-                raise FileNotFoundError(f"Context file not found: {context_path}")
-
-    # add literature context if requested
-    if add_lit:
-        # find all lit files in prompts folder
-        lit_files = [f for f in os.listdir(lit_folder) if f.startswith("lit-") and f.endswith(".txt")]
-
-        # if no lit files, error out
-        if not lit_files:
-            raise FileNotFoundError("No lit files found in prompts folder")
-
-        # read in lit files
-        for lit_file in lit_files:
-            lit_path = os.path.join(lit_folder, lit_file)
-            logging.info(f"Reading lit from {lit_path}...")
-            with open(lit_path, 'r', encoding='utf-8') as file:
-                lit_content = file.read()
-            combined_context += f"<literature file='{lit_file}'>\n{lit_content}\n</literature>\n\n"
-
-    # Prepare the full prompt with context if provided
-    full_prompt = instructions
-    if combined_context:
-        full_prompt = f"<initial_instructions>\n{instructions}\n</initial_instructions>\n\n" \
-                     f"{combined_context}\n\n" \
-                     f"<final_instructions>\n{instructions}\n</final_instructions>"
-    
-    # save full prompt to responses folder
-    temp_prompt_path = os.path.join(response_folder, f"{instruction_name}-full-prompt.txt")
-    with open(temp_prompt_path, "w", encoding="utf-8") as file:
-        file.write(full_prompt)
-        
-    return full_prompt
-
-def query_llm(instruction_name, full_prompt, api_provider="replicate", model_name="anthropic/claude-3.7-sonnet", 
-              thinking_budget=0, max_tokens=4000, temperature=0.5):
-    """Query an llm
-    
-    Args:
-        instruction_name: Name of the prompt file (without extension)
-        full_prompt: The complete prompt to send to the model
-        api_provider: API provider to use ('replicate' or 'anthropic')
-        model_name: Model version to use (e.g., "claude-3.7-sonnet", "claude-3.5-sonnet", etc.)
-        thinking_budget: Budget tokens for thinking mode. If > 0, enables thinking mode with specified budget (default: 0)
-        max_tokens: Maximum number of tokens to generate
-        temperature: Temperature parameter for generation
-    """
-    # convert pandas integers to native python
-    max_tokens = int(max_tokens)
-    thinking_budget = int(thinking_budget)
-
-    # Argument check
-    if (thinking_budget > 0) & (temperature != 1):
-        logging.warning("Thinking mode is enabled, but temperature is not 1. Setting temperature to 1.")
-        temperature = 1
-
-    if thinking_budget >= max_tokens:
-        logging.warning(f"Thinking budget ({thinking_budget}) cannot be greater than max tokens ({max_tokens}). Setting thinking budget equal to 1/2 of max tokens.")
-        thinking_budget = max_tokens // 2
-    
-    if (thinking_budget > 0) & (thinking_budget < 1024):
-        logging.warning(f"Thinking budget ({thinking_budget}) is less than 1024. Setting thinking budget to 1024.")
-        thinking_budget = 1024    
-
-    if (model_name == "claude-3-5-haiku-20241022"):
-        if max_tokens > 8192:
-            logging.warning("claude-3-5-haiku-20241022 has a context window of 8192 tokens. Setting max_tokens to 8192.")
-            max_tokens = 8192
-        if thinking_budget > 0:
-            logging.warning("claude-3-5-haiku-20241022 does not support thinking mode. Setting thinking budget to 0.")
-            thinking_budget = 0
-
-    # Get system prompt from YAML config if it exists
-    system_prompt = None
-    if "system_prompt" in config:
-        logging.info("Using system prompt from YAML config...")
-        system_prompt = config["system_prompt"]
-
-    # Process based on API provider
-    if api_provider.lower() == 'replicate':
-        # Replicate API
-        logging.info(f"Using Replicate model: {model_name}")
-        
-        # Prepare input parameters
-        input_params = {
-            "prompt": full_prompt,
-            "max_tokens": max_tokens,
-            "temperature": temperature
-        }
-        
-        # Add system prompt if provided
-        if system_prompt:
-            input_params["system"] = system_prompt
-        
-        # Run the model
-        output = replicate.run(
-            model_name,
-            input=input_params
-        )
-        
-        # Collect the output
-        result = ""
-        for item in output:
-            result += item
-            logging.info(item)  # Changed from print to logging
-            
-    elif api_provider.lower() == 'anthropic':
-        # Anthropic API
-        # Create Anthropic client
-        client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-        
-        # Extract the model name from the full model string if needed
-        anthropic_model = model_name
-        if "/" in anthropic_model:
-            anthropic_model = anthropic_model.split("/")[-1]
-        
-        logging.info(f"Using Anthropic model: {anthropic_model}")
-        if thinking_budget > 0:
-            logging.info(f"Thinking mode: enabled with budget {thinking_budget} tokens")
-        else:
-            logging.info("Thinking mode: disabled")
-        logging.info(f"First 1000 characters of full prompt: {full_prompt[:1000]}")
-        
-        # Prepare common parameters
-        params = {
-            "model": anthropic_model,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text", 
-                            "text": full_prompt
-                        }
-                    ]
-                }
-            ]
-        }
-        
-        # Add system prompt if provided
-        if system_prompt:
-            params["system"] = system_prompt
-        
-        # Add thinking parameters if budget > 0
-        if thinking_budget > 0:
-            params["thinking"] = {
-                "type": "enabled",
-                "budget_tokens": thinking_budget
-            }
-        
-        # Call the API with streaming
-        logging.info(f"Thinking budget: {thinking_budget}")
-        logging.info(f"Max tokens: {max_tokens}")
-        
-        result = ""
-        with client.messages.stream(**params) as stream:
-            for text in stream.text_stream:
-                result += text
-                logging.info(text)  # Changed from print to logging
-
-        # Calculate costs using the utility function
-        cost_dict, cost_summary = calculate_costs(stream.get_final_message(), anthropic_model, max_tokens, thinking_budget)        
-
-        # Print cost information
-        logging.info("\nCost Summary:")
-        logging.info(f"Model: {cost_dict['model']['name']} ({cost_dict['model']['type']})")
-        logging.info(f"Total tokens: {cost_dict['token_usage']['total_tokens']}")
-        logging.info(f"Total cost: ${cost_dict['costs']['total_cost']:.2f}")
-
-        if cost_dict['token_usage']['output_tokens'] >= 0.95 * max_tokens:
-            logging.warning(f"Max tokens were nearly reached. Output tokens: {cost_dict['token_usage']['output_tokens']}, Max tokens: {max_tokens}")
-
-    else:
-        raise ValueError(f"Unsupported API provider: {api_provider}")
-    
-    return result, instruction_name, cost_dict
-
-def save_response(response, instruction_name, output_dir="./responses", file_ext=".tex"):
-    """Save the model's response to a file.
-    
-    Args:
-        response: The text response from Claude
-        instruction_name: Name of the prompt used (for filename)
-        output_dir: Directory to save the response
-        file_ext: File extension for the output file
-    """
-
-    # -- save latex input file --
-    # Create the base output file path
-    output_file = f"{output_dir}/{instruction_name}-texinput{file_ext}"
-    
-    # Create the directory if it doesn't exist
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
-    with open(output_file, 'w', encoding='utf-8') as file:
-        file.write(response)
-    logging.info(f"\n\nResponse saved to {output_file}")      
- 
-
 #%%
 # SETUP
 
 # Load all config and prompts
 with open(f"{plan_name}.yaml", "r") as f:
-    settings = yaml.safe_load(f)
+    temp = yaml.safe_load(f)
 
-# Get config
-config = settings["config"]
-api_provider = config["api_provider"]
+config = temp["config"]
+prompts = temp["prompts"]
 
-# Create DataFrame from YAML data
-plan_df = pd.DataFrame(settings["prompts"])
 
-# Sort by number to ensure correct order
-plan_df = plan_df.sort_values("number").reset_index(drop=True)
-
-# Fix run range
-plan_start = max(int(config["run_range"]["start"]), plan_df["number"].min())
-plan_end = min(int(config["run_range"]["end"]), plan_df["number"].max())
-
-# Find index for start
-index_start = plan_df[plan_df["number"] == plan_start].index[0] 
-index_end = plan_df[plan_df["number"] == plan_end].index[0]
-
-logging.info(f"Processing plan prompts from {plan_start} to {plan_df['number'].iloc[index_end]}")
 
 #%%
 # LOOP OVER PROMPTS
@@ -328,99 +38,130 @@ logging.info(f"Processing plan prompts from {plan_start} to {plan_df['number'].i
 # Initialize an empty list to store all cost dictionaries
 all_costs = []
 
+index_start = config["run_range"]["start"]-1
+index_end = min(config["run_range"]["end"]-1, len(prompts))
+
+
 # loop over plan prompts
 for index in range(index_start, index_end+1):    
-    # Set context
-    if index == 0:
-        context_names = "none"
+# for index in [0]:
+    
+    print("================================================")
+    print(f"Processing prompt number {index+1}...")
+
+    print("Assembling context")
+    print(f"Instructions: {prompts[index]['instructions']}")
+    print(f"Lit files: {prompts[index]['lit_files']}")
+    
+    # Previous responses context
+    prev_responses = [prompt["name"] for prompt in prompts[:index]]
+    prev_responses = [f"./responses/{fname}-response.md" for fname in prev_responses]
+
+
+    # Literature context
+    if "lit_files" in prompts[index]:
+        lit_files = prompts[index]["lit_files"]
+        lit_files = [f"./lit-context/{fname}" for fname in lit_files]
     else:
-        # Use all previous prompt outputs as context
-        context_names = plan_df["name"].iloc[:index].tolist()
-
-    logging.info("================================================")
-    logging.info(f"Processing prompt number {plan_df['number'][index]}...")
-
-    # extract instructions and parameters
-    instructions = plan_df["instructions"][index]
-    
-    # Require max_tokens and thinking_budget in YAML
-    if "max_tokens" not in plan_df.columns or "thinking_budget" not in plan_df.columns:
-        raise ValueError("YAML must specify max_tokens and thinking_budget for each prompt")
-    
-    prompt_max_tokens = plan_df["max_tokens"].iloc[index]
-    prompt_thinking_budget = plan_df["thinking_budget"].iloc[index]
-
-    # Feedback
-    logging.info(f"Instructions: {instructions}")
-    logging.info(f"Context: {context_names}")
-    logging.info(f"Max tokens: {prompt_max_tokens}")
-    logging.info(f"Thinking budget: {prompt_thinking_budget}")
-
-    # Determine if this prompt should include bibliography from YAML
-    add_lit = plan_df["include_lit"][index]
-    logging.info(f"Including literature: {add_lit}")
+        lit_files = []
 
     # Generate the full prompt
-    full_prompt = generate_prompt(
-        instruction_name=plan_df["name"][index],
-        instructions=instructions,
-        context_names=context_names,
-        add_lit=add_lit,
-        lit_folder=lit_folder,
-        response_folder="./responses",
-        response_ext=".tex"
+    full_prompt = assemble_prompt(
+        instructions=prompts[index]["instructions"],
+        context_files=prev_responses + lit_files
     )
+   
+    # save the prompt
+    with open(f"./responses/{prompts[index]['name']}-prompt.xml", "w", encoding="utf-8") as f:
+        f.write(full_prompt)
+
+
+    print(f"Querying {prompts[index]['model_name']}")
 
     # Query the model
-    response, used_instruction_name, cost_dict = query_llm(
-        instruction_name=plan_df["name"][index],
-        full_prompt=full_prompt,
-        api_provider=api_provider,
-        model_name=plan_df["model_name"][index],
-        thinking_budget=prompt_thinking_budget,
-        max_tokens=prompt_max_tokens,
-        temperature=config["temperature"]
+    if MODEL_CONFIG[prompts[index]["model_name"]]["type"] == "anthropic":
+        llmdat = query_claude(
+            model_name=prompts[index]["model_name"],
+            full_prompt=full_prompt,
+            system_prompt=config["system_prompt"],
+            max_tokens=prompts[index]["max_tokens"],
+            temperature=config["temperature"],
+            thinking_budget=prompts[index]["thinking_budget"]
+        )
+    else:
+        llmdat = query_openai(
+            model_name=prompts[index]["model_name"],
+            full_prompt=full_prompt,
+            system_prompt=config["system_prompt"],
+            max_tokens=prompts[index]["max_tokens"],
+        )
+
+    # save the response
+    with open(f"./responses/{prompts[index]['name']}-response.md", "w", encoding="utf-8") as f:
+        f.write(llmdat["response"])
+
+    print(f"Converting to LaTeX")
+
+    # Convert to LaTeX
+    latex_model = "haiku"
+    par_per_chunk = 10
+    llmdat_texinput = convert_to_texinput(
+        response_raw=llmdat["response"],
+        par_per_chunk=par_per_chunk,
+        model_name=latex_model
     )
 
-    # Add prompt name and timestamp to cost_dict
-    cost_dict["instruction_name"] = used_instruction_name
-    cost_dict["timestamp"] = datetime.now()
-    
-    # Append to our collection
-    all_costs.append(cost_dict)
-
-    # Save raw response (texinput)
-    output_file = f"./responses/{used_instruction_name}-texinput.tex"
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
-    with open(output_file, 'w', encoding='utf-8') as file:
-        file.write(response)
-    logging.info(f"\n\nResponse saved to {output_file}")
+    # Save texinput
+    texinput_file = f"./responses/{prompts[index]['name']}-texinput.tex"
+    with open(texinput_file, 'w', encoding='utf-8') as file:
+        file.write(llmdat_texinput["response"])
+    print(f"LaTeX input saved to {texinput_file}")
 
     # Convert to PDF    
-    texinput_to_pdf(used_instruction_name)
+    texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex")
 
-    logging.info("================================================")
+    # here i'm lazy and don't separate the saving
+    save_costs(prompts, index, llmdat, llmdat_texinput, latex_model)
+
+
+    print("================================================")
 
 #%%
-# SAVE COSTS
+# aggregate costs
 
-# After the loop ends, create and save the complete cost dataframe
-cost_df = pd.DataFrame([{
-    'timestamp': cost['timestamp'],
-    'instruction_name': cost['instruction_name'],
-    'model_name': cost['model']['name'],
-    'model_type': cost['model']['type'],
-    'input_tokens': cost['token_usage']['input_tokens'],
-    'output_tokens': cost['token_usage']['output_tokens'],
-    'total_tokens': cost['token_usage']['total_tokens'],
-    'max_tokens': plan_df.loc[plan_df['name'] == cost['instruction_name'], 'max_tokens'].iloc[0],
-    'input_cost': cost['costs']['input_cost'],
-    'output_cost': cost['costs']['output_cost'],
-    'total_cost': cost['costs']['total_cost'],
-    'max_cost': float('nan')  # Using NaN for max_cost as instructed
-} for cost in all_costs])
+import glob
+from io import StringIO
 
-# Save as markdown table
-save_cost_table(cost_df, output_path=f"./responses/{plan_name}-costs.md")
+# remove all-costs.txt if it exists
+if os.path.exists("./responses/all-costs.txt"):
+    os.remove("./responses/all-costs.txt")
+
+# find all *-costs.txt files
+costs_files = glob.glob("./responses/*-costs.txt")
+
+costs_df = pd.DataFrame()
+for file in costs_files:
+    with open(file, "r", encoding="utf-8") as f:
+        text = f.read()
+
+    # remove comma, dollar sign
+    text = text.replace(",", "").replace("$", "")
+
+    # convert to dataframe
+    df = pd.read_csv(StringIO(text), delim_whitespace=True)
+
+    # get just the filename without the path
+    file_clean = os.path.basename(file)
+    df.insert(0, 'filename', file_clean)
+
+    # append to costs_df
+    costs_df = pd.concat([costs_df, df])
+    
+
+# save costs to file
+grand_total = costs_df['Total_Cost'].sum()
+with open(f"./responses/all-costs.txt", "w", encoding="utf-8") as f:
+    f.write(f"Grand Total: ${grand_total:.4f}\n")
+    f.write(costs_df.to_string(index=False))
+
 
