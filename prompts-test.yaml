@@ -1,10 +1,10 @@
 config:
   run_range:
-    start: 4
-    end: 9
+    start: 5
+    end: 5
   temperature: 0.5
   system_prompt: |
-    You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step.
+    You are an asset pricing theorist writing with a team that publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). The team thinks carefully with mathematics and checks its work, step by step.
 
 prompts:
   - number: 1
@@ -14,8 +14,6 @@ prompts:
     thinking_budget: 0
     instructions: |
       consider a simplified barro rietz disaster risk asset pricing model. consumption growth is either 0 or -b, i.i.d. CRRA utility. derive the price/dividend ratio and expected return of the consumption claim. 
-    lit_files: 
-      - lit-03-disaster-risk.txt
 
   - number: 2
     name: 02-results
@@ -24,8 +22,6 @@ prompts:
     thinking_budget: 0
     instructions: |
       Now consider an "AI asset" that pays 1% of consumption in periods without a disaster, and 50% of consumption if there is a disaster.  derive the price/dividend ratio and expected return of the AI asset.
-    lit_files:
-      - lit-03-disaster-risk.txt
 
   - number: 3
     name: 03-discussion
@@ -35,25 +31,8 @@ prompts:
     instructions: |
       Consider how the expected return of the AI asset depends on the disaster probability. Discuss the worst case.
 
-
   - number: 4
-    name: 04-lit
-    model_name: sonnet
-    max_tokens: 4000
-    thinking_budget: 0
-    instructions: |
-      Find the most relevant papers and write a short two paragraph lit review.
-    lit_files:
-    - lit-01-hedging-ai.txt  
-    - lit-02-hedging-labor.txt  
-    - lit-03-disaster-risk.txt  
-    - lit-04-investing-ai.txt  
-    - lit-05-arc-agi.txt  
-    - lit-06-tech-singularity.txt  
-    - lit-07-lucas-trees.txt
-
-  - number: 5
-    name: 05-intro
+    name: 04-intro
     model_name: sonnet
     max_tokens: 4000
     thinking_budget: 0
@@ -62,13 +41,14 @@ prompts:
 
       Start with background. Describe how AI progress is happening quickly, and investors may be concerned about their wages being displaced. 
 
-      Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principal create.      An example is the current paper, which is entirely written by AI, using a few short prompts. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. This differs from say, the internet revolution. AI progress may also be incredibly sudden (the AI singularity).
+      Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principle, create.   An example is the current paper, which is entirely written by AI, using a few short prompts. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. 
 
-      Then describe what the paper does. It studies how AI stocks are priced, given that there is the risk that AI will destroy livelihoods andconsumption. 
+      Then describe what the paper does. It studies how AI stocks are priced, given that there is the risk that AI will destroy livelihoods and consumption. 
 
       Include a footnote noting that "we" refers to one human author and multiple LLMs.
 
-      Cite papers as appropriate. Ensure citations correspond to items from all-bib.
+      Cite papers as appropriate. Ensure citations correspond to items in lit-99-bibtex.txt.
+
     lit_files:
     - lit-01-hedging-ai.txt  
     - lit-02-hedging-labor.txt  
@@ -77,8 +57,9 @@ prompts:
     - lit-05-arc-agi.txt  
     - lit-06-tech-singularity.txt  
     - lit-07-lucas-trees.txt      
+    - lit-99-bibtex.txt
 
-  - number: 6
+  - number: 5
     name: full-paper
     model_name: sonnet
     max_tokens: 10000
@@ -88,11 +69,10 @@ prompts:
 
       Be modest. Do not to over-claim. 
 
-      The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. Include the maketitle command. 
+      The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. 
 
-      Make sure all citations match actual papers in the literature documents. 
+      Make sure all citations match papers in lit-99-bibtex.txt.
 
-      Respond with only latex input (no document environment).
     lit_files:
     - lit-01-hedging-ai.txt  
     - lit-02-hedging-labor.txt  
@@ -101,3 +81,4 @@ prompts:
     - lit-05-arc-agi.txt  
     - lit-06-tech-singularity.txt  
     - lit-07-lucas-trees.txt      
+    - lit-99-bibtex.txt    

@@ -9,6 +9,8 @@ import anthropic
 from openai import OpenAI
 import glob
 import time
+import re
+
 def print_wrapped(text, width=70):
     """
     Prints the input text with word wrapping while preserving paragraph breaks.
@@ -190,7 +192,7 @@ def query_openai(model_name, full_prompt, system_prompt, max_tokens):
         "total_cost": total_cost
     }
 
-def convert_to_texinput(response_raw, par_per_chunk=4, model_name="haiku"):
+def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibtex_raw='./lit-context/lit-99-bibtex.txt'):
     """
     Converts raw text response to latex format using an LLM
     
@@ -198,7 +200,7 @@ def convert_to_texinput(response_raw, par_per_chunk=4, model_name="haiku"):
         response_raw (str): Raw text to convert to latex
         par_per_chunk (int): Number of sections to combine into each chunk
         model_name (str): Name of the model to use for conversion
-        
+        bibtex_raw (str): Path to bibtex file to use for citations
     Returns:
         dict: Contains converted latex response and usage statistics
     """
@@ -211,11 +213,25 @@ def convert_to_texinput(response_raw, par_per_chunk=4, model_name="haiku"):
         "output_cost": 0.0,
         "total_cost": 0.0
     }
+
+    # Replace section numbers in headers (e.g., # 2. Model or ### 2.1 Model Setup)
+    response_raw = re.sub(r'(#{1,3})\s+\d+\.?\d*\.?\s+', r'\1 ', response_raw)
     
-    # chunk the response into sections
-    paragraphs = response_raw.split('\n\n')    
-    par_per_chunk = min(par_per_chunk, len(paragraphs))
-    sections = [paragraphs[i:i+par_per_chunk] for i in range(0, len(paragraphs), par_per_chunk)]
+    # -- chunk the response into sections --
+    sections = re.findall(r'(#|##|###)\s+(.*?)(?=\n(?:#|##|###)|$)', response_raw, re.DOTALL)
+    
+    # concat the # with the section
+    sections = [f"{section[0]} {section[1]}" for section in sections]
+
+    # if no sections, split with paragraphs
+    if len(sections) == 0:
+        paragraphs = response_raw.split('\n\n')
+        par_per_chunk = min(par_per_chunk, len(paragraphs))
+        sections = [paragraphs[i:i+par_per_chunk] for i in range(0, len(paragraphs), par_per_chunk)]
+
+    # read in the bibtex file
+    with open(bibtex_raw, 'r', encoding='utf-8') as f:
+        bibtex_content = f.read()
     
     tex_sections = []
     for i, section in enumerate(sections):
@@ -226,8 +242,18 @@ def convert_to_texinput(response_raw, par_per_chunk=4, model_name="haiku"):
         {section}
         </document>
 
+        <bibtex>
+        {bibtex_content}
+        </bibtex>
+
         <instructions>
-        Convert the document to latex. Respond with only latex input (no document environment). Use align environments for standalone math and dollar signs for in-line math. Preserve all original text.
+        Convert the document to latex. Respond with only latex input (no document environment). 
+
+        Convert markdown headings to latex headings. # becomes \\section, ## becomes \\subsection, ### becomes \\subsubsection. 
+        
+        Use align environments for standalone math and dollar signs for in-line math. 
+        
+        Preserve all original text and do not add any text to the response. Cite from the bibtex file using \\citet{{}} and \\citep{{}}.
         </instructions>
         """
 
@@ -255,6 +281,75 @@ def convert_to_texinput(response_raw, par_per_chunk=4, model_name="haiku"):
     llmdat_tex["response"] = "\n\n".join(tex_sections)
     
     return llmdat_tex
+
+def texinput_to_pdf(texinput, pdf_fname):    
+    
+    # -- plug clean texinput into latex template --
+    with open("./input-other/template.tex", "r", encoding="utf-8") as file:
+        latex_template = file.read()
+
+    # Replace the marker with the texinput instead of an \input command
+    full_tex = latex_template.replace("% [input-goes-here]", texinput)
+
+    # Ensure we write with UTF-8 encoding
+    with open(f"./responses/{pdf_fname}.tex", "w", encoding="utf-8") as file:
+        file.write(full_tex)
+
+    # compile the paper
+    tex_to_pdf(pdf_fname)
+    
+def tex_to_pdf(pdf_fname):
+
+    # -- clean aux files --
+    base_files = [
+        f"{pdf_fname}.aux",
+        f"{pdf_fname}.bbl",
+        f"{pdf_fname}.blg",
+        f"{pdf_fname}.out",
+        f"{pdf_fname}.toc",
+        f"{pdf_fname}.lof",
+        f"{pdf_fname}.lot",
+        f"{pdf_fname}.bcf",
+        f"{pdf_fname}.run.xml"
+    ]
+    aux_files = [f"./responses/{file}" for file in base_files]
+
+    for file in aux_files:
+        if os.path.exists(file):
+            os.remove(file)
+    
+    # -- compile --
+    # Compile with bibliography support
+    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./responses ./responses/{pdf_fname}.tex"
+    print(f"Running first LaTeX pass: {compile_command}")
+    os.system(compile_command)
+
+    # Run Biber without changing directory
+    biber_command = f"biber ./responses/{pdf_fname}"
+    print(f"Running Biber: {biber_command}")
+    os.system(biber_command)
+
+    # Run LaTeX again (twice) to resolve references
+    print("Running second LaTeX pass...")
+    os.system(compile_command)
+
+    print("Running final LaTeX pass...")
+    result = os.system(compile_command)
+    print(f"LaTeX compilation result: {result}")
+
+    # remove aux files if compilation was successful
+    if result == 0:
+        print("Removing aux files...")
+
+        # pause to avoid deleting aux files too quickly
+        time.sleep(0.5)
+
+        for file in aux_files:
+            # print(f"Removing {file}...")
+            if os.path.exists(file):
+                os.remove(file)
+
+
 
 def save_costs(prompts, index, llmdat, llmdat_texinput, latex_model):
     # save cost data for both llmdat and llmdat_texinput
@@ -351,65 +446,3 @@ def aggregate_costs():
     grand_total = pd.to_numeric(costs_df['Total_Cost'].str.replace('$', ''), errors='coerce').sum()
     
     return costs_df, grand_total
-
-def texinput_to_pdf(texinput, pdf_fname):    
-    
-    # -- plug clean texinput into latex template --
-    with open("./input-other/template.tex", "r", encoding="utf-8") as file:
-        latex_template = file.read()
-
-    # Replace the marker with the texinput instead of an \input command
-    full_tex = latex_template.replace("% [input-goes-here]", texinput)
-
-    # Ensure we write with UTF-8 encoding
-    with open(f"./responses/{pdf_fname}.tex", "w", encoding="utf-8") as file:
-        file.write(full_tex)
-    
-    # -- clean aux files --
-    base_files = [
-        f"{pdf_fname}.aux",
-        f"{pdf_fname}.bbl",
-        f"{pdf_fname}.blg",
-        f"{pdf_fname}.out",
-        f"{pdf_fname}.toc",
-        f"{pdf_fname}.lof",
-        f"{pdf_fname}.lot",
-        f"{pdf_fname}.bcf",
-        f"{pdf_fname}.run.xml"
-    ]
-    aux_files = [f"./responses/{file}" for file in base_files]
-
-    for file in aux_files:
-        if os.path.exists(file):
-            os.remove(file)
-    
-    # -- compile --
-    # Compile with bibliography support
-    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./responses ./responses/{pdf_fname}.tex"
-    print(f"Running first LaTeX pass: {compile_command}")
-    os.system(compile_command)
-
-    # Run Biber without changing directory
-    biber_command = f"biber ./responses/{pdf_fname}"
-    print(f"Running Biber: {biber_command}")
-    os.system(biber_command)
-
-    # Run LaTeX again (twice) to resolve references
-    print("Running second LaTeX pass...")
-    os.system(compile_command)
-
-    print("Running final LaTeX pass...")
-    result = os.system(compile_command)
-    print(f"LaTeX compilation result: {result}")
-
-    # remove aux files if compilation was successful
-    if result == 0:
-        print("Removing aux files...")
-
-        # pause to avoid deleting aux files too quickly
-        time.sleep(0.5)
-
-        for file in aux_files:
-            # print(f"Removing {file}...")
-            if os.path.exists(file):
-                os.remove(file)
