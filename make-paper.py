@@ -51,7 +51,8 @@ for index in range(index_start, index_end+1):
 
     print("Assembling context")
     print(f"Instructions: {prompts[index]['instructions']}")
-    print(f"Lit files: {prompts[index]['lit_files']}")
+    if "lit_files" in prompts[index]:
+        print(f"Lit files: {prompts[index]['lit_files']}")
     
     # Previous responses context
     prev_responses = [prompt["name"] for prompt in prompts[:index]]
