@@ -1,5 +1,4 @@
 # Converts AI-generated lit reviews in ./lit-context/lit-*.txt to BibTeX entries.
-# Saves to ./lit-context/lit-99-bibtex.txt and ./input-other/lit-99-bibtex.bib
 
 #%%
 import os
@@ -95,8 +94,8 @@ os.makedirs("./temp", exist_ok=True)
 # Gather all bib*.txt files from prompts directory
 bib_files = sorted(glob.glob("./lit-context/lit-*.txt"))
 
-# remove lit-99-bibtex.txt from list
-bib_files = [f for f in bib_files if "lit-99-bibtex.txt" not in f]
+# remove bibtex-all.bib from list
+bib_files = [f for f in bib_files if "bibtex-all.bib" not in f]
 
 print(f"Found {len(bib_files)} bibliography files.")
 
@@ -138,16 +137,11 @@ for bibtex in all_bibtex:
 # save to file
 
 # save for prompt
-output_path1 = "./lit-context/lit-99-bibtex.txt"
+output_path1 = "./lit-context/bibtex-all.bib"
 with open(output_path1, "w", encoding="utf-8") as f:
     f.write("\n\n".join(all_bibtex_clean))
 
-# save for latex input
-output_path2 = "./input-other/lit-99-bibtex.bib"
-with open(output_path2, "w", encoding="utf-8") as f:
-    f.write("\n\n".join(all_bibtex_clean))        
-
-print(f"\nAll BibTeX entries have been saved to {output_path1} and {output_path2}")
+print(f"\nAll BibTeX entries have been saved to {output_path1}")
 
 
 

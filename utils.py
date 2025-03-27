@@ -46,16 +46,14 @@ MODEL_CONFIG = {
         "output": 15.0*10**-6,  # $15 per M tokens
         "type": "anthropic",
         "full_name": "claude-3-7-sonnet-20250219",
-        "max_output_tokens": 8192,
-        "max_thinking_tokens": 8192
+        "max_output_tokens": 64000
     },
     "haiku": {
         "input": 0.8*10**-6,   
         "output": 4.0*10**-6,
         "type": "anthropic",
         "full_name": "claude-3-5-haiku-20241022",
-        "max_output_tokens": 8192,
-        "max_thinking_tokens": 0
+        "max_output_tokens": 8192
     },
     "o1": {
         "input": 15.0*10**-6,   
@@ -104,7 +102,6 @@ def query_claude(model_name, full_prompt, system_prompt, max_tokens, thinking_bu
     config = MODEL_CONFIG[model_name]
     model_full_name = config["full_name"]
     max_tokens = min(max_tokens, config["max_output_tokens"])
-    thinking_budget = min(thinking_budget, config["max_thinking_tokens"])
 
     # set llm input parameters
     params = {
@@ -164,6 +161,8 @@ def query_openai(model_name, full_prompt, system_prompt, max_tokens):
     # add system prompt before full_prompt with tags
     full_prompt2 = f"<system>\n{system_prompt}\n</system>\n\n<user>\n{full_prompt}\n</user>"
 
+    print(f"\n\n {model_name}, using system prompt: {system_prompt} \n\n")
+
     params = {
         "model": MODEL_CONFIG[model_name]["full_name"],
         "max_completion_tokens": max_tokens,
@@ -192,7 +191,7 @@ def query_openai(model_name, full_prompt, system_prompt, max_tokens):
         "total_cost": total_cost
     }
 
-def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibtex_raw='./lit-context/lit-99-bibtex.txt'):
+def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibtex_raw='./lit-context/bibtex-all.bib'):
     """
     Converts raw text response to latex format using an LLM
     
@@ -285,7 +284,7 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
 def texinput_to_pdf(texinput, pdf_fname):    
     
     # -- plug clean texinput into latex template --
-    with open("./input-other/template.tex", "r", encoding="utf-8") as file:
+    with open("template.tex", "r", encoding="utf-8") as file:
         latex_template = file.read()
 
     # Replace the marker with the texinput instead of an \input command
@@ -337,17 +336,14 @@ def tex_to_pdf(pdf_fname):
     result = os.system(compile_command)
     print(f"LaTeX compilation result: {result}")
 
-    # remove aux files if compilation was successful
-    if result == 0:
-        print("Removing aux files...")
+    # remove aux files 
+    # pause to avoid deleting aux files too quickly
+    time.sleep(0.5)
 
-        # pause to avoid deleting aux files too quickly
-        time.sleep(0.5)
-
-        for file in aux_files:
-            # print(f"Removing {file}...")
-            if os.path.exists(file):
-                os.remove(file)
+    for file in aux_files:
+        # print(f"Removing {file}...")
+        if os.path.exists(file):
+            os.remove(file)
 
 
 

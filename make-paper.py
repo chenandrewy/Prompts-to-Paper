@@ -1,5 +1,5 @@
 #%%
-# Setup
+# SETUP
 
 import os
 import sys
@@ -16,9 +16,8 @@ from importlib import reload
 import re
 
 # User
-# plan_name = "prompts-try2"
-# plan_name = "prompts-try1"
-plan_name = "prompts-test"
+plan_name = "prompts-rep-03-23"
+# plan_name = "prompts-test"
 
 #%%
 # LOOP OVER PROMPTS
@@ -122,7 +121,7 @@ for index in range(index_start, index_end+1):
     print("================================================")
 
 #%%
-# aggregate costs
+# AGGREGATE COSTS
 
 import glob
 from io import StringIO
@@ -160,7 +159,12 @@ with open(f"./responses/all-costs.txt", "w", encoding="utf-8") as f:
     f.write(costs_df.to_string(index=False))
 
 #%%
-# Clean Paper: tiny latex tweaks
+
+exit()
+
+
+#%%
+# CLEAN PAPER: TINY LATEX TWEAKS
 
 prompt_name = prompts[len(prompts)-1]["name"]
 

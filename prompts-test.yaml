@@ -47,7 +47,7 @@ prompts:
 
       Include a footnote noting that "we" refers to one human author and multiple LLMs.
 
-      Cite papers as appropriate. Ensure citations correspond to items in lit-99-bibtex.txt.
+      Cite papers as appropriate. Ensure citations correspond to items in bibtex-all.bib.
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -57,7 +57,7 @@ prompts:
     - lit-05-arc-agi.txt  
     - lit-06-tech-singularity.txt  
     - lit-07-lucas-trees.txt      
-    - lit-99-bibtex.txt
+    - bibtex-all.bib
 
   - number: 5
     name: full-paper
@@ -71,7 +71,7 @@ prompts:
 
       The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. 
 
-      Make sure all citations match papers in lit-99-bibtex.txt.
+      Make sure all citations match papers in bibtex-all.bib.
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -81,4 +81,4 @@ prompts:
     - lit-05-arc-agi.txt  
     - lit-06-tech-singularity.txt  
     - lit-07-lucas-trees.txt      
-    - lit-99-bibtex.txt    
+    - bibtex-all.bib    
