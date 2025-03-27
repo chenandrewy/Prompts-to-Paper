@@ -281,7 +281,7 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
     
     return llmdat_tex
 
-def texinput_to_pdf(texinput, pdf_fname):    
+def texinput_to_pdf(texinput, pdf_fname, output_folder="./responses/"):    
     
     # -- plug clean texinput into latex template --
     with open("template.tex", "r", encoding="utf-8") as file:
@@ -291,13 +291,13 @@ def texinput_to_pdf(texinput, pdf_fname):
     full_tex = latex_template.replace("% [input-goes-here]", texinput)
 
     # Ensure we write with UTF-8 encoding
-    with open(f"./responses/{pdf_fname}.tex", "w", encoding="utf-8") as file:
+    with open(f"{output_folder}{pdf_fname}.tex", "w", encoding="utf-8") as file:
         file.write(full_tex)
 
     # compile the paper
-    tex_to_pdf(pdf_fname)
+    tex_to_pdf(pdf_fname, output_folder)
     
-def tex_to_pdf(pdf_fname):
+def tex_to_pdf(pdf_fname, output_folder="./responses/"):
 
     # -- clean aux files --
     base_files = [
@@ -311,7 +311,7 @@ def tex_to_pdf(pdf_fname):
         f"{pdf_fname}.bcf",
         f"{pdf_fname}.run.xml"
     ]
-    aux_files = [f"./responses/{file}" for file in base_files]
+    aux_files = [f"{output_folder}{file}" for file in base_files]
 
     for file in aux_files:
         if os.path.exists(file):
@@ -319,12 +319,12 @@ def tex_to_pdf(pdf_fname):
     
     # -- compile --
     # Compile with bibliography support
-    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory=./responses ./responses/{pdf_fname}.tex"
+    compile_command = f"pdflatex -interaction=nonstopmode -halt-on-error -output-directory={output_folder} {output_folder}{pdf_fname}.tex"
     print(f"Running first LaTeX pass: {compile_command}")
     os.system(compile_command)
 
     # Run Biber without changing directory
-    biber_command = f"biber ./responses/{pdf_fname}"
+    biber_command = f"biber {output_folder}{pdf_fname}"
     print(f"Running Biber: {biber_command}")
     os.system(biber_command)
 
@@ -341,13 +341,10 @@ def tex_to_pdf(pdf_fname):
     time.sleep(0.5)
 
     for file in aux_files:
-        # print(f"Removing {file}...")
         if os.path.exists(file):
             os.remove(file)
 
-
-
-def save_costs(prompts, index, llmdat, llmdat_texinput, latex_model):
+def save_costs(prompts, index, llmdat, llmdat_texinput, latex_model, output_folder="./responses/"):
     # save cost data for both llmdat and llmdat_texinput
     costs_data = {
         'Operation': ['Main', 'LaTeX'],
@@ -369,7 +366,7 @@ def save_costs(prompts, index, llmdat, llmdat_texinput, latex_model):
     cost_df['Total_Cost'] = cost_df['Total_Cost'].apply(lambda x: f"${x:.4f}")
 
     # Save DataFrame with formatted columns
-    with open(f"./responses/{prompts[index]['name']}-costs.txt", "w", encoding="utf-8") as f:
+    with open(f"{output_folder}{prompts[index]['name']}-costs.txt", "w", encoding="utf-8") as f:
         f.write(cost_df.to_string(
             index=False,
             justify='left',
@@ -386,18 +383,20 @@ def save_costs(prompts, index, llmdat, llmdat_texinput, latex_model):
     
     return cost_df
 
-
-def aggregate_costs():
+def aggregate_costs(output_folder="./responses/"):
     """
-    Aggregates costs from all *-costs.txt files in the responses directory.
+    Aggregates costs from all *-costs.txt files in the output directory.
     
+    Args:
+        output_folder (str): Directory containing the cost files
+        
     Returns:
         tuple: (costs_df, grand_total) where:
             - costs_df: DataFrame containing all cost data
             - grand_total: float of total costs across all files
     """
     # find all *costs.txt files
-    costs_files = glob.glob("./responses/*-costs.txt")
+    costs_files = glob.glob(f"{output_folder}*-costs.txt")
     
     # read all costs files into a dataframe
     costs_data = []

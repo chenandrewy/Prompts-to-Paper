@@ -1,0 +1,525 @@
+\documentclass[12pt,english]{article}
+\PassOptionsToPackage{natbib=true}{biblatex}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\synctex=-1
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{setspace}
+\doublespacing
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\theoremstyle{plain}
+\newtheorem{thm}{\protect\theoremname}
+\theoremstyle{plain}
+\newtheorem{prop}[thm]{\protect\propositionname}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\usepackage{chenpaper}
+
+\usepackage{babel}
+
+
+\providecommand{\propositionname}{Proposition}
+\providecommand{\theoremname}{Theorem}
+
+\makeatother
+
+\usepackage{babel}
+\usepackage[style=authoryear,maxcitenames=3,uniquename=false,backend=biber]{biblatex}
+\providecommand{\propositionname}{Proposition}
+\providecommand{\theoremname}{Theorem}
+
+\addbibresource{post_hoc.bib}
+\begin{document}
+\title{Optimal Post-Hoc Theorizing}
+
+\newif\ifanon
+\anontrue
+\anonfalse % uncomment for anonymous version
+
+\ifanon
+    \author{}
+    \date{}
+\else
+    \author{{Andrew Y. Chen}\\
+    {\normalsize Federal Reserve Board}}
+    \date{February 2025\thanks{email:andrew.y.chen@frb.gov. I thank Irene Caracioni for excellent research assistance, and Alejandro Lopez-Lira, Matt Ringgenberg, and Tom Zimmermann for helpful comments. The views expressed herein are those of the authors and do not necessarily reflect the position of the Board of Governors of the Federal Reserve or the Federal Reserve System.}}
+\fi
+
+\maketitle
+
+\begin{center}
+    \textit{[Preliminary]}
+\end{center}
+ 
+\begin{abstract}
+\begin{singlespace}
+\noindent For many economic questions, the empirical results are not interesting unless they are strong. For these questions, theorizing before the results are known is not always optimal. Instead, the optimal sequencing of theory and empirics trades off a ``Darwinian Learning'' effect from theorizing first with a ``Statistical Learning'' effect from examining the data first. This short paper formalizes the tradeoff in a Bayesian model. In the modern era of mature economic theory and enormous datasets, I argue that \emph{post hoc} theorizing is typically optimal.
+\end{singlespace}
+\end{abstract}
+\vspace{10ex}
+ \textbf{\color{Black}JEL Classification}: tbc
+
+\noindent\textbf{\color{Black}Keywords}: Publication Bias, Machine Learning,  Predictivism vs Accommodation, HARKing
+\thispagestyle{empty}\setcounter{page}{0}
+
+\vspace{10ex}
+
+\pagebreak{}
+
+\section{Introduction}
+
+\setcounter{page}{1}
+
+Theories formed after observing empirical results (\emph{post hoc} theories), are viewed with suspicion by social scientists (e.g. \citet{kerr1998harking}; \citet{harvey2017presidential}). Yet some of the most successful theories in all of science were formed this way (e.g. gravity, quantum mechanics).\footnote{\citet{newton1726scholium} even said ``whatever is not deduced from the phenomena... ... have no place in experimental philosophy.''} Consistent with this confusion, the philosophy literature has long debated the merits of \emph{post hoc} vs \emph{a priori} theorizing (\citet{barnes2022prediction})
+
+This paper provides a Bayesian model for understanding this ``paradox.'' It shows \emph{post hoc} theory is clearly suboptimal if the sole goal of research is unbiased empirical results. Given statistics' 100-year obsession with unbiasedness (\citet{efron2001statistical}), it is perhaps unsurprising that \emph{post hoc} theory is viewed suspiciously.
+
+However, the goal of research is typically more than unbiased empirical results. Another ubiquitous goal of research is to find ``a good idea,'' whether the idea is an investment strategy, health intervention, or model of human language. In such settings, statistical bias may matter little, as long as research provides a powerful solution.
+
+If the goal is a ``good idea,'' then the optimal research method trades off a \emph{Darwinian learning} effect with a \emph{statistical learning} effect. Darwinian learning comes from weeding out bad theories by subjecting them to prediction competitions. Statistical learning simply comes from theorists improving their ideas after looking at data. If statistical learning is stronger than Darwinian learning, then \emph{post hoc} theorizing is optimal.
+
+In the modern world of enormous datasets and massive computing power, statistical learning is becoming more and more powerful. At the same time, the economic sciences have become mature, and Darwinian learning has arguably run its course. For these reasons, I argue that \emph{post hoc} theorizing is, in most cases, optimal.
+
+\subsection{Related Literature}
+
+My model is an extension of the publication bias models (\citet{hedges1984estimation}; \citet{brodeur2016star}; \citet{andrews2019identification}; \citet{abadie2020statistical}; \citet{chen2020publication}; \citet{jensen2023there}; \citet{kasy2024optimal}). In these papers, it is unclear whether \emph{post hoc} theory is harmful. In fact, the models in these papers exhibit the irrelevance result found in \citet{hempel1966philosophy}; \citet{lakatos1970methodology}; and elsewhere (see Section \ref{sec:ez:irr}). Building on the insights of from the philosophy literature, I show how endogeneous theories breaks this irrelevance. Breaking this irrelevance helps us understand the empirical findings of \citet{chen2024does}, which shows that asset pricing theories add little value for post-research prediction (see also \citet{chen2023high}).
+
+
+In the philosophy literature, Maher (\citeyear{maher1988prediction}, \citeyear{maher1990prediction}) and Kahn, Landsburg, and Stockman (\citeyear{kahn1992novel}; \citeyear{kahn1996positive}) (KLS) use Bayesian models to argue that \emph{a priori} theorizing is optimal. These arguments are isomorphic to the selection effect I call Darwinian learning. Amid the centuries of  debate  (e.g. \citet{leibniz1678letter}; \citet{newton1726scholium}; \citet{keynes1921treatise}), \citet{barnes1996discussion} describes Maher's analysis as ``the closest thing to an illuminating account of predictivism in existence.'' Predictivism is the view that \emph{a priori} theorizing is optimal.
+
+\citet{howson1991maher} provides many criticisms of Maher \citeyearpar{maher1988prediction} and \citeyearpar{maher1990prediction}, and  \citet{maher1993discussion} provides a rejoinder.  My paper shows that Maher's key insight about the benefit of \emph{a priori} theorizing is exists and is robust, but that his model rules out the offsetting statistical learning effect. This issue is also present in KLS.  Also unlike Howson and Franklin, I show how to connect Maher's and KLS's ideas to publication bias, and the broader statistics literature on large scale inference  (\citet{efron2012large}).
+
+
+
+
+
+\section{A Very Simple Model of Research}\label{sec:ez}
+
+This model is a minor extension of publication bias models (\citet{andrews2019identification}; \citet{chen2020publication}).
+
+Idea $i \in \left\{ 1,2,...,N\right\} $ has quality $\mu_{i}$, which is unknown to the research community. Researchers may observe the measured quality of $i$ 
+\begin{align}
+\hat{\mu}_{i} &= \mu_{i} + \varepsilon_{i}
+\label{eq:ez:muhat}
+\end{align}
+where $E\left(\varepsilon_{i}\right) = 0$. $i$ may be a real-world choice for readers (e.g. an investment strategy), in which case $\mu_{i}$ is the realized, quality of $i$ after the research is finished (``post-research''). Or $i$ may be an explanation for some phenomenon (e.g. a model of obesity in adolescents), in which case $\mu_{i}$ is the explanation's fit to the phenomenon, post-research. In either case, higher $\mu_{i}$ is better.
+
+Theory rules out some ideas, say those with $\mu_{i}$ below the median. Then theory is characterized by a set 
+\begin{align}
+    S = \left\{ i: \mu_{i} > \text{median}\left(\mu_1,\mu_2,...,\mu_N\right)\right\}
+    \label{eq:ez:S}
+\end{align}
+and 
+\begin{align}
+\text{\ensuremath{i} is consistent with theory if }i\in S .
+\end{align}
+Theorizing turns $S$ into an idea $i^\ast$, and theorizing is either \emph{a priori} or \emph{post hoc}: 
+\begin{itemize}
+\item \emph{a priori} theorizing: the researcher selects randomly from $S$, and announces the selected $i^\ast$. (In this simple model, all ideas are equally consistent with theory.)
+\item \emph{post hoc} theorizing the researcher first examines the data (observes $\{\hat{\mu}_1,\hat{\mu}_2,...\hat{\mu}_N\}$). Then the researcher chooses 
+\begin{align}
+    i^\ast =  \arg\max_{i\in S }\hat{\mu}_{i}.\label{eq:given-ihat}
+\end{align}
+(The researcher chooses the idea with the largest measured quality, subject to the idea being consistent with theory.)
+\end{itemize}
+
+\subsection{\emph{A Priori} Theorizing is the Unbiased Ideal}
+
+If the sole goal of research is to find an unbiased estimate of the idea quality, then \emph{a priori} theorizing achieves this goal.  The expected $\hat{\mu}_{i}$ from \emph{a priori} theorizing is 
+\begin{align}
+E\left(\hat{\mu}_{i}\mid i\in S \right) & =E\left(\mu_{i}\mid i\in S \right).
+\label{eq:unbiased}
+\end{align}
+In contrast, the expected $\hat{\mu}_{i}$ from \emph{post hoc} theorizing is biased:
+\begin{lemma}\label{lem:ez:biased}
+    \begin{align}
+        E\Bigl(\hat{\mu}_{i}\big|i=\arg\max_{j\in S }\hat{\mu}_{j}\Bigr) & >E\Bigl(\mu_{i}\big|i=\arg\max_{j\in S }\hat{\mu}_{j}\Bigr).
+        \label{eq:biased}
+    \end{align}            
+\end{lemma}
+\begin{proof}
+    The LHS can be written as 
+    \begin{align*}
+        E\left(\mu_i \big| i = \arg\max_{j \in S} \hat{\mu}_j\right) 
+        +
+        E\bigg(\varepsilon_i
+        \big|
+        i \in S,
+        \{
+         \varepsilon_i 
+        > \hat{\mu}_j - \mu_i
+        , \quad
+         \forall j \in \left( S\setminus\{i\}
+         \right)
+         \}
+         \bigg)
+    \end{align*}
+The first term is the RHS of Equation \eqref{eq:unbiased}. Thus we just need to show the second term is positive.
+
+The second term is positive because $E\left(\varepsilon_i\big| i \in S\right) = 0$, and because the second condition on $\varepsilon_i$  cuts off the lower tail of the distribution.
+\end{proof}
+
+
+Intuitively, $\hat{\mu}_{i}$ contains both $\mu_{i}$ and measurement error. Selecting on large $\hat{\mu}_{i}$ then selects for positive measurement error, leading to a biased estimate.
+
+The preference for Equation \eqref{eq:unbiased}, and the fear of Equation \eqref{eq:biased}, goes back to \citet{fisher1925statistical}. As described in \citet{efron2001statistical}:
+\begin{quote}
+    \emph{From the point of view of statistical development, the twentieth century might be labeled ``100 years of unbiasedness.'' Following Fisher's lead, most of our current statistical theory and practice revolves around unbiased or nearly unbiased estimates (particularly MLEs), and tests based on such estimates. The power of this theory has made statistics the dominant interpretational methodology in dozens of fields.}
+\end{quote}
+Taken with Lemma \ref{lem:ez:biased}, it is no wonder then, that economists are suspicious of \emph{post hoc} theorizing.
+
+\subsection{In Practice, \emph{Post Hoc} Theorizing is Optimal}\label{sec:ez:practical}
+
+In an ideal world, estimates from \emph{a priori} theorizing are all you need. With many, many of these estimates, one can eventually has estimates for every idea, including the best ideas.
+
+But in the real world, consumers and producers of research have limited time. Consumers of research lack the time to read about every idea. Producers of research lack the time to carefully study every idea.
+
+To introduce this real-world limitation, suppose research is restricted to report only a single $i$, and readers are interested in $i$ with the largest $\mu_{i}$. 
+
+In this case, \emph{post hoc} theorizing is actually optimal. \emph{Post hoc} theorizing uses both the information in theory (Equation \eqref{eq:ez:S}) and the information in data (Equation \eqref{eq:ez:muhat}), improving its expected quality:
+\begin{lemma}\label{lem:ez:post-hoc-opt}
+    \begin{align}
+        E\bigg(\mu_{i}\big|i=\arg\max_{i'\in S }\hat{\mu}_{i'}\bigg) & >E\left(\mu_{i}\mid i\in S \right).
+        \label{eq:ez:post-hoc-opt}
+    \end{align}            
+\end{lemma} 
+\begin{proof}
+    The LHS can be written as 
+    \begin{align*}
+        E\bigg(\mu_i
+        \big|
+        i \in S,
+        \{
+         \mu_i 
+        > \hat{\mu}_j - \varepsilon_i
+        , \quad
+         \forall j \in \left( S\setminus\{i\}
+         \right)
+         \}
+         \bigg)
+    \end{align*}
+The second condition in this expression cuts off the lower tail of the distribution of $\mu_i$. Thus, this expression exceeds the expectation of $\mu_i$ conditioning on $i\in S$ alone, which is the RHS of Equation \eqref{eq:ez:post-hoc-opt}.
+\end{proof}
+
+Lemmas \ref{lem:ez:biased} and \ref{lem:ez:post-hoc-opt} are illustrated in Figure \ref{fig:ez}. It simulates 100 selected ideas, with $N=100$, $\mu_i \sim \text{Normal}\left(50, 50\right)$, and $\varepsilon_i \sim \text{Normal}\left(0, 25\right)$. \emph{A priori} theorizing leads to unbiased estimates, seen in the dots evenly spread across the 45 degree line. However, \emph{post hoc} theorizing leads to higher quality ideas, seen  in how the stars tend to lie on the right side of the chart.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{../Results/ez-sim.pdf}
+    \caption{100 Simulations of a Very Simple Model of Research}
+    \label{fig:ez}
+\end{figure}
+
+
+The literature on stock market anomalies is an example of Lemma \ref{lem:ez:post-hoc-opt}. Readers are interested in both the magnitude of anomalies, as well as which ones are the strongest.  But assuming that the magnitude meets some minimal standard, readers with limited time will just want to know which anomalies will perform the best in the future. Lemma \ref{lem:ez:post-hoc-opt} shows that, in this case, researchers \emph{should} mine the data, and report what has worked best in the past. Empirically, recent studies have shown that simply mining anomalies for the largest $\hat{\mu}_i$ performs just as well post-research as using anomalies from the full research process (\citet{chen2024does}; \citet{chen2023high}).
+
+The wild success of large language models (LLMs) is another example. These models are tuned to perform well on common benchmarks like MMLU (Measuring Massive Multitask Language Understanding) (e.g. \citet{guo2025deepseek}). Thus, the performance on these benchmarks is biased upward, just as in Lemma \ref{lem:ez:biased}. But in practice, this bias is not important, as long as the resulting out-of-sample performance is strong. Tuning leads to the strongest out-of-sample performance, as seen in Lemma \ref{lem:ez:post-hoc-opt}. 
+
+
+\subsection{\emph{Post Hoc} Theories are Falsifiable and Scientific}
+
+Regardless of whether theorizing is \emph{a priori} or \emph{post hoc}, idea $i^\ast$ is eventually tied to post-research data through $\mu_{i^\ast}$ (see discussion after Equation \eqref{eq:ez:muhat}). Without this link, research ideas might as well be fairy tales. Whether fairy tales are better told \emph{a priori} or \emph{post hoc} is beyond the scope of this paper.
+
+Because $i^\ast$ is tied to post-research data, research ideas are falsifiable and scientific, in the sense of \citet{Popper1959}. This holds regardless of whether $i^\ast$ is chosen \emph{a priori} or \emph{post hoc}. Popper does not say that researchers should ignore data when making predictions.
+
+
+Perhaps because of \citet{kerr1998harking} (``HARKing: Hypothesizing after the Results are Known''), many researchers equate \emph{post hoc} theorizing with unfalsifiability. However, as seen in this model, choosing ideas \emph{post hoc} is entirely consistent with Popper's notion of science. 
+
+This confusion likely stems from Kerr's loose use of language. The paper has a section titled  ``HARKed Hypotheses Fail Popper's Criterion of Disconfirmability.'' But the text below the title clarifies, ``[a] HARKed hypothesis fails this criterion, at least in a narrow, temporal sense.'' In other words, the text in the section explains that the section title is not necessarily true. In fact, it seems equally reasonable to say that HARKed hypotheses fail Popper's criterion \emph{only} in a narrow, temporal sense. 
+
+% After all, it would be silly to say that Einsteins's theory of special relativity fails Popper's criterion because he designed it to fit the Michelson-Morley experiment.
+
+
+Popper does imply that theories should be well-defined and constrained.  For example, \citet{Popper1985} argues that Marxism was refuted by many empirical facts, but then ``immunized itself against the most blatant refutations'' by the addition of \emph{ad hoc} hypotheses. In the lens of this model, Marxism lacks a consistent definition of the set $S$. Similarly, Popper argues that Freudian theories ``do not exclude any physically possible human behavior.'' This is equivalent to saying $S$ includes the set of all ideas $\left\{1,2,...,N\right\}$. Throughout my paper, I assume that $S$ is well-defined and constrained, though one might be concerned that this assumption is inappropriate for some social sciences.
+
+
+\subsection{An Irrelevance Result}\label{sec:ez:irr}
+
+In practice, the Fisherian ideal is impossible. Even if all researchers use theory a priori, readers with time constraints are more likely to read the research if the measured effect is large.  This limited attention is arguably the r'aison d'etre of both peer review (\citet{klamer2002attention}) and publication bias (\citet{chen2022publication})
+
+To model limited attention, suppose \emph{a priori} theory actually involves two steps. First, the researcher selects $i\in S $
+(applies theory). Then, the reader reads only about $i$ with the largest $\hat{\mu}_{i}$ (perhaps through a screening process, like peer review). The expected quality of this, more realistic, \emph{a priori} theorizing is
+\begin{align}
+E\Bigl(\mu_{i}\big|i\in S ,i=\arg\max_{i'\in S }\hat{\mu}_{i'}\Bigr) 
+& =
+E\Bigl(\mu_{i}\big|i=\arg\max_{i'\in S }\hat{\mu}_{i'}\Bigr),
+\end{align}
+which is exactly the same as the quality of \emph{post hoc} theory (Lemma \ref{lem:ez:post-hoc-opt}).
+
+A similar irrelevance is noted in many works of philosophy (e.g. \citet{hempel1966philosophy}; \citet{lakatos1970methodology}; \citet{rosenkrantz1977inference}; \citet{gardner1982predicting}).  But as noted by \citet{maher1988prediction} and \citet{kahn1996positive}, this irrelevance can be broken if theories are endogenous.
+
+\section{Endogenous, Heterogeneous Theories}
+
+Let's make the model richer, with endogenous, heterogeneous theories. This richer model is a generalization of \citet{maher1988prediction} and \citet{kahn1996positive}. Importantly, it allows for an effect I call ``statistical learning.'' As in Section \ref{sec:ez:practical}, I assume that the research community has limited time, and is primarily interested in finding ideas with the highest quality.
+
+As before, there are ideas $i\in \{1,2,...,N\}$, measured idea quality $\hat{\mu}_{i}$, and true idea quality $\mu_{i}$. But now  theories come from combining a ``data input'' with a ``theory type.''  
+
+The data input ($\mathcal{D}$ or $\mathcal{O}$) is  known. $\mathcal{D}$ is the case that the data input includes all of the measured effects ($\hat{\mu}_{1},\hat{\mu}_{2},...,\hat{\mu}_{N}$). $\mathcal{O}$ is the case that the theory is given access to none of these effects. \emph{Post hoc} theorizing, then, is represented by $\mathcal{D}$. 
+
+The theory type $T$ is unknown. For simplicity, assume the type is either good (represented by $G$) or bad ($B$). Intuitively, not all theories are the same, and we do not know how good a particular theory is.
+
+Combining a theory type with a data input leads to a recommended idea $i^{\ast}$, represented by a random integer with support $S$, that excludes ideas with below-median quality (same as in Equation \eqref{eq:ez:S}). So now, theory is represented by not just a set, but a distribution over a set. This allows me to use conditional probability notation. For example, $i^{\ast}|G,\mathcal{O}$ is the recommended idea generated by a good theory and no data (\emph{a priori}).
+
+It's reasonable to think that good theories lead to higher quality ideas, \emph{a priori}. This can be formalized by first order stochastic dominance:
+\begin{align}
+P\left(\mu_{i^{\ast}}>x\mid G,\mathcal{O}\right)
+\geq
+P\left(\mu_{i^{\ast}}>x\mid B,\mathcal{O}\right),
+\quad \forall x\in \mathbb{R}.
+\label{eq:given-Gbetter}
+\end{align}
+For example, one may think that while bad theories draw any idea in $S$ with equal probability, good theories are twice as likely to draw ideas from the top quartile of $\mu_{i}$ (as compared to the second-to-top quartile). A result of Equation \eqref{eq:given-Gbetter} is that  good theories typically lead to a larger measured effect $\hat{\mu}_{i^{\ast}}$
+than bad theories.
+
+However, if theory is done \emph{post hoc}, researchers using bad theories can mine the data for large $\hat{\mu}_{i}$ and reverse engineer the theory. In particular, suppose 
+\begin{align}
+P\left(i^{\ast}=\arg\max_{i\in S }\hat{\mu}_{i}\mid B,\mathcal{D}\right) & =1.0,
+\label{eq:endo:bad-post-hoc}
+\end{align}
+that is, bad theories always select the idea with the strongest measured effect (provided the idea is consistent with \emph{some} theory).  In contrast, a good theories weighs both prior beliefs, as well as the measured effects, in selecting $i^{\ast}$.  For example, one might assume that a good theorist has rational beliefs about $\mu_{i}$, and on observing $\hat{\mu}_{i}$ updates by taking an equal-weighted average of her prior and the data. 
+
+
+After $i^{\ast}$ is chosen, readers decide if they are interested in the idea. Assume readers are uninterested unless 
+\begin{align}
+\hat{\mu}_{i^{\ast}} & >h,
+\end{align}
+where $h$ is some kind of economic and/or statistical hurdle. This assumption follows the econometric literature on publication bias (\citet{andrews2019identification}; \citet{chen2020publication}).
+
+
+
+
+ 
+
+\subsection{Darwinian Learning}
+
+An immediate implication of heterogeneous theories is heterogeneous measured quality:
+\begin{lemma}
+    \label{lem:darwin}
+    \begin{align}
+        P\left(\hat{\mu}_{i^{\ast}}>h|G,\mathcal{O}\right) 
+        &>
+        P\left(\hat{\mu}_{i^{\ast}}>h|B,\mathcal{O}\right)
+    \end{align}
+\end{lemma}
+\begin{proof}
+    Since $\varepsilon_{i}$ is i.i.d., adding it to $\mu_{i^{\ast}}$ preserves first-order stochastic dominance.
+\end{proof}
+
+Lemma \ref{lem:darwin} provides an alternative way to think about the \citet{chen2022peer} (CLZ) ``peer review vs data mining'' experiment. CLZ compare stock trading ideas from peer review to data-mined trading ideas, using post-publication returns. The data-mined ideas are a simulation of $B$ theories---as powerfully demonstrated by \citet{novy2025ai}, anyone can add text to these ideas and call it a theory. 
+
+CLZ's post-publication returns, then, are a test of whether $G$ theories exist. If $G$ theories comprise a significant fraction of the theories in the CLZ sample, then Lemma \ref{lem:darwin} implies that the published strategies should outperform. Unfortunately, CLZ find that published strategies fail to outperform, implying that $G$ theories are rare. 
+
+
+The CLZ experiment illustrates the Darwinian selection of theories. If we force theorists to announce their ideas before looking at the data, then bad theories cannot hide  behind data mining.  This intuition helps justify the belief that \emph{a priori} theorizing provides ``discipline'' and that \emph{post hoc} theorizing is ``too easy.''  The following proposition formalizes this idea:
+\begin{prop}\label{prop:darwin}
+{[}Darwinian Selection of Theories{]} 
+\begin{align*}
+P\left(G|\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)-P\left(G|\mathcal{\mathcal{D}},\hat{\mu}_{i^{\ast}}>h\right) & >0
+\end{align*}
+\end{prop}
+
+\begin{proof}
+Apply Bayes rule to the LHS and simplify to yield
+\begin{align*}
+\frac{P\left(\hat{\mu}_{i^{\ast}}>h|G,\mathcal{O}\right)}{P\left(\hat{\mu}_{i^{\ast}}>h|B,\mathcal{O}\right)} & >\frac{P\left(\hat{\mu}_{i^{\ast}}>h|G,\mathcal{\mathcal{D}}\right)}{P\left(\hat{\mu}_{i^{\ast}}>h|B,\mathcal{\mathcal{D}}\right)}
+\end{align*}
+Lemma \ref{lem:darwin} shows that the LHS is greater than 1.0. But since bad theories always select the largest
+$\hat{\mu}_{i}$ \emph{post hoc} (Equation \eqref{eq:endo:bad-post-hoc}), the RHS is at most 1.0. 
+\end{proof}
+
+[tbc: describe figure. it illustrates how a priori theorizing results in a larger share of good theories compared to post hoc theorizing.]
+
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \caption{\emph{A priori} Selection}
+        \includegraphics[width=0.5\textwidth]{../Results/hist-ap200_s10.pdf}
+    \end{subfigure}
+    
+    \vspace{1em}
+    
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \caption{\emph{Post hoc} Selection}
+        \includegraphics[width=0.5\textwidth]{../Results/hist-ph200_s10.pdf}
+    \end{subfigure}
+    \caption{Darwinian Selection}
+    \label{fig:darwinian_selection}
+\end{figure}
+
+Proposition \ref{prop:darwin} captures the key insight of Maher (\citeyear{maher1988prediction}; \citeyear{maher1990prediction}) and Kahn, Landsburg, and Stockman (\citeyear{kahn1992novel}, \citeyear{kahn1996positive}). If theories are heterogeneous, then forcing theorists to announce their ideas before looking at the data helps eliminate bad theories, as in Darwinian selection.  In Maher's terminology, a theory  is a ``method,'' and the theory type is ``reliability,'' but the idea is the same. 
+
+% An advantage of Proposition \ref{prop:darwin} is that it generates Darwinian selection in a setting that nests publication bias models  (\citet{andrews2019identification}; \citet{chen2020publication}).
+
+Maher and KLS push further. They claim that, not only does \emph{a priori} theorizing produce Darwinian selection, but that the resulting hypotheses are more likely to be true. The analogue here is that $\mathcal{O}$ implies not only that $G$ is more likely, but that $\mu_{i^\ast}$ is higher. We'll see that this conclusion is not necessarily true.\footnote{\citet{barnes1996discussion} revisits Maher (1988, 1990, 1993) and does not go further. His Eq (4) stops here, and considers more deeply the terms in the Bayes rule version of $P\left(G|\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)$. 
+} 
+
+An interesting feature of Proposition \ref{prop:darwin} is that it shows a virtue of publication bias. While requiring $\hat{\mu}_{i^{\ast}}>h$ leads to biased estimates, it helps weed out bad theories. This result is closely analogous to Lemma \ref{lem:ez:biased}. 
+
+
+
+
+\subsection{Optimal Post-Hoc Theory}
+
+The ultimate goal is not to find good theories, but to find good ideas. Whether or not \emph{post hoc} theory helps or hurts for the ultimate goal, is characterized in this proposition:
+\begin{prop}\label{prop:optimal_post_hoc}
+{[}Optimal Post Hoc Theory{]}
+\begin{align}
+E\left(\mu_{i^{\ast}}|\mathcal{\mathcal{D}},\hat{\mu}_{i^{\ast}}>h\right) & >E\left(\mu_{i^{\ast}}|\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)
+\end{align}
+if and only if 
+\begin{align}
+\text{\ensuremath{\left[\text{Statistical Learning}\right]}} & >\left[\text{Darwinian Learning}\right]
+\end{align}
+where 
+\begin{align}
+\left[\text{Darwinian Learning}\right] 
+& \equiv
+    \big[
+        P\left(G|\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)-
+    P\left(G|\mathcal{D},\hat{\mu}_{i^{\ast}}>h\right)
+    \big]
+    \notag
+    \\
+& \quad\times
+\big[
+    E\left(\mu_{i^{\ast}}|G,\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right) - 
+    E\left(\mu_{i^{\ast}}|B,\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)
+\big] 
+\label{eq:endo:darwinian_learning} \\
+\left[\text{Statistical Learning}\right] & 
+\equiv 
+E\big[
+    E\left(\mu_{i^{\ast}}|T,\mathcal{D},\hat{\mu}_{i^{\ast}}>h\right) - 
+    E\left(\mu_{i^{\ast}}|T,\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)
+    |\mathcal{D}
+\big]
+\label{eq:endo:statistical_learning}
+\end{align}
+and 
+\begin{align}
+    E\left[ E\left(\mu_{i^{\ast}}|T,\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)
+    \Big|\mathcal{D}
+    \right]
+    &\equiv
+    \Pr\left(G|\mathcal{D}\right)
+    E\left(\mu_{i^{\ast}}|G,\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right) \notag \\
+    &\quad +
+    \Pr\left(B|\mathcal{D}\right)
+    E\left(\mu_{i^{\ast}}|B,\mathcal{O},\hat{\mu}_{i^{\ast}}>h\right)
+\end{align}
+\end{prop}
+The proof is in Appendix \ref{sec:app:proof1}.
+
+The proposition says that whether \emph{post hoc} or \emph{a priori}  theorizing is optimal depends on the relative size of two effects:
+\begin{enumerate}
+    \item $\left[\text{Statistical Learning}\right]$ measures how idea quality $\mu_{i^{\ast}}$ improves when the researcher has access to data ($\mathcal{D}$). Just as how a Bayesian improves her inferences with new evidence, theorists can develop higher quality ideas with access to data. 
+    \item $\left[\text{Darwinian Learning}\right]$ measures the ultimate effect of Darwinian selection (Proposition \ref{prop:darwin}), which occurs when researchers are forced to predict without data ($\mathcal{O}$).  Intuitively, this selection improves ideas only to the extent that $G$ theories find higher $\mu_{i^\ast}$ than $B$ theories (second line of Equation \eqref{eq:endo:darwinian_learning}). 
+\end{enumerate}
+Naturally, if $\left[\text{Statistical Learning}\right]$ exceeds $\left[\text{Darwinian Learning}\right]$, then it's better to look at the data---i.e. \emph{post hoc} theory is optimal.
+
+There is no hard and fast rule for which effect is larger. There are certainly settings where $\left[\text{Statistical Learning}\right]$ is miniscule (e.g. when the data is extremely noisy). And there are certainly settings where $\left[\text{Darwinian Learning}\right]$ is ineffective (e.g. when all theories are the same). 
+
+Similarly, there are contradictory historical examples. Mendeleev's prediction of elements is a shockingly impressive example of \emph{a priori} theorizing. But Planck's law of radiation is a shockingly impressive example of \emph{post hoc} theorizing. Proposition \ref{prop:optimal_post_hoc} provides a way to reconcile these seemingly contradictory phenomena.
+
+% In contrast, both Maher and KLS assume that $\left[\text{Statistical Learning}\right]$ is zero, making it hard to understand the broader coarse of science, in their models.
+
+In the special case where theory types are homogeneous, $\left[\text{Darwinian Learning}\right]=0$, and \emph{post hoc} theory is optimal. This case has some surprising implications. Pre-analysis plans should \emph{not} be followed.  Journals should \emph{favor}  theories that accommodate the data, \emph{post hoc}. 
+
+But while these implications are surprising, the idea of relatively homogeneous theory quality is quite plausible. Moreover, Proposition \ref{prop:optimal_post_hoc} makes clear the \emph{benefits} of ignoring pre-analysis plans and publishing \emph{post hoc} theories: if there is no benefit from $\left[\text{Darwinian Learning}\right]$, then we should fully utilize the data when theorizing.
+
+
+\subsubsection{Optimal Theorizing in Modern Economics}
+
+As a field of research matures, institutions arise that standardize the many aspects of research, including the peer review process, the statistical analysis, and  theory. It's reasonable to think, then, that mature fields have theories that are relatively homogeneous in quality. In fact, homogeneous theory quality is a reasonable the definition of a mature field.
+
+Economics is arguably mature. Before the 1950s, there was wild variety in the way that economists theorized. But theory began to solidify with the contributions of Arrow and Samuelson. And though behavioral economics has risen in popularity in previous decades, and the 2008 financial crisis brought on significant criticism of economic models, the basic structure of theory is largely stable since the 1980s. It is thus reasonable to think that economic theories are fairly homogeneous in quality, and that $\left[\text{Darwinian Learning}\right]$ is small. 
+
+At the same time, the modern era has seen the rise of huge datasets and enormous computing power. Through the lens of the model, this implies a small variance of $\varepsilon_{i}$ (as variance is inversely related to sample size), and thus the measured $\hat{\mu}_{i}$ is highly informative about the underlying $\mu_{i}$. In such a setting, $\left[\text{Statistical Learning}\right]$, as defined in Equation \eqref{eq:endo:statistical_learning}, should be large. 
+% sim should help with the above
+
+Taken together, these arguments imply that \emph{post hoc} theory is typically optimal in the modern era of economics.
+
+
+% tbc: figure that illustrates homogeneous theories and big data
+\section{Conclusion}
+
+This paper presents a framework for understanding several questions about the scientific method: Why is \emph{post hoc} theorizing viewed as a problem? 
+How do we square this apparent problem with highly-successful \emph{post hoc} theories? Does the classical view of \emph{post hoc} theory still hold up in the modern era of big data and machine learning? 
+
+The framework shows that the distrust of \emph{post hoc} theorizing is largely a relic of  idealized, pre-modern statistics. With practical constraints on researchers' time, it \emph{a priori} theorizing is not always superior. Instead, there is a trade-off between  Darwinian Learning, which comes from forcing theorists into prediction contests, and Statistical Learning, which naturally arises as researchers learn from data. With  modern datasets and computing power, Statistical Learning is clearly very significant. At the same time, it is unclear that Darwinian Learning still matters, in a world of mature theories.
+
+A caveat is that \emph{a priori} theorizing has benefits that are omitted from my analysis. Most important, \citet{barnes2008paradox} points out that prediction contests provide an accessible, democratic way to establish what is good science. The main alternative is the peer review process, which is inscrutable to outsiders, and can potentially be abused (e.g. \citet{chen2024most}).\footnote{Additionally, KLS argue that the choice of \emph{a priori} vs \emph{post hoc} theorizing may be endogenous, which can lead to additional selection effects, over and above Proposition \ref{prop:optimal_post_hoc}. However, the basic logic that \emph{a priori} theorizing helps through inducing selection is still captured by Proposition \ref{prop:optimal_post_hoc}.}
+
+
+
+
+\begin{appendices}
+\section{Proof of Proposition \ref{prop:optimal_post_hoc}}\label{sec:app:proof1}
+\begin{proof}
+    For ease of notation, let $\tilde{E}$ be the expectation operator conditioned on $\hat{\mu}_{i^{\ast}}>h$. Also define conditioning on $I\in \left\{ \mathcal{O},\mathcal{D}\right\}$ and $I'\in \left\{ \mathcal{O},\mathcal{D}\right\}$ as
+    \begin{align}
+        \tilde{E}\left\{ \tilde{E}\left(\mu|T,I\right)|I'\right\} 
+            &\equiv P\left(G|I'\right)\tilde{E}\left(\mu|G,I\right)+P\left(B|I'\right)\tilde{E}\left(\mu|B,I\right),
+    \end{align}
+    which can be rewritten as
+    \begin{align}\label{eq:app-proof-2}
+        \tilde{E}\left\{ \tilde{E}\left(\mu|T,I\right)|I'\right\} 
+            &\equiv \tilde{E}\left(\mu|B,I\right) 
+            + P\left(G|I'\right)
+            \left\{ \tilde{E}\left(\mu|G,I\right)-\tilde{E}\left(\mu|B,I\right)\right\}. 
+    \end{align}
+
+    The expected quality from \emph{a priori} theory can be written as
+    \begin{align}
+    \tilde{E}\left\{ \mu_{i^{\ast}}|\mathcal{O}\right\} 	
+    &= \tilde{E}\left\{ \tilde{E}\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{O}\right\} 
+    - \tilde{E}\left\{ 
+        \tilde{E}\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{D}
+    \right\} \notag \\
+    &\quad + \tilde{E}\left\{ \tilde{E}\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{D}\right\}, 
+    \end{align}  
+    where the first term uses iterated expectations and the last two terms sum to zero. Thus the expected quality difference of \emph{a priori} vs \emph{post hoc} theory is
+    \begin{align}
+        \tilde{E}\left\{ \mu_{i^{\ast}}|\mathcal{O}\right\} -\tilde{E}\left\{ \mu_{i^{\ast}}|\mathcal{D}\right\} 	
+            &=\tilde{E}\left\{ \tilde{E}\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{O}\right\} -\tilde{E}\left\{ \tilde{E}\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{D}\right\} \notag \\
+            &\quad-\left\{
+                \tilde{E}\left[\mu_{i^{\ast}}|\mathcal{D}\right]
+                -\tilde{E}\left\{\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{D}\right\}
+            \right\}
+            \label{eq:optimal_post_hoc_1}
+    \end{align}
+    The second line of the RHS of \eqref{eq:optimal_post_hoc_1} is $\left[\text{Statistical Learning}\right]$ (just apply iterated expectations to $\tilde{E}\left[\mu_{i^{\ast}}|\mathcal{D}\right]$).
+
+    The first line of the RHS of \eqref{eq:optimal_post_hoc_1} can be rewritten using the law of total probability and \eqref{eq:app-proof-2}:
+    \begin{align}    
+    & \tilde{E}\left\{ \tilde{E}\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{O}\right\} 
+      -\tilde{E}\left\{ \tilde{E}\left[\mu_{i^{\ast}}|T,\mathcal{O}\right]|\mathcal{D}\right\} \notag \\
+    &= \tilde{E}\left[\mu_{i^{\ast}}|B,\mathcal{O}\right]
+       + \Pr\left(G|\mathcal{O}\right) 
+         \left\{ \tilde{E}\left[\mu_{i^{\ast}}|G,\mathcal{O}\right]
+         -\tilde{E}\left[\mu_{i^{\ast}}|B,\mathcal{O}\right]\right\} \notag \\
+    &\quad -\tilde{E}\left[\mu_{i^{\ast}}|B,\mathcal{O}\right]
+           -\Pr\left(G|\mathcal{D}\right) 
+           \left\{ 
+            \tilde{E}\left[\mu_{i^{\ast}}|G,\mathcal{O}\right]
+            -\tilde{E}\left[\mu_{i^{\ast}}|B,\mathcal{O}\right]
+            \right\} \notag \\
+    &= \left[\Pr\left(G|\mathcal{O}\right)-\Pr\left(G|\mathcal{D}\right)\right]
+        \left\{ \tilde{E}\left[\mu_{i^{\ast}}|G,\mathcal{O}\right]
+               -\tilde{E}\left[\mu_{i^{\ast}}|B,\mathcal{O}\right]\right\} 
+       , \label{eq:optimal_post_hoc_2}
+    \end{align}
+    and the last line is $\left[\text{Darwinian Learning}\right]$.
+\end{proof}
+
+\end{appendices}
+
+\printbibliography
+
+\end{document}

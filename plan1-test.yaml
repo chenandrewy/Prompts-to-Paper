@@ -1,0 +1,50 @@
+config:
+  run_range:
+    start: 1
+    end: 5
+  temperature: 0.5
+  system_prompt: |
+    You are an asset pricing theorist writing with a team that publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). The team thinks carefully with mathematics and checks its work, step by step.
+
+    Respond with only paper inputs or notes.
+
+prompts:
+  - number: 1
+    name: 01-model
+    model_name: haiku
+    max_tokens: 4000
+    thinking_budget: 0
+    instructions: |
+      consider a simplified barro rietz disaster risk asset pricing model. consumption growth is either 0 or -b, i.i.d. CRRA utility. derive the price/dividend ratio and expected return of the consumption claim. 
+
+  - number: 2
+    name: 02-results
+    model_name: haiku
+    max_tokens: 4000
+    thinking_budget: 0
+    instructions: |
+      Now consider an "AI asset" that pays 1% of consumption in periods without a disaster, and 50% of consumption if there is a disaster.  derive the price/dividend ratio and expected return of the AI asset as a function of model parameters. Discuss the intuition.
+
+  - number: 3
+    name: 03-full-paper
+    model_name: sonnet
+    max_tokens: 5000
+    thinking_budget: 0
+    instructions: |
+      Write a short, 5 page paper titled "Hedging the AI Singularity" based on the following planning and literature documents. 
+
+      Be modest. Do not to over-claim. 
+
+      The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. 
+
+      Make sure all citations match papers in bibtex-all.bib.
+
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt      
+    - bibtex-all.bib    

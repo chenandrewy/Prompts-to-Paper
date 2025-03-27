@@ -1,0 +1,56 @@
+config:
+  run_range:
+    start: 1
+    end:   3
+  temperature: 0.5
+  api_provider: anthropic
+  system_prompt: |
+    You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step. 
+    
+    Your team is writing a paper with the following main argument: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. The goal is to just make this point elegantly.
+
+    Format the math nicely. Use we / our / us to refer to the writing team.
+
+    Respond with only new content. Do not repeat anything in the context.  
+
+prompts:
+  - number: 1
+    name: 01-model
+    model_name: o1
+    max_tokens: 20000
+    thinking_budget: 0
+    instructions: |
+      Consider a simplified barro rietz disaster risk asset pricing model. Consumption growth C_{t+1}/C_t is either 1 or \exp(-b), i.i.d. Utility is CRRA with coefficient \gamma and time preference parameter \beta.
+      
+      Consider an "AI asset" that pays a dividend equal to consumption if there is no disaster and F times consumption if there is a disaster. Derive the expected return of this asset. 
+      
+      Make the expression as simple as possible, but still be consistent with formulas commonly found in asset pricing. 
+      
+      Use the fact that the expected return of this asset is equal to the expected return of a one-period version of the asset. Prove this fact.
+
+  - number: 2
+    name: 02-calibration
+    model_name: sonnet
+    max_tokens: 20000
+    thinking_budget: 10000
+    instructions: |
+      Make a table illustrating how if F=50, the AI asset can have a very negative expected return. Consider different values of b and p. Include b as large as 0.95 and p as small as 0.001. Show returns in percent with one decimal place. 
+
+  - number: 3
+    name: 03-main-argument
+    model_name: sonnet
+    max_tokens: 10000
+    thinking_budget: 0
+    instructions: |
+      Write a "Main Argument" section based on the `01-model` and `02-calibration` context inputs. 
+
+      The section should be brief and not have any subsections nor bullet points. The math should be self-contained but concise and elegant. I repeat: no bullet points. 
+
+      Cover the following points:
+      - The model is purposefully simple and designed to capture the essence of the main argument.
+      - The key assumptions are the consumption growth and dividend processes. Show these using display math. Describe and motivate them.
+      - State general claims about the model first (proving with concise arguments). Then state the key formulas and how they are derived.
+      - Interpret the expected return result in terms of the main argument.
+      - Show and discuss the table from `02-calibration` .
+      - Explain how adding more realism (standard consumption risk, Barro disasters like financial crises, possibility of huge gains in the AI asset, etc.) would not change the main argument.
+
