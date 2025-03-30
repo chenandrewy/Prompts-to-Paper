@@ -39,6 +39,7 @@ def print_wrapped(text, width=70):
 
 # docs: 
 # https://docs.anthropic.com/en/docs/about-claude/models/all-models?q=sonnet+maximum+input#model-names
+# https://platform.openai.com/docs/guides/reasoning?api-mode=chat
 
 MODEL_CONFIG = {
     "sonnet": {
@@ -156,7 +157,7 @@ def query_claude(model_name, full_prompt, system_prompt, max_tokens, thinking_bu
     }
 
 def query_openai(model_name, full_prompt, system_prompt, max_tokens):
-    client = OpenAI()
+    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
     # add system prompt before full_prompt with tags
     full_prompt2 = f"<system>\n{system_prompt}\n</system>\n\n<user>\n{full_prompt}\n</user>"
@@ -250,7 +251,9 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
 
         Convert markdown headings to latex headings. # becomes \\section, ## becomes \\subsection, ### becomes \\subsubsection. 
         
-        Use align environments for standalone math and dollar signs for in-line math. 
+        Use align environments for standalone math and dollar signs for in-line math. I repeat, make sure any math expressions are enclosed in either align environments or dollar signs.
+
+        Remove all unicode characters. pdflatex does not support unicode characters.
         
         Preserve all original text and do not add any text to the response. Cite from the bibtex file using \\citet{{}} and \\citep{{}}.
         </instructions>

@@ -7,7 +7,7 @@ import replicate
 from dotenv import load_dotenv
 from datetime import datetime
 import pandas as pd
-import anthropic  # Add anthropic import
+import anthropic
 from utils import MODEL_CONFIG, print_wrapped, assemble_prompt, query_claude, query_openai, response_to_texinput, texinput_to_pdf
 from utils import save_costs, aggregate_costs
 import yaml
@@ -22,6 +22,9 @@ plan_name = "plan3-o1"
 # Extract output folder name from plan_name
 output_folder = f"./output-{plan_name.split('-')[-1]}/"
 os.makedirs(output_folder, exist_ok=True)
+
+# Add this line right after imports
+load_dotenv()
 
 #%%
 # LOOP OVER PROMPTS
