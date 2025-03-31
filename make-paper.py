@@ -73,7 +73,7 @@ for index in range(index_start, index_end+1):
     )
 
     # by default, use system prompt
-    if "use_system_prompt" not in prompts[index]:
+    if "use_system_prompt" not in prompts[index] or prompts[index]["use_system_prompt"] == True:
         system_prompt_current = config["system_prompt"]
     elif prompts[index]["use_system_prompt"] == False:
         # do not use system prompt if use_system_prompt is false
@@ -128,8 +128,18 @@ for index in range(index_start, index_end+1):
     print(f"LaTeX input saved to {texinput_file}")
 
     # Convert to PDF    
-    texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)
+    compile_result = texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)
 
+    # if the conversion fails, use sonnet to convert to latex
+    if compile_result != 0:
+        print("LaTeX conversion failed, using sonnet to convert to latex")
+        llmdat_texinput = response_to_texinput(
+            response_raw=llmdat["response"],
+            par_per_chunk=par_per_chunk,
+            model_name="sonnet"
+        )
+        texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)    
+        
     # here i'm lazy and don't separate the saving
     save_costs(prompts, index, llmdat, llmdat_texinput, latex_model, output_folder)
 

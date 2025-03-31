@@ -238,24 +238,26 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
         print(f"convert to latex: {i+1} of {len(sections)}")
         
         prompt_tex = f"""
-        <document>
+        <input-document>
         {section}
-        </document>
+        </input-document>
 
         <bibtex>
         {bibtex_content}
         </bibtex>
 
         <instructions>
-        Convert the document to latex. Respond with only latex input (no document environment). 
+        Convert the input-document to latex. Respond with only latex input (no document environment). 
 
         Convert markdown headings to latex headings. # becomes \\section, ## becomes \\subsection, ### becomes \\subsubsection. 
-        
+       
         Use align environments for standalone math and dollar signs for in-line math. I repeat, make sure any math expressions are enclosed in either align environments or dollar signs. 
 
-        Remove all unicode characters. pdflatex does not support unicode characters. Make sure to replace ★ (U+2605), ₀ (U+2080), • (U+2022).
+        Remove all unicode characters. pdflatex does not support unicode characters. Make sure to replace ★ (U+2605), ₀ (U+2080), • (U+2022). ₜ (U+209C) should be replaced with _t and enclosed in either align environments or dollar signs.
         
-        Preserve all original text and do not add any text to the response. Cite from the bibtex file using \\citet{{}} and \\citep{{}}.
+        If there are references in the input-document, cite from the bibtex file using \\citet{{}} and \\citep{{}}. Do not add references that are not in the input-document.
+
+        Preserve all original text from the input-document. Do not add any text. 
         </instructions>
         """
 
@@ -298,8 +300,10 @@ def texinput_to_pdf(texinput, pdf_fname, output_folder="./responses/"):
         file.write(full_tex)
 
     # compile the paper
-    tex_to_pdf(pdf_fname, output_folder)
+    compile_result = tex_to_pdf(pdf_fname, output_folder)
     
+    return compile_result
+
 def tex_to_pdf(pdf_fname, output_folder="./responses/"):
 
     # -- clean aux files --
@@ -336,8 +340,8 @@ def tex_to_pdf(pdf_fname, output_folder="./responses/"):
     os.system(compile_command)
 
     print("Running final LaTeX pass...")
-    result = os.system(compile_command)
-    print(f"LaTeX compilation result: {result}")
+    compile_result = os.system(compile_command)
+    print(f"LaTeX compilation result: {compile_result}")
 
     # remove aux files 
     # pause to avoid deleting aux files too quickly
@@ -346,6 +350,8 @@ def tex_to_pdf(pdf_fname, output_folder="./responses/"):
     for file in aux_files:
         if os.path.exists(file):
             os.remove(file)
+
+    return compile_result
 
 def save_costs(prompts, index, llmdat, llmdat_texinput, latex_model, output_folder="./responses/"):
     # save cost data for both llmdat and llmdat_texinput
