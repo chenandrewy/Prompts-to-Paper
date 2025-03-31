@@ -71,15 +71,20 @@ for index in range(index_start, index_end+1):
         instructions=prompts[index]["instructions"],
         context_files=prev_responses + lit_files
     )
+
+    # by default, use system prompt
+    if "use_system_prompt" not in prompts[index]:
+        system_prompt_current = config["system_prompt"]
+    elif prompts[index]["use_system_prompt"] == False:
+        # do not use system prompt if use_system_prompt is false
+        system_prompt_current = ""
    
     # save the prompt
     with open(f"{output_folder}{prompts[index]['name']}-system-prompt.xml", "w", encoding="utf-8") as f:
-        f.write(config["system_prompt"])    
+        f.write(system_prompt_current)
     time.sleep(0.1)
     with open(f"{output_folder}{prompts[index]['name']}-prompt.xml", "w", encoding="utf-8") as f:
         f.write(full_prompt)
-    
-
 
     print(f"Querying {prompts[index]['model_name']}")
 
@@ -88,7 +93,7 @@ for index in range(index_start, index_end+1):
         llmdat = query_claude(
             model_name=prompts[index]["model_name"],
             full_prompt=full_prompt,
-            system_prompt=config["system_prompt"],
+            system_prompt=system_prompt_current,
             max_tokens=prompts[index]["max_tokens"],
             temperature=config["temperature"],
             thinking_budget=prompts[index]["thinking_budget"]
@@ -97,7 +102,7 @@ for index in range(index_start, index_end+1):
         llmdat = query_openai(
             model_name=prompts[index]["model_name"],
             full_prompt=full_prompt,
-            system_prompt=config["system_prompt"],
+            system_prompt=system_prompt_current,
             max_tokens=prompts[index]["max_tokens"],
         )
 

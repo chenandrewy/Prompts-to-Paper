@@ -251,9 +251,9 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
 
         Convert markdown headings to latex headings. # becomes \\section, ## becomes \\subsection, ### becomes \\subsubsection. 
         
-        Use align environments for standalone math and dollar signs for in-line math. I repeat, make sure any math expressions are enclosed in either align environments or dollar signs.
+        Use align environments for standalone math and dollar signs for in-line math. I repeat, make sure any math expressions are enclosed in either align environments or dollar signs. 
 
-        Remove all unicode characters. pdflatex does not support unicode characters.
+        Remove all unicode characters. pdflatex does not support unicode characters. Make sure to replace ★ (U+2605), ₀ (U+2080), • (U+2022).
         
         Preserve all original text and do not add any text to the response. Cite from the bibtex file using \\citet{{}} and \\citep{{}}.
         </instructions>

@@ -1,7 +1,7 @@
 config:
   run_range:
-    start: 2
-    end:   2
+    start: 1
+    end:   1
   temperature: 0.2
   system_prompt: |
     You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step. 
@@ -10,7 +10,7 @@ config:
 
     Format the math nicely. Use we / our / us to refer to the writing team.
 
-    Respond with only new content. Do not repeat anything in the context.  
+    Respond with only new content. Do not repeat anything in the context.
 
 prompts:
   - number: 1
@@ -18,16 +18,44 @@ prompts:
     model_name: o1
     max_tokens: 25000
     thinking_budget: 0
+    use_system_prompt: False
     instructions: |
-      consider a simplified barro rietz disaster risk asset pricing model. \delta_{t+1} = 1 w/ prob p (i.i.d.) indicates a disaster in period t. If \delta_{t+1} = 1, \log \Delta c_{t+1} = -b. Otherwise \log \Delta c_{t+1} = 0.  Consider a "Perp" asset that can be bought at t=0. The dividend in t = 1, 2, 3,..., D_{t} is C_{t} if \delta_1 = 0 (no disaster), and F times C_{t} if \delta_1=1. Note that the split in D_t is not recursive, it's like a one time deal. Buying Perp in t > 0 just gives you a standard perpetuity (scaled depending on \delta_1). Find the price and expected return of this asset.
+      Consider a barro rietz disaster risk asset pricing model with CRRA = \gamma. \delta_{t+1} = 1 w/ prob p (i.i.d.) indicates a disaster in period t. Streamline consumption so that if \delta_{t+1} = 1, \log \Delta c_{t+1} = -b and otherwise \log \Delta c_{t+1} = 0. 
+
+      Consider a HEDGE asset that pays D_t = C_t F^{N_t} where N_t is the number of disasters that have occurred up to and including time t.
+
+      Suppose there have been no disasters at t = 0. Find the price and expected return of the HEDGE asset at t = 0. 
 
   - number: 2
-    name: 02-model-part2
+    name: 02-simplified-model
     model_name: o1
-    max_tokens: 20000
+    max_tokens: 25000
     thinking_budget: 0
+    use_system_prompt: False
     instructions: |
-      Now consider a PerpAR asset, where AR stands for almost recursive. Like Perp, it pays D_{t+1} = C_{t+1} if \delta_1, \delta_2,...,\delta_t = 0.  But the first time a disaster hits, say at time = j, then the Perp pays D_t = F C_j for all t >= j. 
+      Write a simplified yet formal version of the derivation in `01-model-response.md`. Use time-homogeneity and the i.i.d. assumption to derive a recursive formula for the price/consumption ratio. Use this formula to find the expected return of the HEDGE asset.
+
+  # - number: 2
+  #   name: 02-calibration
+  #   model_name: o1
+  #   max_tokens: 20000
+  #   thinking_budget: 0
+  #   use_system_prompt: False
+  #   instructions: |
+  #     Fix \beta = 0.96, \gamma = 2. Create a table for the expected return of the HEDGE asset for values of p = 0.01, 0.001, 0.0001 and b = 0.40, 0.60, 0.80, 0.95. Leave the entry blank if the denominator is negative. Express the expected return as a percentage (percent return = (gross return - 1) * 100).
+
+  # - number: 3
+  #   name: 03-model-summary
+  #   model_name: o1
+  #   max_tokens: 20000
+  #   thinking_budget: 0
+  #   use_system_prompt: False
+  #   instructions: |
+  #     Combine `01-model-response.md` and `02-model-part2-response.md` into a single, clean exposition of the model and main result. The main result is the expected return of PerpAR. 
+
+  #     The exposition should be self-contained,  easy to understand, and concise. Make assumptions are clearly stated, with key formulas in display math. Make sure all resulting equations are clearly derived.
+
+  #     Do not normalize consumption to be 1.0 in any period.
 
 
   - number: 3

@@ -11,6 +11,7 @@ responses/*
 2-many-papers/*
 logs/*
 output-*/*
+saved-output/*
 
 # temp stuff
 zzz-*.py
