@@ -1,0 +1,126 @@
+I'll create a list of papers on AI reasoning models, focusing on recent works including OpenAI's o1 and DeepSeek's R1. Let me search for this information.
+
+Now let me search for information about DeepSeek's R1 model:
+
+Now let me search for other notable recent papers on AI reasoning models:
+
+Let me search for one more reasoning model paper by Google Gemini:
+
+# AI Reasoning Models: Recent Papers and Developments
+
+Below is a list of recent papers documenting advances in AI reasoning models, focusing on OpenAI's o1, DeepSeek's R1, and other notable developments in this field:
+
+## OpenAI o1 Papers
+
+1. **A Comparative Study on Reasoning Patterns of OpenAI's o1 Model** (2024)
+   * **Authors**: Wu, Siwei et al. (17 authors)
+   * **Published**: October 2024
+   * **Source**: arXiv
+   * **Link**: [https://arxiv.org/abs/2410.13639](https://arxiv.org/abs/2410.13639)
+   * **Description**: This comparative study investigates the reasoning patterns of OpenAI's o1 model by comparing it with existing Test-time Compute methods. The researchers identify six reasoning patterns in o1 and provide detailed analysis across several reasoning benchmarks, finding that o1 achieves the best performance on most datasets.
+
+2. **Evaluation of OpenAI o1: Opportunities and Challenges of AGI** (2024)
+   * **Authors**: Zhong, Tianyang et al. (78 authors)
+   * **Published**: September 2024
+   * **Source**: arXiv
+   * **Link**: [https://arxiv.org/abs/2409.18486](https://arxiv.org/abs/2409.18486)
+   * **Description**: This comprehensive study evaluates OpenAI's o1-preview model across diverse reasoning tasks spanning multiple domains. Key findings highlight o1's remarkable performance in coding (83.3% success rate in solving complex competitive programming problems), mathematics (100% accuracy in high-school level tasks), and specialized fields like anthropology and geology.
+
+3. **On The Planning Abilities of OpenAI's o1 Models** (2024)
+   * **Authors**: Wang, Kevin et al. (7 authors)
+   * **Published**: September 2024
+   * **Source**: arXiv
+   * **Link**: [https://arxiv.org/abs/2409.19924](https://arxiv.org/abs/2409.19924)
+   * **Description**: This study evaluates o1 models on planning tasks across various benchmarks, focusing on feasibility, optimality, and generalizability. The research highlights o1-preview's strengths in self-evaluation and constraint-following while identifying limitations in decision-making and memory management, particularly for tasks requiring spatial reasoning.
+
+4. **OpenAI-o1 AB Testing: Does the o1 model really do good reasoning in math problem solving?** (2024)
+   * **Authors**: Li, Leo et al. (3 authors)
+   * **Published**: November 2024
+   * **Source**: arXiv
+   * **Link**: [https://arxiv.org/abs/2411.06198](https://arxiv.org/abs/2411.06198)
+   * **Description**: This paper tests whether o1's performance on math problems stems from memorization or genuine reasoning by comparing results on widely available International Mathematics Olympiad problems versus less accessible Chinese National Team Training camp problems of similar difficulty. The study found no significant evidence that o1 relies on memorizing problems and solutions.
+
+5. **Marco-o1: Towards Open Reasoning Models for Open-Ended Solutions** (2024)
+   * **Authors**: Zhao, Yu et al. (8 authors)
+   * **Published**: November 2024
+   * **Source**: arXiv
+   * **Link**: [https://arxiv.org/abs/2411.14405](https://arxiv.org/abs/2411.14405)
+   * **Description**: This paper introduces Marco-o1, which extends beyond o1's focus on disciplines with standard answers (like mathematics and coding) to emphasize open-ended problem-solving. The research explores whether o1-style models can effectively generalize to broader domains requiring more flexible reasoning approaches.
+
+## DeepSeek R1 Papers
+
+1. **DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning** (2025)
+   * **Authors**: DeepSeek-AI et al. (200 authors)
+   * **Published**: January 2025
+   * **Source**: arXiv
+   * **Link**: [https://arxiv.org/abs/2501.12948](https://arxiv.org/abs/2501.12948)
+   * **Description**: This paper introduces two reasoning models: DeepSeek-R1-Zero (trained via large-scale reinforcement learning without supervised fine-tuning) and DeepSeek-R1 (which incorporates multi-stage training). The research demonstrates that reasoning capabilities can be incentivized purely through reinforcement learning, with DeepSeek-R1 achieving performance comparable to OpenAI's o1 model.
+
+2. **Brief analysis of DeepSeek R1 and its implications for Generative AI** (2025)
+   * **Authors**: Mercer, Sarah et al. (3 authors)
+   * **Published**: February 2025
+   * **Source**: arXiv
+   * **Link**: [https://arxiv.org/abs/2502.02523](https://arxiv.org/abs/2502.02523)
+   * **Description**: This analysis examines DeepSeek R1's significance in the AI landscape, noting how it achieves competitive performance with OpenAI's models despite development constraints like the US GPU export ban. The paper discusses how innovative use of Mixture of Experts (MoE), Reinforcement Learning, and engineering enabled these capabilities.
+
+3. **DeepSeek R1's recipe to replicate o1 and the future of reasoning LMs** (2025)
+   * **Authors**: Interconnects.ai
+   * **Published**: January 2025
+   * **Source**: Interconnects.ai (Blog)
+   * **Link**: [https://www.interconnects.ai/p/deepseek-r1-recipe-for-o1](https://www.interconnects.ai/p/deepseek-r1-recipe-for-o1)
+   * **Description**: This technical analysis outlines DeepSeek R1's training methodology and its significance for reasoning model research. The article discusses how R1-Zero conducts thousands of RL training steps and R1's multi-stage approach incorporating supervised fine-tuning and reinforcement learning to enhance performance.
+
+## Anthropic Claude Reasoning Models
+
+1. **Claude 3.7 Sonnet** (2025)
+   * **Developer**: Anthropic
+   * **Released**: February 2025
+   * **Source**: Anthropic, Wikipedia
+   * **Link**: [https://www.anthropic.com/claude](https://www.anthropic.com/claude)
+   * **Description**: Claude 3.7 Sonnet is described as a "hybrid AI reasoning model" that allows users to choose between rapid responses and more thoughtful, step-by-step reasoning within a single framework. This eliminates the need for separate models for different types of tasks while balancing speed and accuracy.
+
+2. **Tracing the thoughts of a large language model** (2025)
+   * **Authors**: Anthropic Research
+   * **Published**: March 2025
+   * **Source**: Anthropic Research
+   * **Link**: [https://www.anthropic.com/research/tracing-thoughts-language-model](https://www.anthropic.com/research/tracing-thoughts-language-model)
+   * **Description**: This research paper details Anthropic's "AI microscope" technique that traces the internal thought processes of Claude models. The study reveals insights about how Claude plans ahead when generating content, declines to speculate by default, and can recognize problematic requests, providing evidence for conceptual universality across languages.
+
+3. **The "think" tool: Enabling Claude to stop and think** (2025)
+   * **Developer**: Anthropic
+   * **Published**: 2025
+   * **Source**: Anthropic Engineering
+   * **Link**: [https://www.anthropic.com/engineering/claude-think-tool](https://www.anthropic.com/engineering/claude-think-tool)
+   * **Description**: This technical documentation describes Anthropic's "think tool" for Claude models, which enhances performance on complex tasks requiring policy adherence and reasoning in chains of tool calls. The think tool is particularly valuable for analyzing tool outputs, navigating policy-heavy environments, and making sequential decisions.
+
+## Google Gemini Reasoning Models
+
+1. **Gemini 2.5: Our newest Gemini model with thinking** (2025)
+   * **Developer**: Google DeepMind
+   * **Released**: March 2025
+   * **Source**: Google Blog
+   * **Link**: [https://blog.google/technology/google-deepmind/gemini-model-thinking-updates-march-2025/](https://blog.google/technology/google-deepmind/gemini-model-thinking-updates-march-2025/)
+   * **Description**: Gemini 2.5 introduces Google's most advanced reasoning model that can "think through its thoughts" before responding. The experimental version, Gemini 2.5 Pro, claims leading performance on various benchmarks including math and coding, with features including a 1 million token context window (expandable to 2 million) and native multimodality.
+
+2. **Google unveils a next-gen family of AI reasoning models** (2025)
+   * **Author**: Zeff, Maxwell
+   * **Published**: March 2025
+   * **Source**: TechCrunch
+   * **Link**: [https://techcrunch.com/2025/03/25/google-unveils-a-next-gen-ai-reasoning-model/](https://techcrunch.com/2025/03/25/google-unveils-a-next-gen-ai-reasoning-model/)
+   * **Description**: This article announces Google's release of Gemini 2.5 Pro Experimental, described as their most intelligent model yet and their most serious attempt at competing with OpenAI's "o" series. Google claims the model excels at creating web apps and agentic coding, outperforming competitors on benchmarks like Aider Polyglot (68.6%) and Humanity's Last Exam (18.8%).
+
+3. **Gemini 2.0 Flash Thinking Experimental** (2024)
+   * **Developer**: Google DeepMind
+   * **Released**: December 2024
+   * **Source**: TechCrunch
+   * **Link**: [https://techcrunch.com/2024/12/19/google-releases-its-own-reasoning-ai-model/](https://techcrunch.com/2024/12/19/google-releases-its-own-reasoning-ai-model/)
+   * **Description**: Released in December 2024, Gemini 2.0 Flash Thinking Experimental marked Google's first entry into reasoning models. Jeff Dean, chief scientist for Google DeepMind, described it as "trained to use thoughts to strengthen its reasoning" by increasing inference-time computation.
+
+4. **Gemini Deep Research** (2024)
+   * **Developer**: Google
+   * **Released**: December 2024
+   * **Source**: Google Gemini
+   * **Link**: [https://gemini.google/overview/deep-research/](https://gemini.google/overview/deep-research/)
+   * **Description**: Gemini Deep Research is an AI research assistant that uses reasoning capabilities to break complex problems into manageable sub-tasks, conduct web research, and synthesize findings. It features a "thinking panel" that shows the model's reasoning process and can produce comprehensive reports with audio summaries.
+
+This list highlights the rapid advancement in AI reasoning capabilities across multiple research labs, with each model introducing innovative approaches to enhance logical thinking, problem-solving, and complex task completion.

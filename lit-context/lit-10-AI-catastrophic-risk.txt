@@ -1,0 +1,75 @@
+I'll create a list of papers on AI disaster concerns to support your asset pricing theory paper. Let me search for recent publications by reputable authors in this area.
+
+Based on my research, I'll create a comprehensive list of key academic works on AI disaster concerns that would be relevant for your asset pricing theory paper about AI stocks potentially hedging against negative AI singularity risk.
+
+# Key Academic Papers on AI Disaster Concerns
+
+## 1. "Managing extreme AI risks amid rapid progress" (2024)
+* **Authors**: Yoshua Bengio, Geoffrey Hinton, Andrew Yao, Dawn Song, Pieter Abbeel, et al.
+* **Journal**: Science, Vol. 384, Issue 6698
+* **Publisher**: American Association for the Advancement of Science
+* **arXiv**: https://arxiv.org/abs/2310.17688
+* **Description**: This influential consensus paper addresses extreme risks from advanced AI systems and proposes a comprehensive approach combining technical research with proactive, adaptive governance mechanisms. The authors warn about risks including large-scale social harms, malicious uses, and potential loss of human control over autonomous AI systems.
+
+## 2. "Superintelligence: Paths, Dangers, Strategies" (2014)
+* **Author**: Nick Bostrom
+* **Publisher**: Oxford University Press
+* **Description**: Bostrom's seminal book explores the existential risk of advanced artificial intelligence, examining pathways to superintelligence and proposing techniques to help control AI. He emphasizes the importance of international collaboration to reduce AI arms race dynamics and suggests that superintelligence must be aligned with human values to be safe.
+
+## 3. "Human Compatible: Artificial Intelligence and the Problem of Control" (2019)
+* **Author**: Stuart Russell
+* **Publisher**: Viking Press
+* **Description**: Russell presents a compelling argument that the standard model of AI research is dangerously misguided. He proposes an approach to developing provably beneficial machines focused on deference to humans, where AI systems maintain uncertainty about their objectives and only approach certainty as they gain more information about human preferences.
+
+## 4. "The AI Dilemma: Growth versus Existential Risk" (2024)
+* **Author**: Charles I. Jones
+* **Publisher**: Stanford University
+* **Link**: https://web.stanford.edu/~chadj/existentialrisk.pdf
+* **Description**: This paper explores the economic tension between AI-driven growth and potential existential risks, providing an economic framework for analyzing trade-offs between technological progress and catastrophic outcomes.
+
+## 5. "AI and Catastrophic Risk" (2024)
+* **Author**: Yoshua Bengio
+* **Journal**: Journal of Democracy
+* **Description**: Bengio categorizes AI-driven harms by examining intentionality and misalignment, exploring scenarios where humans intentionally or unintentionally cause harm with AI. He discusses the risk of losing control of AI systems with self-preservation goals, which could create existential threats to humanity.
+
+## 6. "FAQ on Catastrophic AI Risks" (2023)
+* **Author**: Yoshua Bengio
+* **Publication**: Personal website
+* **Link**: https://yoshuabengio.org/2023/06/24/faq-on-catastrophic-ai-risks/
+* **Description**: Bengio addresses common questions about catastrophic AI risks, noting that many experts believe superhuman capabilities could arise within years. He explains how AI systems could be dangerous even without surpassing humans on every front, as long as they can manipulate humans to act on their behalf.
+
+## 7. "Existential Risk from Artificial Intelligence" (updated 2024)
+* **Type**: Wikipedia article with extensive references
+* **Link**: https://en.wikipedia.org/wiki/Existential_risk_from_artificial_general_intelligence
+* **Description**: This comprehensive article explains how AI could lead to human extinction through various pathways. It notes that in 2022, a survey of AI researchers found that the majority believed there is at least a 10% chance that human inability to control AI will cause an existential catastrophe.
+
+## 8. "Statement on AI Risk" (2023)
+* **Organization**: Center for AI Safety
+* **Signatories**: Multiple AI researchers and industry leaders
+* **Link**: https://www.safe.ai/work/statement-on-ai-risk
+* **Description**: A historic one-sentence statement signed by leading AI experts declaring: "Mitigating the risk of extinction from AI should be a global priority alongside other societal-scale risks such as pandemics and nuclear war."
+
+## 9. "Personal and Psychological Dimensions of AI Researchers Confronting AI Catastrophic Risks" (2023)
+* **Author**: Yoshua Bengio
+* **Publication**: Personal website
+* **Link**: https://yoshuabengio.org/2023/08/12/personal-and-psychological-dimensions-of-ai-researchers-confronting-ai-catastrophic-risks/
+* **Description**: Bengio explores his own psychological journey confronting the potential catastrophic risks of AI advancement. He discusses how AI researchers who share humanist values can strongly disagree about existential risks and calls for more humility when addressing these complex problems.
+
+## 10. "Infinite Ethics" (2011)
+* **Author**: Nick Bostrom
+* **Journal**: Analysis and Metaphysics, Vol. 10
+* **Description**: This philosophical paper explores ethical considerations in scenarios with infinite or extremely large values, which is relevant to assessing existential risks from superintelligent AI.
+
+## 11. "The Superintelligent Will: Motivation and Instrumental Rationality in Advanced Artificial Agents" (2012)
+* **Author**: Nick Bostrom
+* **Journal**: Minds and Machines, Vol. 22, No. 2
+* **DOI**: 10.1007/s11023-012-9281-3
+* **Description**: Bostrom investigates the potential motivations and rationality of superintelligent AI systems, arguing that certain instrumental goals would emerge in advanced AI regardless of their terminal goals.
+
+## 12. "Existential Risk Reduction as Global Priority" (2013)
+* **Author**: Nick Bostrom
+* **Journal**: Global Policy, Vol. 4, No. 3
+* **DOI**: 10.1111/1758-5899.12002
+* **Description**: This paper makes the case for prioritizing the reduction of existential risks, including those from advanced AI, as a global priority for humanity.
+
+This list provides a strong foundation of academic literature addressing AI disaster concerns from leading researchers in the field. These works explore various aspects of the potential risks from advanced AI systems and propose different approaches to mitigating these risks. Many of the papers explicitly discuss extinction-level risks that could relate to your paper's thesis about AI stocks potentially serving as a hedge against negative AI singularity scenarios.
