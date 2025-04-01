@@ -16,8 +16,7 @@ from importlib import reload
 import re
 import time
 # User
-plan_name = "plan3-o1"
-# plan_name = "plan1-test"
+plan_name = "plan4-piecemeal"
 
 # Extract output folder name from plan_name
 output_folder = f"./output-{plan_name.split('-')[-1]}/"
@@ -115,10 +114,16 @@ for index in range(index_start, index_end+1):
     # Convert to LaTeX
     latex_model = "haiku"
     par_per_chunk = 5
+    if lit_files == []:
+        bibtex_input = None
+    else:
+        bibtex_input = "./lit-context/bibtex-all.bib"
+
     llmdat_texinput = response_to_texinput(
         response_raw=llmdat["response"],
         par_per_chunk=par_per_chunk,
-        model_name=latex_model
+        model_name=latex_model,
+        bibtex_raw=bibtex_input
     )
 
     # Save texinput
@@ -183,4 +188,3 @@ grand_total = costs_df['Total_Cost'].sum()
 with open(f"{output_folder}all-costs.txt", "w", encoding="utf-8") as f:
     f.write(f"Grand Total: ${grand_total:.4f}\n")
     f.write(costs_df.to_string(index=False))
-

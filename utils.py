@@ -229,9 +229,12 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
         par_per_chunk = min(par_per_chunk, len(paragraphs))
         sections = [paragraphs[i:i+par_per_chunk] for i in range(0, len(paragraphs), par_per_chunk)]
 
-    # read in the bibtex file
-    with open(bibtex_raw, 'r', encoding='utf-8') as f:
-        bibtex_content = f.read()
+    # read in the bibtex file (if supplied)
+    if bibtex_raw:
+        with open(bibtex_raw, 'r', encoding='utf-8') as f:
+            bibtex_content = f.read()
+    else:
+        bibtex_content = ""
     
     tex_sections = []
     for i, section in enumerate(sections):
