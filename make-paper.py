@@ -42,6 +42,9 @@ all_costs = []
 index_start = config["run_range"]["start"]-1
 index_end = min(config["run_range"]["end"]-1, len(prompts)-1)
 
+# feedback
+print("==== FEEDBACK ====")
+print(f"Running plan {plan_name} from prompt {index_start+1} to prompt {index_end+1}")
 
 # loop over prompts
 for index in range(index_start, index_end+1):    
@@ -49,16 +52,14 @@ for index in range(index_start, index_end+1):
     
     print("==== FEEDBACK ====")
     print(f"Processing prompt number {index+1}...")
-
-    print("Assembling context")
     print(f"Instructions: {prompts[index]['instructions']}")
+
     if "lit_files" in prompts[index]:
         print(f"Lit files: {prompts[index]['lit_files']}")
     
     # Previous responses context
     prev_responses = [prompt["name"] for prompt in prompts[:index]]
     prev_responses = [f"{output_folder}{fname}-response.md" for fname in prev_responses]
-
 
     # Literature context
     if "lit_files" in prompts[index]:
@@ -73,10 +74,15 @@ for index in range(index_start, index_end+1):
         context_files=prev_responses + lit_files
     )
 
+    # Get max_tokens, thinking_budget, and use_system_prompt from prompt or use defaults
+    max_tokens = prompts[index].get("max_tokens", config["max_tokens"])
+    thinking_budget = prompts[index].get("thinking_budget", config["thinking_budget"])
+    use_system_prompt = prompts[index].get("use_system_prompt", config["use_system_prompt"])
+   
     # by default, use system prompt
-    if "use_system_prompt" not in prompts[index] or prompts[index]["use_system_prompt"] == True:
+    if use_system_prompt:
         system_prompt_current = config["system_prompt"]
-    elif prompts[index]["use_system_prompt"] == False:
+    else:
         # do not use system prompt if use_system_prompt is false
         system_prompt_current = ""
    
@@ -96,16 +102,16 @@ for index in range(index_start, index_end+1):
             model_name=prompts[index]["model_name"],
             full_prompt=full_prompt,
             system_prompt=system_prompt_current,
-            max_tokens=prompts[index]["max_tokens"],
+            max_tokens=max_tokens,
             temperature=config["temperature"],
-            thinking_budget=prompts[index]["thinking_budget"]
+            thinking_budget=thinking_budget
         )
     else:
         llmdat = query_openai(
             model_name=prompts[index]["model_name"],
             full_prompt=full_prompt,
             system_prompt=system_prompt_current,
-            max_tokens=prompts[index]["max_tokens"],
+            max_tokens=max_tokens,
         )
 
     # save the response
