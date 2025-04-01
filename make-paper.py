@@ -45,7 +45,7 @@ index_end = min(config["run_range"]["end"]-1, len(prompts)-1)
 for index in range(index_start, index_end+1):    
 # for index in [0]:
     
-    print("================================================")
+    print("==== FEEDBACK ====")
     print(f"Processing prompt number {index+1}...")
 
     print("Assembling context")
@@ -85,6 +85,7 @@ for index in range(index_start, index_end+1):
     with open(f"{output_folder}{prompts[index]['name']}-prompt.xml", "w", encoding="utf-8") as f:
         f.write(full_prompt)
 
+    print("==== FEEDBACK ====")
     print(f"Querying {prompts[index]['model_name']}")
 
     # Query the model
@@ -109,6 +110,7 @@ for index in range(index_start, index_end+1):
     with open(f"{output_folder}{prompts[index]['name']}-response.md", "w", encoding="utf-8") as f:
         f.write(llmdat["response"])
 
+    print("==== FEEDBACK ====")
     print(f"Converting to LaTeX")
 
     # Convert to LaTeX
@@ -148,8 +150,6 @@ for index in range(index_start, index_end+1):
     # here i'm lazy and don't separate the saving
     save_costs(prompts, index, llmdat, llmdat_texinput, latex_model, output_folder)
 
-
-    print("================================================")
 
 #%%
 # AGGREGATE COSTS
