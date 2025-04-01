@@ -16,7 +16,7 @@ import re
 import time
 
 # User
-plan_name = "plan4-piecemeal"
+plan_name = "plan5-streamlined"
 
 # Define and set up output folder
 temp_num, temp_name = plan_name.split("plan")[1].split("-")  # will give you "4" and "piecemeal"
@@ -175,7 +175,7 @@ for index in range(index_start, index_end+1):
 
 import shutil
 from utils import tex_to_pdf
-last_prompt_name = prompts[config["run_range"]["end"]-1]['name']
+last_prompt_name = prompts[index_end]['name']
 
 if "full-paper" in last_prompt_name:
     print("==== FEEDBACK ====")
@@ -196,15 +196,6 @@ if "full-paper" in last_prompt_name:
 
     # compile the full paper
     compile_result = tex_to_pdf(f"{last_prompt_name}-cleaned", output_folder)
-
-
-
-
-
-
-
-
-
 
 #%%
 # AGGREGATE COSTS
