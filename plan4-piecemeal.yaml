@@ -1,6 +1,6 @@
 config:
   run_range:
-    start: 9
+    start: 1
     end:   9
   temperature: 0.5
   convert_all_latex: False

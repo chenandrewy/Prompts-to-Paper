@@ -18,9 +18,11 @@ import time
 # User
 plan_name = "plan4-piecemeal"
 
-# Extract output folder name from plan_name
-output_folder = f"./output-{plan_name.split('-')[-1]}/"
-os.makedirs(output_folder, exist_ok=True)
+# Define and set up output folder
+temp_num, temp_name = plan_name.split("plan")[1].split("-")  # will give you "4" and "piecemeal"
+output_folder = f"./output{temp_num}-{temp_name}/"
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
 
 # Add this line right after imports
 load_dotenv()
@@ -167,6 +169,41 @@ for index in range(index_start, index_end+1):
 
     # here i'm lazy and don't separate the saving
     save_costs(prompts, index, llmdat, llmdat_texinput, latex_model, output_folder)
+
+#%%
+# Compile Full Paper Latex (if specified in yaml)
+
+import shutil
+from utils import tex_to_pdf
+last_prompt_name = prompts[config["run_range"]["end"]-1]['name']
+
+if "full-paper" in last_prompt_name:
+    print("==== FEEDBACK ====")
+    print(f"Compiling full paper LaTeX")
+
+    # read in the full paper md response
+    with open(f"{output_folder}{last_prompt_name}-response.md", "r", encoding="utf-8") as f:
+        full_paper_md = f.read()
+
+    # remove everything between \documentclass and \end{document}
+    i_start = full_paper_md.find("\\documentclass")
+    i_end = full_paper_md.find("\\end{document}") + len("\\end{document}")
+    full_paper_md = full_paper_md[i_start:i_end]
+
+    # save the full paper md
+    with open(f"{output_folder}{last_prompt_name}-cleaned.tex", "w", encoding="utf-8") as f:
+        f.write(full_paper_md)
+
+    # compile the full paper
+    compile_result = tex_to_pdf(f"{last_prompt_name}-cleaned", output_folder)
+
+
+
+
+
+
+
+
 
 
 #%%
