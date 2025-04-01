@@ -1,17 +1,19 @@
 config:
   run_range:
-    start: 5
-    end:   5
+    start: 9
+    end:   9
   temperature: 0.5
   convert_all_latex: False
   system_prompt: |
     You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step. 
     
-    Your team is writing a paper with the following main argument: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. The goal is to just make this point elegantly.
+    Your team is writing a paper with the following main argument: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). This contrasts with the common view that AI valuations are high due to future earnings growth. Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. The goal is to just make this point elegantly.
 
     Write in prose. No headings and no bullet points. But do use display math to highlight key assumptions. Cite papers using Author (Year) format.
 
-    Be conversational yet rigorous. Be direct and concise. Remove text that does not add value.     
+    Be conversational yet rigorous. Favor plain english. Be direct and concise. Remove text that does not add value.     
+
+    Be modest. Do not overclaim.
 
     Format the math nicely. Use we / our / us to refer to the writing team.
 
@@ -99,7 +101,7 @@ prompts:
     thinking_budget: 0
     use_system_prompt: True
     instructions: |
-      Discuss the following subtleties of the model in prose (no math):
+      Write the "Model Discussion" section. Discuss the following subtleties of the model in prose (no math):
 
       - On model interpretation:      
         - b should be considered the net result of (1) the AI disaster and (2) the dividend from the AI asset. In other words, the AI asset only partially hedges the disaster, and the key variable in the model is the net effect. This partial hedging is critical to the main argument.
@@ -107,7 +109,7 @@ prompts:
           - This is consistent with reality. Most people can't buy shares of OpenAI, Anthropic, xAI, etc.
       - On making the model more realistic:
         - Modeling the two components of b explicitly would require two Lucas trees, as in Cochrane et al. or Martin's Ecta. This adds state variables and significant complications.
-        - Though the model is an endowment economy, one can think of the consumption path as the result of a production economy in which the labor share may drop sharply, and the share of output produced by privately-held AI increases sharply, akin to Panageas et al's displacement risk.
+        - Though the model is an endowment economy, one can think of the consumption path as the result of a production economy in which the labor share may drop sharply, and the share of output produced by privately-held AI increases sharply.
         - While the traditional literature would write down a richer, dynamic model and rigorously calibrate model parameters, in this case calibration is completely unreasonable, given the uncertainty about the singularity.    
 
       Respond with only new content. Do not repeat anything in the context.    
@@ -117,4 +119,99 @@ prompts:
     - lit-02-hedging-labor.txt  
     - lit-03-disaster-risk.txt  
     - lit-07-lucas-trees.txt      
+
+  - number: 6
+    name: 06-litreview-notes
+    model_name: sonnet
+    max_tokens: 25000
+    thinking_budget: 0
+    use_system_prompt: True
+    instructions: |
+      Find the most relevant papers and write a short two paragraph lit review based on the "prose" context. Explain how our work adds to the literature by proposing a new way to think about the valuation of AI stocks.
+
+      Be sure to cite:
+        - Korinek and Suh (2024)
+        - Babina et al (2023) "Artificial Intelligence and Firms' Systematic Risk"
+        - Zhang (2019) "Labor-Technology"
+
+      Respond with only new content. Do not repeat anything in the context.  
+
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt    
+    - lit-08-investing-ai-part2.txt
+    - bibtex-all.bib            
+
+  - number: 7
+    name: 07-conclusion-prose
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 0
+    use_system_prompt: True
+    instructions: |
+      Write a short "Conclusion" section. 
+      
+      - Review the main argument 
+        - Briefly touch on the formalization
+      - Investing in AI stocks may be an effective way to fund universal basic income (UBI)
+        - Be cautious when suggesting this. 
+        - It's dangerous to have government so involved in the economy.
+        - Do not recommend a sovereign wealth fund.
+
+      Respond with only new content. Do not repeat anything in the context.  
+
+  - number: 8
+    name: 08-introduction-prose
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 0
+    use_system_prompt: True
+    instructions: |
+      Write the "Introduction" section, based on the "prose" context. 
+
+      Start with background. Describe how AI progress is happening quickly, and investors may be concerned about their wages being displaced.       
+
+      Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principle, create.  An example is the current paper, which is entirely written by AI, using a few short prompts. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. This differs from say, the internet revolution. AI progress may also be incredibly sudden (the AI singularity).
+
+      Then describe what the paper does. It studies how AI stocks are priced, given that there is the risk that AI may destroy livelihoods and consumption. 
+
+      End by incorporating the lit review (`06-litreview-notes`).
+
+      Include a footnote noting that "we" refers to one human author and multiple LLMs.
+
+      Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib.      
+
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt      
+    - bibtex-all.bib       
+
+  - number: 9
+    name: 09-full-paper
+    model_name: sonnet
+    max_tokens: 10000
+    thinking_budget: 0
+    use_system_prompt: True
+    instructions: |
+      Write a short paper titled "Hedging the AI Singularity" based on the "prose" context.
+
+      Omit the author and date.
+      
+      Add an abstract of less than 100 words, not indented. The abstract should mention that the paper is written by AI.
+
+      Output a complete latex document, including preamble. `template.tex` as a template.
+    lit_files:
+      - bibtex-all.bib
+      - template.tex
+
 

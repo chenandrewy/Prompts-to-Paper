@@ -162,8 +162,6 @@ def query_openai(model_name, full_prompt, system_prompt, max_tokens):
     # add system prompt before full_prompt with tags
     full_prompt2 = f"<system>\n{system_prompt}\n</system>\n\n<user>\n{full_prompt}\n</user>"
 
-    print(f"\n\n {model_name}, using system prompt: {system_prompt} \n\n")
-
     params = {
         "model": MODEL_CONFIG[model_name]["full_name"],
         "max_completion_tokens": max_tokens,
@@ -238,7 +236,7 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
     
     tex_sections = []
     for i, section in enumerate(sections):
-        print(f"convert to latex: {i+1} of {len(sections)}")
+        print(f"  converting section {i+1} of {len(sections)}")
         
         prompt_tex = f"""
         <input-document>

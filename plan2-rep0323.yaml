@@ -78,7 +78,7 @@ prompts:
 
       Include a footnote noting that "we" refers to one human author and multiple LLMs.
 
-      Cite papers as appropriate. Ensure citations correspond to items from all-bib.
+      Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib
     
   - number: 6
     name: 06-full-paper
