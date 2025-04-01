@@ -290,7 +290,7 @@ def response_to_texinput(response_raw, par_per_chunk=4, model_name="haiku", bibt
 def texinput_to_pdf(texinput, pdf_fname, output_folder="./responses/"):    
     
     # -- plug clean texinput into latex template --
-    with open("template.tex", "r", encoding="utf-8") as file:
+    with open("./lit-context/template.tex", "r", encoding="utf-8") as file:
         latex_template = file.read()
 
     # Replace the marker with the texinput instead of an \input command
