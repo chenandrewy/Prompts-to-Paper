@@ -7,7 +7,6 @@ import replicate
 from dotenv import load_dotenv
 from datetime import datetime
 import pandas as pd
-import anthropic
 from utils import MODEL_CONFIG, print_wrapped, assemble_prompt, query_claude, query_openai, response_to_texinput, texinput_to_pdf
 from utils import save_costs, aggregate_costs
 import yaml
@@ -15,6 +14,7 @@ import logging
 from importlib import reload
 import re
 import time
+
 # User
 plan_name = "plan4-piecemeal"
 
@@ -110,43 +110,61 @@ for index in range(index_start, index_end+1):
     with open(f"{output_folder}{prompts[index]['name']}-response.md", "w", encoding="utf-8") as f:
         f.write(llmdat["response"])
 
-    print("==== FEEDBACK ====")
-    print(f"Converting to LaTeX")
 
-    # Convert to LaTeX
-    latex_model = "haiku"
-    par_per_chunk = 5
-    if lit_files == []:
-        bibtex_input = None
-    else:
-        bibtex_input = "./lit-context/bibtex-all.bib"
+    if config["convert_all_latex"]:
+        print("==== FEEDBACK ====")
+        print(f"Converting to LaTeX")
 
-    llmdat_texinput = response_to_texinput(
-        response_raw=llmdat["response"],
-        par_per_chunk=par_per_chunk,
-        model_name=latex_model,
-        bibtex_raw=bibtex_input
-    )
+        # Convert to LaTeX
+        latex_model = "haiku"
+        par_per_chunk = 5
+        if lit_files == []:
+            bibtex_input = None
+        else:
+            bibtex_input = "./lit-context/bibtex-all.bib"
 
-    # Save texinput
-    texinput_file = f"{output_folder}{prompts[index]['name']}-texinput.tex"
-    with open(texinput_file, 'w', encoding='utf-8') as file:
-        file.write(llmdat_texinput["response"])
-    print(f"LaTeX input saved to {texinput_file}")
-
-    # Convert to PDF    
-    compile_result = texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)
-
-    # if the conversion fails, use sonnet to convert to latex
-    if compile_result != 0:
-        print("LaTeX conversion failed, using sonnet to convert to latex")
         llmdat_texinput = response_to_texinput(
             response_raw=llmdat["response"],
             par_per_chunk=par_per_chunk,
-            model_name="sonnet"
+            model_name=latex_model,
+            bibtex_raw=bibtex_input
         )
-        texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)    
-        
+
+        # Save texinput
+        texinput_file = f"{output_folder}{prompts[index]['name']}-texinput.tex"
+        with open(texinput_file, 'w', encoding='utf-8') as file:
+            file.write(llmdat_texinput["response"])
+        print(f"LaTeX input saved to {texinput_file}")
+
+        # Convert to PDF    
+        compile_result = texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)
+
+        # if the conversion fails, use sonnet to convert to latex
+        if compile_result != 0:
+            print("LaTeX conversion failed, using sonnet to convert to latex")
+            llmdat_texinput = response_to_texinput(
+                response_raw=llmdat["response"],
+                par_per_chunk=par_per_chunk,
+                model_name="sonnet"
+            )
+            texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)    
+
+    else:
+        print("==== FEEDBACK ====")
+        print(f"Skipping LaTeX conversion")
+
+        latex_model = "NA"
+    
+        # create llmdat_texinput with zero costs
+        llmdat_texinput = {
+            "response": "NA",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "input_cost": 0.0,
+            "output_cost": 0.0,
+            "total_cost": 0.0
+        }
+
     # here i'm lazy and don't separate the saving
     save_costs(prompts, index, llmdat, llmdat_texinput, latex_model, output_folder)
 
@@ -173,7 +191,7 @@ for file in costs_files:
     text = text.replace(",", "").replace("$", "")
 
     # convert to dataframe
-    df = pd.read_csv(StringIO(text), delim_whitespace=True)
+    df = pd.read_csv(StringIO(text), sep=r'\s+')
 
     # get just the filename without the path
     file_clean = os.path.basename(file)
