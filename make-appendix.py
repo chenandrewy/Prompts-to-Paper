@@ -42,7 +42,7 @@ def create_appendix():
     
     # Create the LaTeX appendix
     appendix = []
-    appendix.append("\\section{Prompts Used to Generate This Paper}")
+    appendix.append("\\section{Prompts Used to Generate This Paper} \\label{app:promptlisting}")
     appendix.append("""
     Each prompt consists of context and instructions. The context consists of the responses to the previous prompts, and may include literature reviews (all AI generated). For writing tasks (using Claude 3.7 Sonnet), a system prompt is also included.
     
