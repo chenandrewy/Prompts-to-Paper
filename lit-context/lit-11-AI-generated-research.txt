@@ -1,0 +1,55 @@
+I'll create a list of papers on using AI to generate research, including the two you mentioned and others I can find through searching. Let me focus on recent papers by reputable authors in this emerging field.
+
+# Papers on Using AI to Generate Research
+
+Here's a list of papers on using AI to generate research, including the two you mentioned and other relevant recent works by reputable authors:
+
+## 1. "AI-Powered (Finance) Scholarship"
+- **Authors**: Robert Novy-Marx and Mihail Velikov
+- **Year**: 2024/2025
+- **Publisher**: National Bureau of Economic Research (NBER Working Paper 33363)
+- **Journal**: Working Paper
+- **Link to arXiv**: Not available on arXiv
+- **Description**: This paper presents a methodology for automatically generating academic finance papers using large language models (LLMs). The researchers mined over 30,000 potential stock return predictor signals from accounting data and applied their "Assaying Anomalies" protocol to generate standardized reports for 96 signals that demonstrated robust predictive power. They then used state-of-the-art LLMs to generate three distinct complete versions of academic papers for each signal.
+
+## 2. "The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery"
+- **Authors**: Chris Lu, Cong Lu, Robert Tjarko Lange, Jakob Foerster, Jeff Clune, and David Ha
+- **Year**: 2024
+- **Publisher**: arXiv preprint
+- **Journal**: arXiv
+- **Link to arXiv**: https://arxiv.org/abs/2408.06292
+- **Description**: This paper introduces a comprehensive framework for fully automated scientific discovery using frontier large language models to perform research independently. The AI Scientist system generates novel research ideas, writes code, runs experiments, visualizes results, writes complete scientific papers documenting findings, and then runs a simulated review process for evaluation. Each paper costs less than $15 to produce, and the researchers demonstrated the versatility of their approach by applying it to three distinct subfields of machine learning.
+
+## 3. "AI-powered research generation: Promise and perils for academic finance"
+- **Authors**: Robert Novy-Marx and Mihail Velikov
+- **Year**: 2025
+- **Publisher**: Centre for Economic Policy Research (CEPR)
+- **Journal**: CEPR VoxEU
+- **Link to arXiv**: Not available on arXiv
+- **Description**: This publication discusses how AI can transform academic research production, highlighting both promising capabilities and concerning implications. The authors demonstrate how large language models can generate entire research papers with plausible theories integrated with empirical findings, but also warn about threats to academic integrity and the challenge of distinguishing rigorous scholarship from AI-generated content.
+
+## 4. "Scaling LLM Test-Time Compute Optimally"
+- **Authors**: Sebastian Raschka
+- **Year**: 2024
+- **Publisher**: Sebastian Raschka
+- **Journal**: AI Research Highlights
+- **Link to arXiv**: Not specified
+- **Description**: This paper investigates how increased test-time computation can be used to improve Large Language Model outputs during inference. Using the analogy of how humans can generate better responses when given more time to think, the researchers explore how LLMs might produce better outputs given more computational resources during response generation.
+
+## 5. "The Llama 3 Herd of Models"
+- **Authors**: Grattafiori and colleagues
+- **Year**: 2024
+- **Publisher**: Meta AI
+- **Journal**: Not specified
+- **Link to arXiv**: Not specified
+- **Description**: This paper details the Llama 3 model family, highlighting the increased sophistication of the pre-training and post-training pipelines compared to its Llama 2 predecessor. Similar advancements are noted in other recent LLMs like Gemma 2, Qwen 2, and Apple's Foundation Models.
+
+## 6. "DETECTing the anomalies: Exploring implications of qualitative research in identifying AI-generated text"
+- **Authors**: Not specified
+- **Year**: 2024
+- **Publisher**: ScienceDirect
+- **Journal**: Not specified
+- **Link to arXiv**: Not available
+- **Description**: This paper proposes a new approach to analyzing AI-generated text from a qualitative research perspective. It introduces the DETECT methodology (Determining potential AI-generated text, Employing pre-existing text knowledge, Tracing unusual patterns, Examining emotions and opinions, Checking trustworthiness, and Tallying conclusions) as a systematic framework for analyzing text in composition instruction.
+
+These papers represent some of the most recent and influential work on using AI to generate research, focusing on methodologies, applications, evaluation frameworks, and implications for academic integrity.

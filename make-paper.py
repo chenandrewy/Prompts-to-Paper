@@ -187,6 +187,11 @@ if "full-paper" in last_prompt_name:
     print("==== FEEDBACK ====")
     print(f"Compiling full paper LaTeX")
 
+    # Generate appendix first
+    print("Generating appendix with prompt listing...")
+    from utils import create_appendix
+    create_appendix(plan_name + ".yaml")
+
     # read in the full paper md response
     with open(f"{output_folder}{last_prompt_name}-response.md", "r", encoding="utf-8") as f:
         full_paper_md = f.read()
