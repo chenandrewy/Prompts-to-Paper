@@ -27,9 +27,6 @@ if not os.path.exists(output_folder):
 # Add this line right after imports
 load_dotenv()
 
-#%%
-# LOOP OVER PROMPTS
-
 # Load all config and prompts
 with open(f"{plan_name}.yaml", "r") as f:
     temp = yaml.safe_load(f)
@@ -41,6 +38,9 @@ prompts = temp["prompts"]
 all_costs = []
 index_start = config["run_range"]["start"]-1
 index_end = min(config["run_range"]["end"]-1, len(prompts)-1)
+
+#%%
+# LOOP OVER PROMPTS
 
 # feedback
 print("==== FEEDBACK ====")

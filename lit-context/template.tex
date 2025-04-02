@@ -42,10 +42,23 @@
 % tables
 \usepackage{booktabs,bigstrut,multirow,tabularx,caption,threeparttable, rotating, lscape}
 
+% code listings
+\usepackage{listings}
+\lstdefinelanguage{text}{} % Define empty language for plain text
+\lstset{
+    basicstyle=\small\ttfamily\linespread{1}
+}
+
 \begin{document}
 
-% [input-goes-here]
+[INPUT GOES HERE]
 
+\newpage
 \printbibliography
+
+\newpage
+\begin{appendix}
+    \input{../lit-context/appendix-promptlisting.tex}
+\end{appendix}
 
 \end{document}
