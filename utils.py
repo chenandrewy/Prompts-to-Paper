@@ -11,6 +11,7 @@ import glob
 import time
 import re
 import yaml
+from IPython import get_ipython
 
 def print_wrapped(text, width=70):
     """
@@ -563,3 +564,17 @@ def create_readme_appendix(output_file="lit-context/appendix-readme.tex"):
     # Write to file
     with open(output_file, "w", encoding="utf-8") as f:
         f.write('\n'.join(appendix))
+
+# is jupyter notebook?
+def is_jupyter():
+    try:
+        # This will only exist in Jupyter environments
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':  # Jupyter notebook or qtconsole
+            return True
+        elif shell == 'TerminalInteractiveShell':  # IPython terminal
+            return False
+        else:
+            return False
+    except NameError:  # Not in an IPython environment
+        return False

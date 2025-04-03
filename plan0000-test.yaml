@@ -1,8 +1,12 @@
 config:
   run_range:
     start: 1
-    end: 5
+    end: 9
   temperature: 0.5
+  convert_all_latex: False
+  max_tokens: 25000
+  thinking_budget: 0
+  use_system_prompt: True
   system_prompt: |
     You are an asset pricing theorist writing with a team that publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). The team thinks carefully with mathematics and checks its work, step by step.
 
@@ -31,13 +35,15 @@ prompts:
     max_tokens: 5000
     thinking_budget: 0
     instructions: |
-      Write a short, 5 page paper titled "Hedging the AI Singularity" based on the following planning and literature documents. 
+      Write a short, 4 page paper titled "Hedging the AI Singularity" based on the following planning and literature documents. 
 
       Be modest. Do not to over-claim. 
 
       The abstract should be less than 100 words, not indented. The abstract should mention that the paper is written by AI. Omit the author and date. 
 
-      Make sure all citations match papers in bibtex-all.bib.
+      Output a complete latex document, including preamble. Cite papers using \cite, \citep, \citet. Use `template.tex` and keep the appendix that is already in the template.
+
+      Output only latex code. Do not use any unicode characters.
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -48,3 +54,4 @@ prompts:
     - lit-06-tech-singularity.txt  
     - lit-07-lucas-trees.txt      
     - bibtex-all.bib    
+    - template.tex

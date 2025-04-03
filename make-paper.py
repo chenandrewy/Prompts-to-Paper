@@ -9,25 +9,44 @@ from datetime import datetime
 import pandas as pd
 from utils import MODEL_CONFIG, print_wrapped, assemble_prompt, query_claude, query_openai, response_to_texinput, texinput_to_pdf
 
-from utils import save_costs, aggregate_costs
+load_dotenv()
+
+from utils import save_costs, aggregate_costs, is_jupyter
 import yaml
 import logging
 from importlib import reload
 import re
 import time
+import argparse
 
-# User
-plan_name = "plan1-test"
-# plan_name = "plan0403-streamlined"
+
+#%%
+# Parse command line / hard coded arguments
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Generate a paper from a plan")
+    parser.add_argument("--plan_name", type=str, default="plan0403-streamlined", help="Name of the plan to use")
+    return parser.parse_args()
+
+if is_jupyter():
+    # User
+    # plan_name = "plan1-test"
+    plan_name = "plan0403-streamlined"
+else:
+    args = parse_arguments()
+    plan_name = args.plan_name
+
+
+
+#%% 
+# Set up folder and loops
 
 # Define and set up output folder
-temp_num, temp_name = plan_name.split("plan")[1].split("-")  # will give you "4" and "piecemeal"
+temp_num, temp_name = plan_name.split("plan")[1].split("-") 
 output_folder = f"./output{temp_num}-{temp_name}/"
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-# Add this line right after imports
-load_dotenv()
 
 # Load all config and prompts
 with open(f"{plan_name}.yaml", "r") as f:
