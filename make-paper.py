@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import pandas as pd
 from utils import MODEL_CONFIG, print_wrapped, assemble_prompt, query_claude, query_openai, response_to_texinput, texinput_to_pdf
+
 from utils import save_costs, aggregate_costs
 import yaml
 import logging
@@ -16,7 +17,8 @@ import re
 import time
 
 # User
-plan_name = "plan5-streamlined"
+plan_name = "plan1-test"
+# plan_name = "plan0403-streamlined"
 
 # Define and set up output folder
 temp_num, temp_name = plan_name.split("plan")[1].split("-")  # will give you "4" and "piecemeal"
@@ -178,6 +180,9 @@ for index in range(index_start, index_end+1):
 
 #%%
 # Compile Full Paper Latex (if specified in yaml)
+import utils
+reload(utils)
+from utils import create_readme_appendix, create_appendix
 
 import shutil
 from utils import tex_to_pdf
@@ -188,10 +193,13 @@ if "full-paper" in last_prompt_name:
     print(f"Compiling full paper LaTeX")
 
     # Generate appendix first
+    print("Generating appendix with README...")
+    create_readme_appendix()
+
     print("Generating appendix with prompt listing...")
     from utils import create_appendix
     create_appendix(plan_name + ".yaml")
-
+    
     # read in the full paper md response
     with open(f"{output_folder}{last_prompt_name}-response.md", "r", encoding="utf-8") as f:
         full_paper_md = f.read()

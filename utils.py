@@ -522,3 +522,44 @@ def format_prompt_for_latex(prompt):
     formatted.append("\\vspace{-3ex}")
     
     return '\n'.join(formatted)
+
+def create_readme_appendix(output_file="lit-context/appendix-readme.tex"):
+    """
+    Creates a LaTeX appendix section containing the README.md file.
+    
+    Args:
+        output_file (str): Path where the LaTeX appendix should be saved
+    """
+    # Read the README.md file
+    with open("README.md", "r", encoding="utf-8") as f:
+        readme_content = f.read()
+
+    # replace markdown # with \#
+    readme_content = re.sub(r'#', r'\\#', readme_content)
+
+    # replace markdown urls with latex urls
+    readme_content = re.sub(r'\[(.*?)\]\((.*?)\)', r'\\href{\2}{\1}', readme_content)
+    
+    # Create the LaTeX appendix
+    appendix = []
+    appendix.append("\\section{README File} \\label{app:readme}")
+    appendix.append("The following is the README.md file from the GitHub repository:")
+    appendix.append("\\vspace{-1ex}")
+    
+    # Add README content as a code listing
+    appendix.append("""\\begin{mdframed}[linewidth=1pt, linecolor=black]
+                    \\begingroup
+                    \\ttfamily
+                    \\setlength{\\parindent}{0pt}
+                    \\setlength{\\parskip}{\\baselineskip}
+                    \\sloppy
+                    \\setlength{\\emergencystretch}{3em}
+                    """)
+    appendix.append(readme_content)
+    appendix.append("\\endgroup")
+    appendix.append("\\end{mdframed}")
+    appendix.append("\\vspace{-3ex}")
+    
+    # Write to file
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write('\n'.join(appendix))
