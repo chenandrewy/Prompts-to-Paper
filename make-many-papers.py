@@ -5,16 +5,17 @@ import subprocess
 from datetime import datetime
 
 # User input
-num_runs = 10
 plan_name = 'plan0403-streamlined'
+run_start = 4 
+run_end = 5 
 
 # Extract plan number and name
 temp_num, temp_name = plan_name.split("plan")[1].split("-")
 print(f"Processing plan {temp_num} with name {temp_name}")
 
 #%% Run the paper generation multiple times
-for run_id in range(1, num_runs + 1):
-    print(f"\n=== Starting Run {run_id} of {num_runs} ===")
+for run_id in range(run_start, run_end + 1):
+    print(f"\n=== Starting Run {run_id:02d} of {run_end} ===")
     
     # Run make-paper.py and capture output
     result = subprocess.run(["python", "-u", "make-paper.py", "--plan_name", plan_name], 
@@ -27,8 +28,8 @@ for run_id in range(1, num_runs + 1):
     print(f"Return Code: {result.returncode}")
     print(f"Command Run: {result.args}")
     
-    # Create new output folder name with run ID
-    new_output_folder = f"output{temp_num}-{temp_name}-run{run_id}/"
+    # Create new output folder name with run ID (padded with zeros)
+    new_output_folder = f"output{temp_num}-{temp_name}-run{run_id:02d}/"
     
     # Copy the output folder to the new location
     # might need to quit dropbox?
@@ -41,7 +42,7 @@ for run_id in range(1, num_runs + 1):
     if result.returncode != 0:
         raise RuntimeError(f"make-paper.py failed with return code {result.returncode}")
     
-    print(f"Completed run {run_id}. Output saved to {new_output_folder}")
+    print(f"Completed run {run_id:02d}. Output saved to {new_output_folder}")
 
 print("\nAll runs completed!") 
 
@@ -52,16 +53,16 @@ print("\nAll runs completed!")
 pdfs_folder = f"output{temp_num}-{temp_name}-pdfs"
 os.makedirs(pdfs_folder, exist_ok=True)
 
-for run_id in range(1, num_runs + 1):
-    run_folder = f"output{temp_num}-{temp_name}-run{run_id}/"
+for run_id in range(run_start, run_end + 1):
+    run_folder = f"output{temp_num}-{temp_name}-run{run_id:02d}/"
     # Find all PDF files in the run folder
     for root, _, files in os.walk(run_folder):
         for file in files:
             if file.endswith('.pdf'):
                 # Get the base name without extension
                 base_name = os.path.splitext(file)[0]
-                # Create new filename with run-id suffix
-                new_filename = f"{base_name}-run{run_id}.pdf"
+                # Create new filename with run-id suffix (padded with zeros)
+                new_filename = f"{base_name}-run{run_id:02d}.pdf"
                 # Copy the file to the PDFs folder
                 shutil.copy2(
                     os.path.join(root, file),
