@@ -5,7 +5,7 @@
 0-archive/*
 
 # outputs
-latex/*
+latex-input/*
 responses/*
 1-many-responses/*
 2-many-papers/*

@@ -22,16 +22,16 @@ import argparse
 
 #%%
 # Parse command line / hard coded arguments
+plan_default = "plan0000-test"
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Generate a paper from a plan")
-    parser.add_argument("--plan_name", type=str, default="plan0403-streamlined", help="Name of the plan to use")
+    parser.add_argument("--plan_name", type=str, default=plan_default, help="Name of the plan to use")
     return parser.parse_args()
 
 if is_jupyter():
     # User
-    # plan_name = "plan1-test"
-    plan_name = "plan0403-streamlined"
+    plan_name = plan_default
 else:
     args = parse_arguments()
     plan_name = args.plan_name
@@ -89,10 +89,17 @@ for index in range(index_start, index_end+1):
     else:
         lit_files = []
 
+    # LaTeX files
+    if "latex_files" in prompts[index]:
+        latex_files = prompts[index]["latex_files"]
+        latex_files = [f"./latex-input/{fname}" for fname in latex_files]
+    else:
+        latex_files = []
+
     # Generate the full prompt
     full_prompt = assemble_prompt(
         instructions=prompts[index]["instructions"],
-        context_files=prev_responses + lit_files
+        context_files=prev_responses + lit_files + latex_files
     )
 
     # Get max_tokens, thinking_budget, and use_system_prompt from prompt or use defaults

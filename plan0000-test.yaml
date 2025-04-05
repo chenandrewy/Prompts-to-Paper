@@ -1,7 +1,7 @@
 config:
   run_range:
-    start: 1
-    end: 9
+    start: 3
+    end: 3
   temperature: 0.5
   convert_all_latex: False
   max_tokens: 25000
@@ -54,4 +54,7 @@ prompts:
     - lit-06-tech-singularity.txt  
     - lit-07-lucas-trees.txt      
     - bibtex-all.bib    
+
+    latex_files:
     - template.tex
+    - econstyle.sty
