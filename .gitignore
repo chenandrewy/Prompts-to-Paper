@@ -7,8 +7,7 @@
 # outputs
 latex-input/*
 responses/*
-1-many-responses/*
-2-many-papers/*
+manyout*/*
 logs/*
 output*/*
 saved-output/*
