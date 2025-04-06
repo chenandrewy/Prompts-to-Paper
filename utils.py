@@ -549,7 +549,7 @@ def create_readme_appendix(output_file="latex-input/appendix-readme.tex"):
 
     # Create the appendix
     appendix = []
-    appendix.append("\\section{README File} \\label{app:readme}")
+    appendix.append("\\section{A Purely Human Perspective} \\label{app:readme}")
     appendix.append("The following is the README.md file from the GitHub repository:")
     appendix.append("\\vspace{-1ex}")
     
