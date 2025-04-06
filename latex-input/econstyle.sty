@@ -1,0 +1,52 @@
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{textgreek}
+\usepackage{lmodern}
+
+
+% theorem environments
+\usepackage{amsthm}  % Provides theorem environments
+\usepackage{amsmath} % Enhanced math formatting
+\usepackage{amssymb} % Additional mathematical symbols
+\usepackage{thmtools} % Enhanced theorem formatting
+
+% Basic theorem-like environments
+\theoremstyle{plain}    % Used for theorems, propositions, lemmas (italicized text)
+\newtheorem{theorem}{Theorem}[section]  % Numbered by section
+\newtheorem{proposition}[theorem]{Proposition}  % Shares numbering with theorems
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+% Definition-like environments
+\theoremstyle{definition}  % Normal text (not italicized)
+\newtheorem{definition}[theorem]{Definition}  % Shares numbering with theorems
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+% Bibliography settings 
+\usepackage[backend=biber,style=authoryear,uniquename=false, maxbibnames=99, maxcitenames=3, uniquelist=false, natbib=true]{biblatex}
+\addbibresource{../lit-context/bibtex-all.bib}
+
+% custom math commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathbb{V}}
+
+% margins and spacing
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% tables
+\usepackage{booktabs,bigstrut,multirow,tabularx,caption}
+
+% code listings
+\usepackage{listings}
+\lstdefinelanguage{text}{} % Define empty language for plain text
+\lstset{
+    basicstyle=\small\ttfamily\linespread{1}
+}
+\usepackage{mdframed}
+

@@ -5,12 +5,12 @@
 0-archive/*
 
 # outputs
-latex-input/*
 responses/*
-manyout*/*
-logs/*
+manyout000*/*
+manyout0301*/*
 output*/*
-saved-output/*
+manyout*-detail/*
+
 
 # temp stuff
 zzz-*.py
@@ -20,13 +20,13 @@ temp/*
 __pycache__/*
 
 # latex template aux files
-lit-context/template.aux
-lit-context/template.bbl
-lit-context/template.blg
-lit-context/template.log
-lit-context/template.out
-lit-context/template.pdf
-lit-context/template.bcf
-lit-context/template.run.xml
-lit-context/template.synctex.gz
+latex-input/template.aux
+latex-input/template.bbl
+latex-input/template.blg
+latex-input/template.log
+latex-input/template.out
+latex-input/template.pdf
+latex-input/template.bcf
+latex-input/template.run.xml
+latex-input/template.synctex.gz
 
