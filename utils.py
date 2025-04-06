@@ -454,7 +454,7 @@ def aggregate_costs(output_folder="./responses/"):
     
     return costs_df, grand_total
 
-def create_appendix(plan_file, output_file="lit-context/appendix-promptlisting.tex"):
+def create_appendix(plan_file, output_file="latex-input/appendix-promptlisting.tex"):
     """
     Creates a LaTeX appendix listing all prompts used in the paper generation.
     
@@ -524,7 +524,7 @@ def format_prompt_for_latex(prompt):
     
     return '\n'.join(formatted)
 
-def create_readme_appendix(output_file="lit-context/appendix-readme.tex"):
+def create_readme_appendix(output_file="latex-input/appendix-readme.tex"):
     """
     Creates a LaTeX appendix section containing the README.md file.
     
@@ -535,27 +535,34 @@ def create_readme_appendix(output_file="lit-context/appendix-readme.tex"):
     with open("README.md", "r", encoding="utf-8") as f:
         readme_content = f.read()
 
-    # replace markdown # with \#
-    readme_content = re.sub(r'#', r'\\#', readme_content)
+    # color markdown sections dark red and make them bold (do this FIRST)
+    readme_content = re.sub(r'^(#.*?)$', r'\\textbf{\\textcolor{red!70!black}{\1}}', readme_content, flags=re.MULTILINE)
 
-    # replace markdown urls with latex urls
-    readme_content = re.sub(r'\[(.*?)\]\((.*?)\)', r'\\href{\2}{\1}', readme_content)
-    
-    # Create the LaTeX appendix
+    # replace markdown # with \# (do this AFTER coloring sections)
+    readme_content = re.sub(r'(?<!\\)#', r'\\#', readme_content)
+
+    # replace markdown urls with color latex urls
+    readme_content = re.sub(r'\[(.*?)\]\((.*?)\)', r'\\href{\2}{\\textcolor{blue}{\1}}', readme_content)
+
+    # replace markdown backticks 
+    readme_content = re.sub(r'`(.*?)`', r'\\colorbox{gray!10}{\\textcolor{red!70!black}{\1}}', readme_content)    
+
+    # Create the appendix
     appendix = []
     appendix.append("\\section{README File} \\label{app:readme}")
     appendix.append("The following is the README.md file from the GitHub repository:")
     appendix.append("\\vspace{-1ex}")
     
-    # Add README content as a code listing
-    appendix.append("""\\begin{mdframed}[linewidth=1pt, linecolor=black]
-                    \\begingroup
-                    \\ttfamily
-                    \\setlength{\\parindent}{0pt}
-                    \\setlength{\\parskip}{\\baselineskip}
-                    \\sloppy
-                    \\setlength{\\emergencystretch}{3em}
-                    """)
+    # Add README content in a monospace environment
+    appendix.append("\\begin{mdframed}[linewidth=1pt, linecolor=black]")
+    appendix.append("\\begingroup")
+    appendix.append("\\small")
+    appendix.append("\\ttfamily")
+    appendix.append("\\linespread{1}")
+    appendix.append("\\setlength{\\parindent}{0pt}")
+    appendix.append("\\setlength{\\parskip}{0.5\\baselineskip}")
+    appendix.append("\\sloppy")
+    appendix.append("\\setlength{\\emergencystretch}{3em}")
     appendix.append(readme_content)
     appendix.append("\\endgroup")
     appendix.append("\\end{mdframed}")
