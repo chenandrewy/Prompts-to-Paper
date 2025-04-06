@@ -22,21 +22,17 @@ import argparse
 
 #%%
 # Parse command line / hard coded arguments
-plan_default = "plan0000-test"
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Generate a paper from a plan")
-    parser.add_argument("--plan_name", type=str, default=plan_default, help="Name of the plan to use")
-    return parser.parse_args()
+# plan_default = "plan0000-test"
+plan_default = "plan0403-streamlined"
 
 if is_jupyter():
     # User
     plan_name = plan_default
 else:
-    args = parse_arguments()
+    parser = argparse.ArgumentParser(description="Generate a paper from a plan")
+    parser.add_argument("--plan_name", type=str, default=plan_default, help="Name of the plan to use")
+    args = parser.parse_args()
     plan_name = args.plan_name
-
-
 
 #%% 
 # Set up folder and loops
@@ -206,6 +202,8 @@ for index in range(index_start, index_end+1):
 
 #%%
 # Compile Full Paper Latex (if specified in yaml)
+
+# reload for easy modifications
 import utils
 reload(utils)
 from utils import create_readme_appendix, create_appendix
@@ -223,7 +221,6 @@ if "full-paper" in last_prompt_name:
     create_readme_appendix()
 
     print("Generating appendix with prompt listing...")
-    from utils import create_appendix
     create_appendix(plan_name + ".yaml")
     
     # read in the full paper md response
