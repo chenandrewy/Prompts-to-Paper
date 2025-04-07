@@ -73,11 +73,11 @@ I did not try many other models, in order to get this paper out quickly. Gemini 
 
 ## Picking the best of N papers
 
-The quality writing varies across each run of the code. There is both a good tail and a bad tail. Some drafts, I found quite insightful! Others, had flagrant errors in the economics. 
+The writing quality varies across each run of the code. There is both a good tail and a bad tail. Some drafts, I found quite insightful! Others, had flagrant errors in the economics. 
 
 Rather than try to prompt engineer an error free, insightful paper, I decided to just generate N papers and choose the best one. 
 
-Some papers had problematic cites (`run01`). Others provided low-quality model discussions (`run02`) or poor explanations of the algebra (`run03`)
+10 drafts of the paper can be found in `./manyout0403-pdf/`. I ended up choosing TBC
 
 # Lessons about Research 
 
@@ -97,11 +97,11 @@ AI-generated papers don't change any of these fundamentals.  Critically, item 3 
 
 This will likely be out of date by the time you read it.
 
-But right now, AI is like a junior co-author with a talent for mathematics and elegant writing, but sub-par economics reasoning. Put another way, the writing can fail to portray the mathematics accurately.
+But right now, AI is like a junior co-author with a talent for mathematics and elegant writing, but sub-par economics reasoning. 
 
 For example, 3.7 Sonnet sometimes fails to recognize that the economic model does not capture an important channel. This is a common scenario in economics writing (no model can capture everything). The standard practice is to dance gingerly around the channel in the writing. A decent PhD student can recognize this. But Sonnet cannot. Instead, 3.7 Sonnet will write beautiful prose about the channel anyway, even though it's not really being studied properly. 
 
-AI also cannot generate satisfying mathematics on its own (at least not satisfying to me). I tried asking o1 and Sonnet to generate a model to illustrate the point I'm trying to make. The resulting models were either too simplistic or did not lead to a clean analysis. They often introduced complications that I found unnecessary. 
+AI also cannot generate a satisfying economic model on their own (at least not satisfying to me). I tried asking o1 and Sonnet to generate a model to illustrate the point I'm trying to make. The resulting models were either too simplistic or did not lead to a clean analysis. They often introduced complications that I found unnecessary. 
 
 There could be models with capabilities that I missed. But my sense is that ChatGPT-o1 and Claude 3.7 Sonnet are close to the best for producing economic research.
 

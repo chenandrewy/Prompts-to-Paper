@@ -1,4 +1,6 @@
 #%% Import required libraries
+# may want to quit dropbox to avoid file access conflicts
+
 import os
 import shutil
 import subprocess
@@ -7,7 +9,7 @@ from datetime import datetime
 # User input
 plan_name = 'plan0403-streamlined'
 # plan_name = 'plan0000-test'
-run_start = 6
+run_start = 1
 run_end = 10
 
 # Extract plan number and name

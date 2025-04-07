@@ -2,7 +2,7 @@
 
 config:
   run_range:
-    start: 6
+    start: 1
     end:   6
   temperature: 0.5
   convert_all_latex: False
@@ -141,6 +141,7 @@ prompts:
             - Key economics: this hedge is limited by market incompleteness
           - These solutions to AI disaster risk are not discussed enough in the literature (cite papers)
           - Be very centrist (see below)
+        - Don't say "In conclusion." Just conclude          
 
       Text should avoid      
       - Being overly academic
@@ -154,7 +155,8 @@ prompts:
       - Be conversational and direct, yet rigorous
       - A touch of wit and wry humor are OK
       - No bulleted lists
-      - No subsections (e.g. Section 1.2) though sections are OK (Section 1)      
+      - No subsections (e.g. Section 1.2) though sections are OK (Section 1)
+      
 
       Output a complete latex document, including preamble. Cite papers using \cite, \citep, \citet. Use `template.tex` and keep the appendix that is already in the template.
 
