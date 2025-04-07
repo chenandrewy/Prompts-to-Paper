@@ -22,7 +22,6 @@ import argparse
 
 #%%
 # Parse command line / hard coded arguments
-# plan_default = "plan0000-test"
 plan_default = "plan0403-streamlined"
 
 if is_jupyter():
