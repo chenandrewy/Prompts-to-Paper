@@ -1,0 +1,252 @@
+config:
+  run_range:
+    start: 1
+    end:   9
+  temperature: 0.5
+  convert_all_latex: False
+  max_tokens: 25000
+  thinking_budget: 0
+  use_system_prompt: True
+  system_prompt: |
+    You are an asset pricing theorist who publishes in the top journals (Journal of Finance, Journal of Financial Economics, Review of Financial Studies). You think carefully with mathematics and check your work, step by step. 
+    
+    Your team is writing a paper with the following main argument: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). This contrasts with the common view that AI valuations are high due to future earnings growth. Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. The goal is to just make this point elegantly.
+
+    Write in prose. Avoid bullet points and excessive use of headers. But do use display math to highlight key assumptions. Cite papers using Author (Year) format.
+
+    Be conversational yet rigorous. Favor plain english. Be direct and concise. Remove text that does not add value.     
+
+    Be modest. Do not overclaim. 
+
+    Format the math nicely. Use we / our / us to refer to the writing team.
+
+prompts:
+  - number: 1
+    name: 01-model-prose
+    model_name: sonnet
+    use_system_prompt: True
+    instructions: |
+      Draft the model description. Only describe the assumptions. No results or insights. Be modest. 
+
+      Assume the reader is an asset pricing expert and knows standard results like the SDF and the 1 = E(MR). 
+
+      Use the following outline:
+        - The model is purposefully simple and captures the essence of the main argument
+        - Two agents
+          - AI owners
+            - Fully invested in AI, not marginal investors in stock market
+          - Representative household
+            - Marginal investor in stocks: only their consumption matters for this analysis
+            - CRRA = \gamma, time preference = \beta
+        - Consumption growth
+          - \log \Delta c{t+1} = 0 if no disaster
+          - \log \Delta c{t+1} = -b if disaster (prob p)
+          - A disaster is a sudden improvement in AI that is devastating for the household
+            - Think of as a worst-case scenario for AI progress
+            - Economy booms, but the value of AI is captured by the AI owners. 
+            - For household, labor is replaced by AI, so labor income plummets, as does consumption.
+              - Also, way of life, meaning, is lost. Consumption fall can be thought of as a stand-in for these losses.
+          - at t=0, no disasters have happened (singularity has not occurred)
+            - Multiple disasters may happen, capturing ongoing uncertainty if a singularity occurs
+        - AI asset
+          - Captures publicly traded AI stocks
+          - Dividend D_t = a exp^{h N_t} C_t
+            - a > 0 is small, AI stocks are currently a minor share of the economy
+            - N_t is the number of disasters that have occurred up to and including time t
+            - h > 0: each time a disaster occurs, the AI asset grows as a share of the economy
+              - Intuitively, firms that provide semiconductors, data, AI models, etc. at least partially benefit from a sudden improvement in AI
+
+  - number: 2
+    name: 02-result-notes
+    model_name: o1
+    use_system_prompt: False
+    instructions: |      
+      Find the price/dividend ratio and risk premium of the AI asset at t = 0. The risk premium is the expected return (including dividends) minus the risk-free rate.    Derive the formulas, step by step. 
+
+      Do not restate the assumptions.
+      
+      Try to make the final formulas self-contained and not depend on the other final formulas.
+  
+  - number: 3
+    name: 03-table-notes
+    model_name: o3-mini
+    use_system_prompt: False
+    instructions: |
+      Illustrate the results in `02-result-notes` with a couple numerical examples. Focus on gamma = 2, beta = 0.96, and p = 0.01. What values of b and h lead to convergence of the price/dividend ratio? 
+
+      Then make a table of the price/dividend ratio at t=0 for b = 0.4, 0.6, 0.8, 0.95 and p = 0.0001, 0.001, 0.01, 0.02. Here, fix h = 0.2. If the price is infinite, use "Inf"
+      
+      Make a table for the risk premium (expected return - risk-free rate) in percent (100*(gross return - 1)). If the price is infinite, leave the cell blank.
+
+  - number: 4
+    name: 04-resultandtable-prose
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 15000
+    use_system_prompt: True
+    instructions: |
+      Convert the notes in `02-result-notes` and `03-table-notes` into prose. The prose is intended to follow`01-model-prose` and should flow naturally, ultimately to be in the same "Model" section.
+
+      The prose does not cover all results. It covers only the derivation and table for the price/dividend ratio.
+
+      The derivation should be concise and somewhat terse. But make sure the reader can easily follow. Fix notational issues like the re-use of the same variable name for different quantities. 
+
+      The table should be clean and simple. 
+
+      This is the key text of the paper. Conclude the text by using the table to make the main argument. Discuss the intuition behind the table.
+
+
+  - number: 5
+    name: 05-discussion-prose
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 0
+    use_system_prompt: True
+    instructions: |
+      Write the "Model Discussion" section. Discuss the following subtleties of the model in prose (no math):
+      - Market incompleteness is not explicitly modeled but important
+        - Implicit in the disaster magnitude $b>0$
+        - 'b' is the *net* effect of (1) AI disaster and (2) AI asset dividend
+        - If markets were complete, representative household could buy shares in all AI assets (including private AI assets), and not only fully hedge but benefit from the singularity, implying $b < 0$ (a sudden boom, not a disaster)
+        - In reality, most households cannot buy shares in many cutting edge labs (e.g. OpenAI, Anthropic, xAI, DeepSeek), consistent with our model
+      - A more elaborate model would add detail to the AI owners, private AI assets, and their interactions with the representative household
+        - It could address questions like:
+          - How does AI progress displace the representative household's wages? 
+          - How do AI owners' incentives affect AI progress and market incompleteness?
+          - How do preferences and technology parameters affect the odds of a negative singularity?
+        - But wouldn't this just decorate speculations with math?        
+          - The core economics (rare disaster risk, hedging motives, market incompleteness) will remain the same 
+        - It would also be much more costly to read
+          - In our view, the benefit of reading a paper should exceed the cost
+        - A short model analysis allows room for the human-written Appendix \ref{app:readme}
+
+    latex_files:
+      - appendix-readme.tex  
+
+  - number: 6
+    name: 06-litreview-notes
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 15000
+    use_system_prompt: True
+    instructions: |
+      Find the most relevant papers and write a short two paragraph lit review based on the "prose" context. Explain how our work adds to the literature by proposing a new way to think about the valuation of AI stocks.
+
+      Be sure to cite:
+        - Jones (2024) "AI Dilemma" and Korinek and Suh (2024) "Scenarios"
+        - Babina et al (2023) "Artificial Intelligence and Firms' Systematic Risk"
+        - Zhang (2019) "Labor-Technology"
+
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt    
+    - lit-08-investing-ai-part2.txt
+    - lit-09-reasoning-models.txt
+    - lit-10-AI-catastrophic-risk.txt
+    - lit-11-AI-generated-research.txt
+    - bibtex-all.bib            
+
+  - number: 7
+    name: 07-conclusion-prose
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 15000
+    use_system_prompt: True
+    instructions: |
+      Write a short "Conclusion" section. 
+      
+      - Review the main argument 
+      - End by discussing financial market solutions to AI catastrophe risk
+        - These solutions are an alternative to UBI
+          - Key economics: this hedge is limited by market incompleteness
+        - These solutions are not discussed enough in the AI catastrophe risk literature (cite papers)
+        - Be very centrist 
+          - Avoid politically-charged topics: sovereign wealth funds, industrial policy, redistribution, extolling free markets
+      
+    lit_files:
+    - lit-06-tech-singularity.txt  
+    - lit-10-AI-catastrophic-risk.txt
+    - bibtex-all.bib
+
+  - number: 8
+    name: 08-introduction-prose
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 15000
+    use_system_prompt: True
+    instructions: |
+      Write the "Introduction" section, based on the "prose" context. 
+
+      Start with background. Describe how AI progress is happening quickly (Deepseek, Waymo), and investors may be concerned about their wages being displaced.       
+
+      Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principle, create.  An example is the current paper, which is entirely written by AI, using a series of engineered prompts. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. AI progress may also be incredibly sudden (the AI singularity).
+
+      Then describe what the paper does. It studies how AI stocks are priced, given that there is the risk that AI may destroy livelihoods and consumption. 
+
+      Add caveats:
+      - We are not saying a negative singularity will happen 
+        - But it is nevertheless important to consider this scenario        
+      - We are also not saying that this hedging value is priced in already
+        - Model illustrates a possible mechanism
+
+      End by incorporating the lit review (`06-litreview-notes`).
+
+      Include a footnote noting that "we" refers to one human author and multiple LLMs, and also that a purely human perspective is in \hyperref[app:readme]{\textcolor{blue}{Appendix \ref{app:readme}}}.
+
+      Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib.      
+
+    lit_files:
+    - lit-01-hedging-ai.txt  
+    - lit-02-hedging-labor.txt  
+    - lit-03-disaster-risk.txt  
+    - lit-04-investing-ai.txt  
+    - lit-05-arc-agi.txt  
+    - lit-06-tech-singularity.txt  
+    - lit-07-lucas-trees.txt    
+    - lit-08-investing-ai-part2.txt
+    - lit-09-reasoning-models.txt
+    - lit-10-AI-catastrophic-risk.txt
+    - lit-11-AI-generated-research.txt  
+    - bibtex-all.bib       
+
+    latex_files:
+    - econstyle.sty
+    - template.tex
+    - appendix-readme.tex
+
+  - number: 9
+    name: 09-full-paper
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 0
+    use_system_prompt: True
+    instructions: |
+      Write a short paper titled "Hedging the AI Singularity" based on the "prose" context.
+      
+      Add an abstract of less than 100 words, not indented. The abstract should:
+      - Explain briefly what is a negative AI singularity
+      - Touch on financial market solutions to AI catastrophe risk
+      - End by mentioning that this short paper is written by prompting LLMs.
+
+      Keep the footnotes from `08-introduction-prose` (but convert to latex)
+
+      Style Notes:
+      - No subsections (e.g. Section 1.2) though sections are OK (Section 1)
+      - No itemized lists      
+      - Don't say "in conclusion" or "in summary"       
+
+      Output a complete latex document, including preamble. `template.tex` as a template. Use `template.tex` and keep the appendix that is already in the template.
+
+    lit_files:
+      - bibtex-all.bib
+
+    latex_files:
+      - econstyle.sty
+      - template.tex
+
+
