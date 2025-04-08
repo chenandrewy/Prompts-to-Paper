@@ -12,13 +12,17 @@ config:
     
     Your team is writing a paper with the following main argument: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). This contrasts with the common view that AI valuations are high due to future earnings growth. Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. The goal is to just make this point elegantly.
 
-    Write in prose. Avoid bullet points and excessive use of headers. But do use display math to highlight key assumptions. Cite papers using Author (Year) format.
+    Write in prose. No bullet points. But do use display math to highlight key assumptions. Cite papers using Author (Year) format.
 
     Be conversational yet rigorous. Favor plain english. Be direct and concise. Remove text that does not add value.     
 
     Be modest. Do not overclaim. 
 
     Format the math nicely. Use we / our / us to refer to the writing team.
+
+    I repeat, do not:
+    - Use bullet points
+    - Overclaim
 
 prompts:
   - number: 1
@@ -91,9 +95,15 @@ prompts:
 
       The derivation should be concise and somewhat terse. But make sure the reader can easily follow. Fix notational issues like the re-use of the same variable name for different quantities. 
 
+      Discuss intuition behind price/dividend ratio, relate to main argument.
+
       The table should be clean and simple. 
 
-      This is the key text of the paper. Conclude the text by using the table to make the main argument. Discuss the intuition behind the table.
+      This is the key text of the paper. Conclude the text by using the table to make the main argument. 
+
+      Do not:
+      - Emphasize the infinite price/dividend ratio. That's not important.
+      - Use bullet points
 
 
   - number: 5
@@ -120,6 +130,9 @@ prompts:
           - In our view, the benefit of reading a paper should exceed the cost
         - A short model analysis allows room for the human-written Appendix \ref{app:readme}
 
+      Do not:
+      - Use bullet points        
+
     latex_files:
       - appendix-readme.tex  
 
@@ -136,6 +149,9 @@ prompts:
         - Jones (2024) "AI Dilemma" and Korinek and Suh (2024) "Scenarios"
         - Babina et al (2023) "Artificial Intelligence and Firms' Systematic Risk"
         - Zhang (2019) "Labor-Technology"
+
+      Do not:
+      - Use bullet points         
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -167,6 +183,9 @@ prompts:
         - These solutions are not discussed enough in the AI catastrophe risk literature (cite papers)
         - Be very centrist 
           - Avoid politically-charged topics: sovereign wealth funds, industrial policy, redistribution, extolling free markets
+
+      Do not:
+      - Use bullet points             
       
     lit_files:
     - lit-06-tech-singularity.txt  
@@ -182,7 +201,7 @@ prompts:
     instructions: |
       Write the "Introduction" section, based on the "prose" context. 
 
-      Start with background. Describe how AI progress is happening quickly (Deepseek, Waymo), and investors may be concerned about their wages being displaced.       
+      Start with background. Describe how AI progress is happening quickly (Deepseek, ARC AGI, Waymo), and investors may be concerned about their wages being displaced.       
 
       Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principle, create.  An example is the current paper, which is entirely written by AI, using a series of engineered prompts. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. AI progress may also be incredibly sudden (the AI singularity).
 
@@ -199,6 +218,9 @@ prompts:
       Include a footnote noting that "we" refers to one human author and multiple LLMs, and also that a purely human perspective is in \hyperref[app:readme]{\textcolor{blue}{Appendix \ref{app:readme}}}.
 
       Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib.      
+
+      Do not:
+      - Use bullet points         
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -229,7 +251,6 @@ prompts:
       Write a short paper titled "Hedging the AI Singularity" based on the "prose" context.
       
       Add an abstract of less than 100 words, not indented. The abstract should:
-      - Explain briefly what is a negative AI singularity
       - Touch on financial market solutions to AI catastrophe risk
       - End by mentioning that this short paper is written by prompting LLMs.
 
@@ -237,7 +258,7 @@ prompts:
 
       Style Notes:
       - No subsections (e.g. Section 1.2) though sections are OK (Section 1)
-      - No itemized lists      
+      - No bullet points. 
       - Don't say "in conclusion" or "in summary"       
 
       Output a complete latex document, including preamble. `template.tex` as a template. Use `template.tex` and keep the appendix that is already in the template.
