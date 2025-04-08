@@ -12,6 +12,7 @@ import time
 import re
 import yaml
 from IPython import get_ipython
+from datetime import datetime, timezone
 
 def print_wrapped(text, width=70):
     """
@@ -105,6 +106,36 @@ def query_claude(model_name, full_prompt, system_prompt, max_tokens, thinking_bu
     config = MODEL_CONFIG[model_name]
     model_full_name = config["full_name"]
     max_tokens = min(max_tokens, config["max_output_tokens"])
+
+    # check tokens remaining
+    count_response = client.messages.with_raw_response.create(
+        model="claude-3-7-sonnet-20250219",
+        max_tokens=1,
+        messages=[{"role": "user", "content": "."}]
+    )
+
+    # Get remaining tokens and reset time
+    tokens_remaining = int(count_response.headers.get('anthropic-ratelimit-tokens-remaining', 0))
+    reset_time_str = count_response.headers.get('anthropic-ratelimit-tokens-reset', '60')
+
+    # Handle the reset_time more carefully
+    reset_time_dt = datetime.fromisoformat(reset_time_str.replace('Z', '+00:00'))
+    current_time = datetime.now(timezone.utc)
+    reset_seconds = int((reset_time_dt - current_time).total_seconds())
+
+    if tokens_remaining < 5000:
+        print(f"Rate limit low ({tokens_remaining} tokens). Pausing for {reset_seconds} seconds...")
+        time.sleep(reset_seconds + 5)  # Add 5 seconds buffer        
+
+    print("==== FEEDBACK ====")
+    print(f"Querying: {model_full_name}")
+    print(f"Tokens remaining: {tokens_remaining}")
+    print(f"Reset seconds: {reset_seconds}")
+    
+    # If tokens are low, pause execution
+    if tokens_remaining < 5000:
+        print(f"Rate limit low ({tokens_remaining} tokens). Pausing for {reset_seconds} + 5 seconds...")
+        time.sleep(reset_seconds + 5)  # Add 5 seconds buffer    
 
     # set llm input parameters
     params = {
