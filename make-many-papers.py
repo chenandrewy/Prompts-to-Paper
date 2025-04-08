@@ -83,7 +83,10 @@ for run_id in range(run_start, run_end + 1):
     
     print(f"Completed run {run_id:02d}. Output saved to {run_detail_folder}")
 
-    # Copy PDFs to pdf folder
+#%% Copy PDFs to output folder
+# Copy PDFs from all runs to the pdf folder
+for run_id in range(run_start, run_end + 1):
+    run_detail_folder = os.path.join(detail_folder, f"run{run_id:02d}")
     for root, _, files in os.walk(run_detail_folder):
         for file in files:
             if 'full-paper-cleaned' in file and file.endswith('.pdf'):

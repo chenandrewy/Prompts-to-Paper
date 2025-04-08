@@ -22,7 +22,7 @@ import argparse
 
 #%%
 # Parse command line / hard coded arguments
-plan_default = "plan0403-streamlined"
+plan_default = "plan0000-test"
 
 if is_jupyter():
     # User
@@ -42,6 +42,18 @@ output_folder = f"./output{temp_num}-{temp_name}/"
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
+# Set up logging
+log_file = os.path.join(output_folder, "paper_generation.log")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler(sys.stdout)  # This ensures output still goes to console
+    ]
+)
+logger = logging.getLogger(__name__)
+logger.info(f"Starting paper generation for plan: {plan_name}")
 
 # Load all config and prompts
 with open(f"{plan_name}.yaml", "r") as f:
@@ -59,19 +71,19 @@ index_end = min(config["run_range"]["end"]-1, len(prompts)-1)
 # LOOP OVER PROMPTS
 
 # feedback
-print("==== FEEDBACK ====")
-print(f"Running plan {plan_name} from prompt {index_start+1} to prompt {index_end+1}")
+logger.info("==== FEEDBACK ====")
+logger.info(f"Running plan {plan_name} from prompt {index_start+1} to prompt {index_end+1}")
 
 # loop over prompts
 for index in range(index_start, index_end+1):    
 # for index in [0]:
     
-    print("==== FEEDBACK ====")
-    print(f"Processing prompt number {index+1}...")
-    print(f"Instructions: {prompts[index]['instructions']}")
+    logger.info("==== FEEDBACK ====")
+    logger.info(f"Processing prompt number {index+1}...")
+    logger.info(f"Instructions: {prompts[index]['instructions']}")
 
     if "lit_files" in prompts[index]:
-        print(f"Lit files: {prompts[index]['lit_files']}")
+        logger.info(f"Lit files: {prompts[index]['lit_files']}")
     
     # Previous responses context
     prev_responses = [prompt["name"] for prompt in prompts[:index]]
@@ -116,8 +128,8 @@ for index in range(index_start, index_end+1):
     with open(f"{output_folder}{prompts[index]['name']}-prompt.xml", "w", encoding="utf-8") as f:
         f.write(full_prompt)
 
-    print("==== FEEDBACK ====")
-    print(f"Querying {prompts[index]['model_name']}")
+    logger.info("==== FEEDBACK ====")
+    logger.info(f"Querying {prompts[index]['model_name']}")
 
     # Query the model
     if MODEL_CONFIG[prompts[index]["model_name"]]["type"] == "anthropic":
@@ -143,8 +155,8 @@ for index in range(index_start, index_end+1):
 
 
     if config["convert_all_latex"]:
-        print("==== FEEDBACK ====")
-        print(f"Converting to LaTeX")
+        logger.info("==== FEEDBACK ====")
+        logger.info(f"Converting to LaTeX")
 
         # Convert to LaTeX
         latex_model = "haiku"
@@ -165,14 +177,14 @@ for index in range(index_start, index_end+1):
         texinput_file = f"{output_folder}{prompts[index]['name']}-texinput.tex"
         with open(texinput_file, 'w', encoding='utf-8') as file:
             file.write(llmdat_texinput["response"])
-        print(f"LaTeX input saved to {texinput_file}")
+        logger.info(f"LaTeX input saved to {texinput_file}")
 
         # Convert to PDF    
         compile_result = texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)
 
         # if the conversion fails, use sonnet to convert to latex
         if compile_result != 0:
-            print("LaTeX conversion failed, using sonnet to convert to latex")
+            logger.warning("LaTeX conversion failed, using sonnet to convert to latex")
             llmdat_texinput = response_to_texinput(
                 response_raw=llmdat["response"],
                 par_per_chunk=par_per_chunk,
@@ -181,8 +193,8 @@ for index in range(index_start, index_end+1):
             texinput_to_pdf(llmdat_texinput["response"], f"{prompts[index]['name']}-latex", output_folder)    
 
     else:
-        print("==== FEEDBACK ====")
-        print(f"Skipping LaTeX conversion")
+        logger.info("==== FEEDBACK ====")
+        logger.info(f"Skipping LaTeX conversion")
 
         latex_model = "NA"
     
@@ -212,14 +224,14 @@ from utils import tex_to_pdf
 last_prompt_name = prompts[index_end]['name']
 
 if "full-paper" in last_prompt_name:
-    print("==== FEEDBACK ====")
-    print(f"Compiling full paper LaTeX")
+    logger.info("==== FEEDBACK ====")
+    logger.info(f"Compiling full paper LaTeX")
 
     # Generate appendix first
-    print("Generating appendix with README...")
+    logger.info("Generating appendix with README...")
     create_readme_appendix()
 
-    print("Generating appendix with prompt listing...")
+    logger.info("Generating appendix with prompt listing...")
     create_appendix(plan_name + ".yaml")
     
     # read in the full paper md response
@@ -275,3 +287,5 @@ grand_total = costs_df['Total_Cost'].sum()
 with open(f"{output_folder}all-costs.txt", "w", encoding="utf-8") as f:
     f.write(f"Grand Total: ${grand_total:.4f}\n")
     f.write(costs_df.to_string(index=False))
+
+logger.info(f"Paper generation completed. Log saved to {log_file}")
