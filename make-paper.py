@@ -22,7 +22,7 @@ import argparse
 
 #%%
 # Parse command line / hard coded arguments
-plan_default = "plan0000-test"
+plan_default = "plan0408-piecewise"
 
 if is_jupyter():
     # User
@@ -221,6 +221,7 @@ from utils import create_readme_appendix, create_appendix
 
 import shutil
 from utils import tex_to_pdf
+import glob
 last_prompt_name = prompts[index_end]['name']
 
 if "full-paper" in last_prompt_name:
@@ -233,7 +234,14 @@ if "full-paper" in last_prompt_name:
 
     logger.info("Generating appendix with prompt listing...")
     create_appendix(plan_name + ".yaml")
-    
+
+    # copy latex-inputs to output folder
+    # Copy all .tex files from latex-input to output folder
+    logger.info("Copying .tex files from latex-input to output folder...")
+    for tex_file in glob.glob("latex-input/*.tex"):
+        shutil.copy(tex_file, output_folder)
+    shutil.copy("latex-input/econstyle.sty", output_folder)
+
     # read in the full paper md response
     with open(f"{output_folder}{last_prompt_name}-response.md", "r", encoding="utf-8") as f:
         full_paper_md = f.read()
@@ -242,6 +250,9 @@ if "full-paper" in last_prompt_name:
     i_start = full_paper_md.find("\\documentclass")
     i_end = full_paper_md.find("\\end{document}") + len("\\end{document}")
     full_paper_md = full_paper_md[i_start:i_end]
+
+    # update "../latex-input/" to "./"
+    full_paper_md = full_paper_md.replace("../latex-input/", "./")
 
     # save the full paper md
     with open(f"{output_folder}{last_prompt_name}-cleaned.tex", "w", encoding="utf-8") as f:
