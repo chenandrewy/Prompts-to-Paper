@@ -4,3 +4,8 @@ markdown==3.5.1
 pdfkit==1.0.0
 markdown2==2.4.10
 requests==2.31.0
+pandas
+PyYAML
+anthropic
+openai
+IPython
