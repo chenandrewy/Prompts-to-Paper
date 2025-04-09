@@ -13,6 +13,7 @@ import re
 import yaml
 from IPython import get_ipython
 from datetime import datetime, timezone
+import logging
 
 def print_wrapped(text, width=70):
     """
@@ -107,87 +108,91 @@ def query_claude(model_name, full_prompt, system_prompt, max_tokens, thinking_bu
     model_full_name = config["full_name"]
     max_tokens = min(max_tokens, config["max_output_tokens"])
 
-    # check tokens remaining
-    count_response = client.messages.with_raw_response.create(
-        model="claude-3-7-sonnet-20250219",
-        max_tokens=1,
-        messages=[{"role": "user", "content": "."}]
-    )
+    # Log the request details
+    logging.info(f"Querying model: {model_full_name}")
+    logging.info(f"Max tokens: {max_tokens}, Temperature: {temperature}")
+    logging.info(f"Full prompt: {full_prompt[:200]}...")  # Log the first 200 characters of the prompt
 
-    # Get remaining tokens and reset time
-    tokens_remaining = int(count_response.headers.get('anthropic-ratelimit-tokens-remaining', 0))
-    reset_time_str = count_response.headers.get('anthropic-ratelimit-tokens-reset', '60')
+    try:
+        # check tokens remaining
+        count_response = client.messages.with_raw_response.create(
+            model="claude-3-7-sonnet-20250219",
+            max_tokens=1,
+            messages=[{"role": "user", "content": "."}]
+        )
 
-    # Handle the reset_time more carefully
-    reset_time_dt = datetime.fromisoformat(reset_time_str.replace('Z', '+00:00'))
-    current_time = datetime.now(timezone.utc)
-    reset_seconds = int((reset_time_dt - current_time).total_seconds())
+        # Get remaining tokens and reset time
+        tokens_remaining = int(count_response.headers.get('anthropic-ratelimit-tokens-remaining', 0))
+        reset_time_str = count_response.headers.get('anthropic-ratelimit-tokens-reset', '60')
 
-    if tokens_remaining < 5000:
-        print(f"Rate limit low ({tokens_remaining} tokens). Pausing for {reset_seconds} seconds...")
-        time.sleep(reset_seconds + 5)  # Add 5 seconds buffer        
+        # Handle the reset_time more carefully
+        reset_time_dt = datetime.fromisoformat(reset_time_str.replace('Z', '+00:00'))
+        current_time = datetime.now(timezone.utc)
+        reset_seconds = int((reset_time_dt - current_time).total_seconds())
 
-    print("==== FEEDBACK ====")
-    print(f"Querying: {model_full_name}")
-    print(f"Tokens remaining: {tokens_remaining}")
-    print(f"Reset seconds: {reset_seconds}")
-    
-    # If tokens are low, pause execution
-    if tokens_remaining < 5000:
-        print(f"Rate limit low ({tokens_remaining} tokens). Pausing for {reset_seconds} + 5 seconds...")
-        time.sleep(reset_seconds + 5)  # Add 5 seconds buffer    
+        if tokens_remaining < 5000:
+            logging.warning(f"Rate limit low ({tokens_remaining} tokens). Pausing for {reset_seconds} seconds...")
+            time.sleep(reset_seconds + 5)  # Add 5 seconds buffer        
 
-    # set llm input parameters
-    params = {
-        "model": model_full_name,
-        "max_tokens": max_tokens,
-        "temperature": temperature,
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text", 
-                        "text": full_prompt
-                    }
-                ]
-            }
-        ]
-    }
-
-    # set system prompt if enabled
-    if system_prompt:
-        params["system"] = system_prompt
-
-    # set thinking budget if enabled
-    if thinking_budget > 0:
-        params["thinking"] = {
-            "type": "enabled",
-            "budget_tokens": thinking_budget
+        # set llm input parameters
+        params = {
+            "model": model_full_name,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": full_prompt
+                        }
+                    ]
+                }
+            ]
         }
-        params["temperature"] = 1.0
 
-    response = ""
-    with client.messages.stream(**params) as stream:
-        for text in stream.text_stream:
-            response += text
-            print(text, end='', flush=True)
+        # set system prompt if enabled
+        if system_prompt:
+            params["system"] = system_prompt
 
-    final_response = stream.get_final_message()
-    
-    # Calculate costs
-    input_cost = final_response.usage.input_tokens * config["input"]
-    output_cost = final_response.usage.output_tokens * config["output"]
-    total_cost = input_cost + output_cost
-    
-    return {
-        "response": response,
-        "input_tokens": final_response.usage.input_tokens,
-        "output_tokens": final_response.usage.output_tokens,
-        "input_cost": input_cost,
-        "output_cost": output_cost,
-        "total_cost": total_cost
-    }
+        # set thinking budget if enabled
+        if thinking_budget > 0:
+            params["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": thinking_budget
+            }
+            params["temperature"] = 1.0
+
+        response = ""
+        with client.messages.stream(**params) as stream:
+            for text in stream.text_stream:
+                response += text
+                print(text, end='', flush=True)
+
+        final_response = stream.get_final_message()
+
+        # Log the response details
+        logging.info(f"Response received with {final_response.usage.output_tokens} output tokens.")
+
+        # Calculate costs
+        input_cost = final_response.usage.input_tokens * config["input"]
+        output_cost = final_response.usage.output_tokens * config["output"]
+        total_cost = input_cost + output_cost
+
+        return {
+            "response": response,
+            "input_tokens": final_response.usage.input_tokens,
+            "output_tokens": final_response.usage.output_tokens,
+            "input_cost": input_cost,
+            "output_cost": output_cost,
+            "total_cost": total_cost
+        }
+
+    except Exception as e:
+        # Log the exception details
+        logging.error(f"An error occurred while querying Claude: {e}")
+        raise
 
 def query_openai(model_name, full_prompt, system_prompt, max_tokens):
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
