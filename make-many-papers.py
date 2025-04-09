@@ -9,10 +9,10 @@ import yaml
 import sys
 
 # User input
-plan_name = 'plan0408-piecewise'
-# plan_name = 'plan0000-test'
+# plan_name = 'plan0408-piecewise'
+plan_name = 'plan0000-test'
 run_start = 1
-run_end = 5
+run_end = 3
 
 # Extract plan number and name
 temp_num, temp_name = plan_name.split("plan")[1].split("-")
@@ -56,10 +56,7 @@ for run_id in range(run_start, run_end + 1):
     print(f"\n=== Starting Run {run_id:02d} of {run_end} ===")
     
     # Run make-paper.py and capture output
-    result = subprocess.run(["python", "-u", "make-paper.py", "--plan_name", plan_name], 
-                          capture_output=True, 
-                          text=True,
-                          encoding='utf-8')
+    result = subprocess.run(["python", "-u", "make-paper.py", "--plan_name", plan_name])
 
     # Print the components of result
     print("\nProcess Results:")
@@ -70,7 +67,7 @@ for run_id in range(run_start, run_end + 1):
     run_detail_folder = os.path.join(detail_folder, f"run{run_id:02d}")
 
     # pause to allow dropbox sync
-    time.sleep(30)    
+    time.sleep(10)    
 
     if os.path.exists(run_detail_folder):
         shutil.rmtree(run_detail_folder)
