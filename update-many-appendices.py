@@ -14,7 +14,7 @@ import re
 from utils import create_readme_appendix, create_appendix, tex_to_pdf
 import shutil
 
-plan_name = "plan0403-streamlined"
+plan_name = "plan0408-piecewise"
 
 #%%
 # Update appendices once for all output folders
@@ -65,11 +65,22 @@ for run_folder in run_folders:
     if not os.path.exists(response_file):
         print(f"Warning: Response file {response_file} not found. Skipping this folder.")
         continue
+
+    print(f"Copying latex input files to {run_folder}")
+    for tex_file in glob.glob("latex-input/*.tex"):
+        shutil.copy(tex_file, run_folder)
+    # shutil.copy("latex-input/econstyle.sty", run_folder)
+    shutil.copy("lit-context/bibtex-all.bib", run_folder)
+
+    # argh, econstyle.sty needs to be modified for its relative path
+    # I should make this more consistent throughout the codebase someday
+    with open("latex-input/econstyle.sty", "r", encoding="utf-8") as f:
+        econstyle_content = f.read()
+    econstyle_content = econstyle_content.replace("../lit-context/", "./")
+    with open(f"{run_folder}econstyle.sty", "w", encoding="utf-8") as f:
+        f.write(econstyle_content)    
     
-    # Compile full paper LaTeX
-    print(f"Compiling full paper LaTeX")
-    
-    # Read in the full paper md response
+    print(f"Cleaning up response file and making {last_prompt_name}-cleaned.tex file")
     with open(response_file, "r", encoding="utf-8") as f:
         full_paper_md = f.read()
     
@@ -82,30 +93,24 @@ for run_folder in run_folders:
     
     full_paper_md = full_paper_md[i_start:i_end]
     
-    # Save the full paper tex
+    # Update "../latex-input/" to "./"
+    full_paper_md = full_paper_md.replace("../latex-input/", "./")
+    
     tex_file = f"{run_folder}{last_prompt_name}-cleaned.tex"
     with open(tex_file, "w", encoding="utf-8") as f:
         f.write(full_paper_md)
     
-    # Create temp directory if it doesn't exist
-    temp_dir = "./temp/"
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
-    
-    # Copy the tex file to temp directory
-    temp_tex_file = f"{temp_dir}{last_prompt_name}-cleaned.tex"
-    shutil.copy2(tex_file, temp_tex_file)
-    
-    # Compile the full paper in temp directory
-    compile_result = tex_to_pdf(f"{last_prompt_name}-cleaned", temp_dir)
+    print(f"Compiling full paper LaTeX for {run_folder}")
+    run_folder_linux = run_folder.replace("\\", "/")
+    compile_result = tex_to_pdf(f"{last_prompt_name}-cleaned", run_folder_linux)
     
     if compile_result != 0:
         print(f"Warning: LaTeX compilation failed with error code {compile_result}")
         continue
     
-    # Copy the PDF from temp to the PDF folder with run suffix
-    source_pdf = f"{temp_dir}{last_prompt_name}-cleaned.pdf"
-    dest_pdf = f"{pdf_folder}{last_prompt_name}-cleaned-run{run_number}.pdf"
+    # Copy the PDF from the run folder to the PDF folder with special suffix
+    source_pdf = f"{run_folder}{last_prompt_name}-cleaned.pdf"
+    dest_pdf = f"{pdf_folder}paper-appendix-update-run{run_number}.pdf"
     
     if os.path.exists(source_pdf):
         print(f"Copying {source_pdf} to {dest_pdf}")
