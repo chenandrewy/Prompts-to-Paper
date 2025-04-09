@@ -10,11 +10,9 @@ import sys
 
 # User input
 plan_name = 'plan0408-piecewise'
-# plan_name = 'plan0407-piecewise'
-# plan_name = 'plan0403-streamlined'
 # plan_name = 'plan0000-test'
 run_start = 1
-run_end = 3
+run_end = 5
 
 # Extract plan number and name
 temp_num, temp_name = plan_name.split("plan")[1].split("-")
@@ -84,9 +82,14 @@ for run_id in range(run_start, run_end + 1):
     print(f"Completed run {run_id:02d}. Output saved to {run_detail_folder}")
 
 #%% Copy PDFs to output folder
+
+# make pdf folder again (to be safe)
+os.makedirs(pdf_folder, exist_ok=True)
+
 # Copy PDFs from all runs to the pdf folder
 for run_id in range(run_start, run_end + 1):
     run_detail_folder = os.path.join(detail_folder, f"run{run_id:02d}")
+
     for root, _, files in os.walk(run_detail_folder):
         for file in files:
             if 'full-paper-cleaned' in file and file.endswith('.pdf'):
