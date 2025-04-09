@@ -1,6 +1,6 @@
 config:
   run_range:
-    start: 8
+    start: 9
     end:   9
   temperature: 0.5
   convert_all_latex: False
@@ -51,10 +51,14 @@ prompts:
         - AI asset
           - Captures publicly traded AI stocks
           - Dividend D_t = a exp^{h N_t} C_t
+          - Interpretation (discuss in prose)
             - a > 0 is small, AI stocks are currently a minor share of the economy
             - N_t is the number of disasters that have occurred up to and including time t
             - h > 0: each time a disaster occurs, the AI asset grows as a share of the economy
-              - Intuitively, firms that provide semiconductors, data, AI models, etc. at least partially benefit from a sudden improvement in AI
+            - Intuitively, firms that provide semiconductors, data, AI models, etc. at least partially benefit from a sudden improvement in AI
+
+      Do not:
+      - Use bullet points or numbered lists
 
   - number: 2
     name: 02-result-notes
@@ -225,19 +229,34 @@ prompts:
     - econstyle.sty
     - template.tex
     - appendix-readme.tex
-
+  
   - number: 9
-    name: 09-full-paper
+    name: 09-abstract-prose
+    model_name: sonnet
+    max_tokens: 30000
+    thinking_budget: 0
+    use_system_prompt: True
+    instructions: |
+      Write a less than 100 word abstract based on the `08-introduction-prose`, and `07-conclusion-prose`.
+
+      The abstract should:
+      - Make the main argument (AI valuations may be high because they hedge against a negative AI singularity)
+      - Define "negative AI singularity" after using the term
+      - Touch on financial market solutions to AI catastrophe risk, in passing
+      - End by briefly mentioning that this short paper is written by prompting LLMs.
+
+      Do not:
+      - Emphasize consumption
+      - Oversell or overinterpret the model
+
+  - number: 10
+    name: 10-full-paper
     model_name: sonnet
     max_tokens: 30000
     thinking_budget: 0
     use_system_prompt: True
     instructions: |
       Write a short paper titled "Hedging the AI Singularity" based on the "prose" context.
-      
-      Add an abstract of less than 100 words, not indented. The abstract should:
-      - Touch on financial market solutions to AI catastrophe risk in passing
-      - End by mentioning that this short paper is written by prompting LLMs.
 
       In page 1 of the introduction, include a footnote noting that "we" refers to one human author and multiple LLMs, and also that a purely human perspective is in \hyperref[app:readme]{\textcolor{blue}{Appendix \ref{app:readme}}}.
 
