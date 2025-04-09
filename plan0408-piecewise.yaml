@@ -1,6 +1,6 @@
 config:
   run_range:
-    start: 1
+    start: 8
     end:   9
   temperature: 0.5
   convert_all_latex: False
@@ -12,17 +12,13 @@ config:
     
     Your team is writing a paper with the following main argument: the high valuations of AI stocks could be in part because they hedge against a negative AI singularity (an explosion of AI development that is devastating for the representative investor). This contrasts with the common view that AI valuations are high due to future earnings growth. Since the AI singularity is inherently unpredictable, the paper is more qualitative than quantitative. The goal is to just make this point elegantly.
 
-    Write in prose. No bullet points. But do use display math to highlight key assumptions. Cite papers using Author (Year) format.
+    Write in prose. Avoid bullet points and numbered lists. Use display math to highlight key assumptions. Cite papers using Author (Year) format. Use we / our / us to refer to the writing team.
 
     Be conversational yet rigorous. Favor plain english. Be direct and concise. Remove text that does not add value.     
 
     Be modest. Do not overclaim. 
 
-    Format the math nicely. Use we / our / us to refer to the writing team.
-
-    I repeat, do not:
-    - Use bullet points
-    - Overclaim
+    Output as a latex input (no document environment). Ensure bullet points are formatted in latex (\begin{itemize} \item "blah" \item "blah" \end{itemize}). Ensure numbered lists are formatted in latex (\begin{enumerate} \item "blah" \item "blah" \end{enumerate}). But as a reminder, AVOID BULLET POINTS AND NUMBERED LISTS.
 
 prompts:
   - number: 1
@@ -65,9 +61,11 @@ prompts:
     model_name: o1
     use_system_prompt: False
     instructions: |      
-      Find the price/dividend ratio and risk premium of the AI asset at t = 0. The risk premium is the expected return (including dividends) minus the risk-free rate.    Derive the formulas, step by step. 
+      Find the price/dividend ratio and risk premium of the AI asset at t = 0. The risk premium is the expected return (including dividends) minus the risk-free rate.    Derive the formulas, step by step, from first principles.
 
-      Do not restate the assumptions.
+      Do not:
+      - Restate the assumptions
+      - Assume any variable is constant or stationary (prove it)
       
       Try to make the final formulas self-contained and not depend on the other final formulas.
   
@@ -89,21 +87,22 @@ prompts:
     thinking_budget: 15000
     use_system_prompt: True
     instructions: |
-      Convert the notes in `02-result-notes` and `03-table-notes` into prose. The prose is intended to follow`01-model-prose` and should flow naturally, ultimately to be in the same "Model" section.
+      Convert the notes in `02-result-notes` and `03-table-notes` into prose. The prose is intended to follow `01-model-prose` and should flow naturally, ultimately to be in the same "Model" section.
 
       The prose does not cover all results. It covers only the derivation and table for the price/dividend ratio.
 
-      The derivation should be concise and somewhat terse. But make sure the reader can easily follow. Fix notational issues like the re-use of the same variable name for different quantities. 
+      The derivation should be easy to follow. But do not output lecture notes. It should read like an academic paper. Fix notational issues like the re-use of the same variable name for different quantities. 
 
-      Discuss intuition behind price/dividend ratio, relate to main argument.
-
-      The table should be clean and simple. 
+      Discuss intuition behind price/dividend ratio, and relate the intuition to the main argument (AI valuations may be high because they hedge against a negative AI singularity).
 
       This is the key text of the paper. Conclude the text by using the table to make the main argument. 
 
+      Style notes:
+      - The table should be clean and simple. 
+      - Do not repeat information in `01-model-prose`.
+
       Do not:
       - Emphasize the infinite price/dividend ratio. That's not important.
-      - Use bullet points
 
 
   - number: 5
@@ -130,9 +129,6 @@ prompts:
           - In our view, the benefit of reading a paper should exceed the cost
         - A short model analysis allows room for the human-written Appendix \ref{app:readme}
 
-      Do not:
-      - Use bullet points        
-
     latex_files:
       - appendix-readme.tex  
 
@@ -149,9 +145,6 @@ prompts:
         - Jones (2024) "AI Dilemma" and Korinek and Suh (2024) "Scenarios"
         - Babina et al (2023) "Artificial Intelligence and Firms' Systematic Risk"
         - Zhang (2019) "Labor-Technology"
-
-      Do not:
-      - Use bullet points         
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -183,9 +176,6 @@ prompts:
         - These solutions are not discussed enough in the AI catastrophe risk literature (cite papers)
         - Be very centrist 
           - Avoid politically-charged topics: sovereign wealth funds, industrial policy, redistribution, extolling free markets
-
-      Do not:
-      - Use bullet points             
       
     lit_files:
     - lit-06-tech-singularity.txt  
@@ -215,12 +205,7 @@ prompts:
 
       End by incorporating the lit review (`06-litreview-notes`).
 
-      Include a footnote noting that "we" refers to one human author and multiple LLMs, and also that a purely human perspective is in \hyperref[app:readme]{\textcolor{blue}{Appendix \ref{app:readme}}}.
-
       Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib.      
-
-      Do not:
-      - Use bullet points         
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -251,17 +236,17 @@ prompts:
       Write a short paper titled "Hedging the AI Singularity" based on the "prose" context.
       
       Add an abstract of less than 100 words, not indented. The abstract should:
-      - Touch on financial market solutions to AI catastrophe risk
+      - Touch on financial market solutions to AI catastrophe risk in passing
       - End by mentioning that this short paper is written by prompting LLMs.
 
-      Keep the footnotes from `08-introduction-prose` (but convert to latex)
+      In page 1 of the introduction, include a footnote noting that "we" refers to one human author and multiple LLMs, and also that a purely human perspective is in \hyperref[app:readme]{\textcolor{blue}{Appendix \ref{app:readme}}}.
 
       Style Notes:
+      - Avoid bullet points and numbered lists
       - No subsections (e.g. Section 1.2) though sections are OK (Section 1)
-      - No bullet points. 
-      - Don't say "in conclusion" or "in summary"       
+      - Don't say "in conclusion" or "in summary"   
 
-      Output a complete latex document, including preamble. `template.tex` as a template. Use `template.tex` and keep the appendix that is already in the template.
+      Output a complete latex document, including preamble. Use `template.tex` as a template. Keep the preamble, acknowledgements, and appendices as is. 
 
     lit_files:
       - bibtex-all.bib
@@ -269,5 +254,3 @@ prompts:
     latex_files:
       - econstyle.sty
       - template.tex
-
-
