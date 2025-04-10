@@ -110,7 +110,7 @@ for run_folder in run_folders:
     
     # Copy the PDF from the run folder to the PDF folder with special suffix
     source_pdf = f"{run_folder}{last_prompt_name}-cleaned.pdf"
-    dest_pdf = f"{pdf_folder}paper-appendix-update-run{run_number}.pdf"
+    dest_pdf = f"{pdf_folder}paper-run{run_number}.pdf"
     
     if os.path.exists(source_pdf):
         print(f"Copying {source_pdf} to {dest_pdf}")
