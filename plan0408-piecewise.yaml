@@ -50,7 +50,7 @@ prompts:
             - Multiple disasters may happen, capturing ongoing uncertainty if a singularity occurs
         - AI asset
           - Captures publicly traded AI stocks
-          - Dividend D_t = a exp^{h N_t} C_t
+          - Dividend D_t = a e^{h N_t} C_t
           - Interpretation (discuss in prose)
             - a > 0 is small, AI stocks are currently a minor share of the economy
             - N_t is the number of disasters that have occurred up to and including time t
@@ -81,7 +81,7 @@ prompts:
     instructions: |
       Illustrate the results in `02-result-notes` with a couple numerical examples. Focus on gamma = 2, beta = 0.96, and p = 0.01. What values of b and h lead to convergence of the price/dividend ratio? 
 
-      Then make a table of the price/dividend ratio at t=0 for b = 0.4, 0.6, 0.8, 0.95 and p = 0.0001, 0.001, 0.01, 0.02. Here, fix h = 0.2. If the price is infinite, use "Inf"
+      Then make a table of the price/dividend ratio at t=0 for b = 0.4, 0.6, 0.8, 0.95 and p = 0.0001, 0.001, 0.01, 0.02. Here, fix h = 0.2. If the price is infinite, use "Inf" Round to 1 decimal place.
       
       Make a table for the risk premium (expected return - risk-free rate) in percent (100*(gross return - 1)). If the price is infinite, leave the cell blank.
 
@@ -96,7 +96,7 @@ prompts:
 
       The prose does not cover all results. It covers only the derivation and table for the price/dividend ratio.
 
-      The derivation should be easy to follow. But do not output lecture notes. It should read like an academic paper. Fix notational issues like the re-use of the same variable name for different quantities. 
+      The derivation should be easy to follow and self-contained. But do not output lecture notes. It should read like an academic paper. Fix notational issues like the re-use of the same variable name for different quantities. 
 
       Discuss intuition behind price/dividend ratio. Explain how risk aversion interacts with other parameters and relate to the main argument (AI valuations may be high because they hedge against a negative AI singularity).
 
