@@ -1,0 +1,37 @@
+run 1
+- abstract good
+- intro citations are temporally inconsistent but ok.
+    - CLAIMS PAPERS FROM 2020 ARE BUILDING ON AI DEVELOPMENTS IN 2025 
+- overall paper is good enough!
+- DECENT
+
+run 2
+- abstract claims to connect to empirical findings.
+    - ABSTRACT OVERCLAIMS
+- an excessive amount of algebra in the derivation
+    - THE DERIVATION EXPOSITION IS HIGHLY VARIABLE
+- still the paper is OK. not good but still OK
+- BARELY ACCEPTABLE
+
+run 3
+- abstract is good
+- intro does not describe the core insight well. 
+    - SUB-PAR ECONOMICS
+- derivation is a bit long but it's ok.
+- ACCEPTABLE
+
+run 4
+- abstract is good
+- intro over-interprets the result. It confuses ex-post valuations with ex-ante valuations.
+    - ECONOMIC FLAW
+- Overaggressive on interpretation of Bengio 2023 and Russell 2019
+    - LIT REVIEW FLAW
+- strange insertion of the risk-free rate in the derivation
+- REJECT
+
+run 5
+- abstract overemphasizes model. but ok
+- intro good
+- clean derivation, if slightly long
+- good conclusion
+- BEST OF THE BUNCH
