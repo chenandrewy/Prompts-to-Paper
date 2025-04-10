@@ -1,6 +1,6 @@
 config:
   run_range:
-    start: 1
+    start: 8
     end:   10
   temperature: 0.5
   convert_all_latex: False
@@ -72,7 +72,7 @@ prompts:
       - Restate the assumptions
       - Assume any variable is constant or stationary (prove it)
       
-      Try to make the final formulas self-contained and not depend on the other final formulas.
+      Express all requested variables in terms of the model parameters. Try to make the final formulas self-contained and not depend on the other final formulas.
   
   - number: 3
     name: 03-table-notes
@@ -98,9 +98,9 @@ prompts:
 
       The derivation should be easy to follow. But do not output lecture notes. It should read like an academic paper. Fix notational issues like the re-use of the same variable name for different quantities. 
 
-      Discuss intuition behind price/dividend ratio, and relate the intuition to the main argument (AI valuations may be high because they hedge against a negative AI singularity).
+      Discuss intuition behind price/dividend ratio. Explain how risk aversion interacts with other parameters and relate to the main argument (AI valuations may be high because they hedge against a negative AI singularity).
 
-      This is the key text of the paper. Conclude the text by using the table to make the main argument. 
+      This is the key text of the paper. Conclude the text by using the table to make the main argument. Avoid quantitative claims about the real world.
 
       Style notes:
       - The table should be clean and simple. 
@@ -145,12 +145,17 @@ prompts:
     thinking_budget: 15000
     use_system_prompt: True
     instructions: |
-      Find the most relevant papers and write a short two paragraph lit review based on the "prose" context. Explain how our work adds to the literature by proposing a new way to think about the valuation of AI stocks.
+      Find the most relevant papers and write a short two paragraph lit review based on the `*-prose` context. Explain how our work adds to the literature by proposing a new way to think about the valuation of AI stocks.
 
       Be sure to cite:
         - Jones (2024) "AI Dilemma" and Korinek and Suh (2024) "Scenarios"
         - Babina et al (2023) "Artificial Intelligence and Firms' Systematic Risk"
         - Zhang (2019) "Labor-Technology"
+
+      Be careful to cite papers accurately. Make sure your claims match the `lit-*` context. 
+
+      Do not:
+        - Claim one paper builds on another unless you are sure this is true based on the `lit-*` context.
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -183,6 +188,8 @@ prompts:
         - Be very centrist 
           - Avoid politically-charged topics: sovereign wealth funds, industrial policy, redistribution, extolling free markets
       
+      Be careful to cite papers accurately. Make sure your claims match the `lit-*` context. 
+
     lit_files:
     - lit-06-tech-singularity.txt  
     - lit-10-AI-catastrophic-risk.txt
@@ -195,7 +202,7 @@ prompts:
     thinking_budget: 15000
     use_system_prompt: True
     instructions: |
-      Write the "Introduction" section, based on the "prose" context. 
+      Write the "Introduction" section, based on the `*-prose` context, as well as the `06-litreview-notes`.
 
       Start with background. Describe how AI progress is happening quickly (release of reasoning models like ChatGPT-o1 and DeepSeek-R1, fast improvement in ARC-AGI Challenge, Waymo logging tens of millions of miles with self-driving cars), and investors may be concerned about their wages being displaced.       
 
@@ -211,7 +218,7 @@ prompts:
 
       End by incorporating the lit review (`06-litreview-notes`).
 
-      Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib. Make sure to cite Vinge (1993).
+      Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib. Make sure to cite Vinge (1993). Be careful to cite papers accurately. Make sure your claims match the `lit-*` context. 
 
       Do not:
       - Discuss the role of human effort in making the paper
@@ -246,7 +253,7 @@ prompts:
 
       The abstract should:
       - Make the main argument (AI valuations may be high because they hedge against a negative AI singularity)
-      - Define "negative AI singularity" after using the term
+      - Define "negative AI singularity" after using the term (an explosion of AI development that is devastating for the representative investor)
       - Touch on financial market solutions to AI catastrophe risk, in passing
       - End with "Unlike previous work, this short paper is written by prompting LLMs."
 
@@ -262,7 +269,7 @@ prompts:
     thinking_budget: 0
     use_system_prompt: True
     instructions: |
-      Write a short paper titled "Hedging the AI Singularity" based on the "prose" context.
+      Write a short paper titled "Hedging the AI Singularity" based on the `*-prose` context.
 
       In page 1 of the introduction, include a footnote noting that "we" refers to one human author and multiple LLMs, and also that a purely human perspective is in \hyperref[app:readme]{\textcolor{blue}{Appendix \ref{app:readme}}}.
 
