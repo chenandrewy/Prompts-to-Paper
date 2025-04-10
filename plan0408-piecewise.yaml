@@ -18,7 +18,7 @@ config:
 
     Be modest. Do not overclaim. 
 
-    Output as a latex input (no document environment). Ensure bullet points are formatted in latex (\begin{itemize} \item "blah" \item "blah" \end{itemize}). Ensure numbered lists are formatted in latex (\begin{enumerate} \item "blah" \item "blah" \end{enumerate}). But as a reminder, AVOID BULLET POINTS AND NUMBERED LISTS.
+    Output as a latex input (no document environment). Ensure bullet points are formatted in latex (\begin{itemize} \item "blah" \item "blah" \end{itemize}). Ensure numbered lists are formatted in latex (\begin{enumerate} \item "blah" \item "blah" \end{enumerate}). Ensure % is converted to \%. But as a reminder, AVOID BULLET POINTS AND NUMBERED LISTS.
 
 prompts:
   - number: 1
@@ -59,6 +59,7 @@ prompts:
 
       Do not:
       - Use bullet points or numbered lists
+      - Use any sectioning. No "\section" or "\subsection" commands.
 
   - number: 2
     name: 02-result-notes
@@ -107,6 +108,7 @@ prompts:
 
       Do not:
       - Emphasize the infinite price/dividend ratio. That's not important.
+      - Use bullet points or numbered lists
 
 
   - number: 5
@@ -195,7 +197,7 @@ prompts:
     instructions: |
       Write the "Introduction" section, based on the "prose" context. 
 
-      Start with background. Describe how AI progress is happening quickly (Deepseek, ARC AGI, Waymo), and investors may be concerned about their wages being displaced.       
+      Start with background. Describe how AI progress is happening quickly (release of reasoning models like ChatGPT-o1 and DeepSeek-R1, fast improvement in ARC-AGI Challenge, Waymo logging tens of millions of miles with self-driving cars), and investors may be concerned about their wages being displaced.       
 
       Then describe how technological change has occurred before, but AI is distinct because there is no product or service that AI could not, in principle, create.  An example is the current paper, which is entirely written by AI, using a series of engineered prompts. Provide a link to the github site, which is https://github.com/chenandrewy/Prompts-to-Paper/. AI progress may also be incredibly sudden (the AI singularity).
 
@@ -209,7 +211,10 @@ prompts:
 
       End by incorporating the lit review (`06-litreview-notes`).
 
-      Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib.      
+      Cite papers as appropriate. Ensure citations correspond to items from bibtex-all.bib. Make sure to cite Vinge (1993).
+
+      Do not:
+      - Discuss the role of human effort in making the paper
 
     lit_files:
     - lit-01-hedging-ai.txt  
@@ -243,11 +248,12 @@ prompts:
       - Make the main argument (AI valuations may be high because they hedge against a negative AI singularity)
       - Define "negative AI singularity" after using the term
       - Touch on financial market solutions to AI catastrophe risk, in passing
-      - End by briefly mentioning that this short paper is written by prompting LLMs.
+      - End with "Unlike previous work, this short paper is written by prompting LLMs."
 
       Do not:
       - Emphasize consumption
       - Oversell or overinterpret the model
+      - Discuss the role of human effort in making the paper
 
   - number: 10
     name: 10-full-paper
@@ -266,6 +272,9 @@ prompts:
       - Don't say "in conclusion" or "in summary"   
 
       Output a complete latex document, including preamble. Use `template.tex` as a template. Keep the preamble, acknowledgements, and appendices as is. 
+
+      Do not:
+      - Discuss the role of human effort in making the paper
 
     lit_files:
       - bibtex-all.bib
